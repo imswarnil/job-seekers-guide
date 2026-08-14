@@ -3,6 +3,10 @@
 docker/.env
 *.pem
 *.key
+*.pub
+id_rsa*
+id_ed25519*
+hostinger*
 
 # WordPress runtime content (synced separately from VPS, not versioned)
 wp-content/uploads/
