@@ -1,9 +1,20 @@
-/* Base resets + dark-mode override layer. Tokens (color/spacing/type) come from theme.json. */
+/* Resets + primitives built directly on tokens.css. */
 
 *,
 *::before,
 *::after {
 	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	background: var(--jsl-color-bg);
+	color: var(--jsl-color-text);
+	transition: background-color var(--jsl-duration-ui) var(--jsl-ease-out), color var(--jsl-duration-ui) var(--jsl-ease-out);
 }
 
 img,
@@ -14,49 +25,52 @@ video {
 	display: block;
 }
 
+a {
+	color: var(--jsl-color-accent);
+	text-decoration: none;
+}
+
+a:hover {
+	color: var(--jsl-color-accent-hover);
+	text-decoration: underline;
+}
+
 :focus-visible {
-	outline: 2px solid var(--wp--preset--color--signal-500);
+	outline: 2px solid var(--jsl-color-accent);
 	outline-offset: 2px;
+}
+
+.jsl-container {
+	max-width: var(--jsl-content-max);
+	margin-inline: auto;
+	padding-inline: var(--jsl-space-5);
+}
+
+.jsl-container--narrow {
+	max-width: var(--jsl-content-narrow);
 }
 
 .skip-link {
 	position: absolute;
 	left: -9999px;
 	top: 0;
-	z-index: 100;
-	background: var(--wp--preset--color--ink-900);
-	color: var(--wp--preset--color--paper-50);
-	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--4);
-	border-radius: var(--wp--custom--radius--sm);
+	z-index: var(--jsl-layer-notification);
+	background: var(--jsl-ink-900);
+	color: var(--jsl-paper-50);
+	padding: var(--jsl-space-3) var(--jsl-space-4);
+	border-radius: var(--jsl-radius-sm);
 }
 
 .skip-link:focus {
-	left: var(--wp--preset--spacing--4);
-	top: var(--wp--preset--spacing--4);
+	left: var(--jsl-space-4);
+	top: var(--jsl-space-4);
 }
 
-/* Dark mode: override the same custom properties WP generates from theme.json,
-   scoped under [data-theme="dark"] on the root element. Applied via inline
-   blocking script in wp_head (see inc/dark-mode.php) to avoid a flash of the
-   wrong theme. */
-:root[data-theme="dark"] {
-	--wp--preset--color--paper-50: #0c1116;
-	--wp--preset--color--paper-100: #141b22;
-	--wp--preset--color--paper-200: #1c252d;
-	--wp--preset--color--ink-900: #f5f7f8;
-	--wp--preset--color--ink-700: #dbe2e6;
-	--wp--preset--color--ink-500: #a3b0ba;
-	--wp--preset--color--ink-300: #5b6b78;
-}
-
-.theme-toggle {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.5rem;
-	height: 2.5rem;
-	border-radius: var(--wp--custom--radius--full);
-	border: 1px solid var(--wp--preset--color--ink-300);
-	background: transparent;
-	cursor: pointer;
+.jsl-visually-hidden {
+	position: absolute !important;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
 }

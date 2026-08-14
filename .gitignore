@@ -14,6 +14,15 @@ wp-content/cache/
 wp-content/upgrade/
 wp-content/backup*/
 
+# WordPress core / bundled defaults (installed via wp-cli or the installer,
+# not part of this project's code)
+wp-content/index.php
+wp-content/plugins/index.php
+wp-content/plugins/akismet/
+wp-content/plugins/hello.php
+wp-content/themes/index.php
+wp-content/themes/twentytwenty*/
+
 # Database
 *.sql
 *.sql.gz

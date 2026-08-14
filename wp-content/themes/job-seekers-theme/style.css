@@ -2,8 +2,8 @@
 Theme Name: Job Seekers Theme
 Theme URI: https://github.com/imswarnil/job-seekers-guide
 Author: Job Seekers Guide
-Description: Open-source block theme for the Job Seekers Guide LMS. Design tokens live in theme.json; this file only carries base resets and the dark-mode override layer.
-Version: 0.1.0
+Description: Open-source classic theme for the Job Seekers Guide LMS. Design tokens are a hand-rolled CSS custom-property system (assets/css/tokens.css) rather than theme.json — see base.css, typography.css, and components.css for the rest of the system.
+Version: 0.2.0
 Requires at least: 6.4
 Requires PHP: 8.0
 License: GPL v2 or later

@@ -1,0 +1,114 @@
+/*
+ * Design tokens — the single source of truth for the visual system.
+ * Structure follows openclaw/carapace's approach (neutral scale + one
+ * accent + one highlight, systematic spacing/type/radius/shadow/motion
+ * scales) with an original palette for Job Seekers Guide.
+ */
+
+:root {
+	/* Neutrals */
+	--jsl-ink-950: #0c1116;
+	--jsl-ink-900: #141b22;
+	--jsl-ink-700: #32404c;
+	--jsl-ink-500: #5b6b78;
+	--jsl-ink-300: #a3b0ba;
+	--jsl-ink-100: #dde3e7;
+
+	--jsl-paper-50: #ffffff;
+	--jsl-paper-100: #f5f7f8;
+	--jsl-paper-200: #e7ebed;
+	--jsl-paper-300: #d3dadd;
+
+	/* Accent — "signal" (primary actions, links) */
+	--jsl-signal-700: #0b6d63;
+	--jsl-signal-600: #0e8577;
+	--jsl-signal-500: #12977f;
+	--jsl-signal-300: #5cc9ac;
+	--jsl-signal-100: #e3f5ef;
+
+	/* Highlight — "spark" (CTAs, price/badges) */
+	--jsl-spark-600: #d0771f;
+	--jsl-spark-500: #e2892b;
+	--jsl-spark-300: #f2b366;
+	--jsl-spark-100: #fbead4;
+
+	/* Semantic (theme-independent name -> current theme's neutrals/accent) */
+	--jsl-color-bg: var(--jsl-paper-50);
+	--jsl-color-bg-subtle: var(--jsl-paper-100);
+	--jsl-color-border: var(--jsl-paper-300);
+	--jsl-color-text: var(--jsl-ink-900);
+	--jsl-color-text-muted: var(--jsl-ink-500);
+	--jsl-color-accent: var(--jsl-signal-700);
+	--jsl-color-accent-hover: var(--jsl-signal-600);
+	--jsl-color-accent-contrast: var(--jsl-paper-50);
+	--jsl-color-highlight: var(--jsl-spark-500);
+	--jsl-color-highlight-contrast: var(--jsl-ink-950);
+
+	/* Spacing — 0.25rem steps */
+	--jsl-space-1: 0.25rem;
+	--jsl-space-2: 0.5rem;
+	--jsl-space-3: 0.75rem;
+	--jsl-space-4: 1rem;
+	--jsl-space-5: 1.5rem;
+	--jsl-space-6: 2rem;
+	--jsl-space-7: 3rem;
+	--jsl-space-8: 4rem;
+	--jsl-space-9: 6rem;
+
+	/* Typography */
+	--jsl-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	--jsl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+	--jsl-text-xs: 0.75rem;
+	--jsl-text-sm: 0.875rem;
+	--jsl-text-base: 1rem;
+	--jsl-text-md: 1.125rem;
+	--jsl-text-lg: 1.375rem;
+	--jsl-text-xl: 1.75rem;
+	--jsl-text-2xl: 2.25rem;
+	--jsl-text-3xl: 3rem;
+
+	--jsl-leading-tight: 1.25;
+	--jsl-leading-normal: 1.6;
+
+	/* Radius */
+	--jsl-radius-sm: 0.25rem;
+	--jsl-radius-md: 0.5rem;
+	--jsl-radius-lg: 0.75rem;
+	--jsl-radius-full: 999px;
+
+	/* Shadow */
+	--jsl-shadow-sm: 0 1px 2px rgba(12, 17, 22, 0.08);
+	--jsl-shadow-md: 0 8px 24px -6px rgba(12, 17, 22, 0.18);
+	--jsl-shadow-lg: 0 24px 48px -12px rgba(12, 17, 22, 0.28);
+
+	/* Motion */
+	--jsl-duration-fast: 150ms;
+	--jsl-duration-ui: 200ms;
+	--jsl-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+
+	/* Layout */
+	--jsl-content-max: 75rem;
+	--jsl-content-narrow: 42rem;
+
+	/* Layers */
+	--jsl-layer-nav: 20;
+	--jsl-layer-popover: 40;
+	--jsl-layer-notification: 100;
+}
+
+/* Dark mode — override the semantic layer only, so every component built
+   on --jsl-color-* automatically follows. Applied via [data-theme="dark"]
+   on <html>, set by an FOUC-safe inline script (see inc/dark-mode.php). */
+:root[data-theme="dark"] {
+	--jsl-color-bg: var(--jsl-ink-950);
+	--jsl-color-bg-subtle: var(--jsl-ink-900);
+	--jsl-color-border: var(--jsl-ink-700);
+	--jsl-color-text: var(--jsl-paper-100);
+	--jsl-color-text-muted: var(--jsl-ink-300);
+	--jsl-color-accent: var(--jsl-signal-300);
+	--jsl-color-accent-hover: var(--jsl-signal-500);
+	--jsl-color-accent-contrast: var(--jsl-ink-950);
+	--jsl-color-highlight: var(--jsl-spark-500);
+	--jsl-color-highlight-contrast: var(--jsl-ink-950);
+}

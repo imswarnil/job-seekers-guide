@@ -1,0 +1,64 @@
+/* Admin course-builder screen. Small, self-contained palette matching the
+   frontend theme's accent (kept separate since wp-admin has its own chrome
+   and we don't enqueue the theme's tokens.css here). */
+
+.jsl-builder-wrap {
+	max-width: 48rem;
+}
+
+.jsl-module {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	margin-bottom: 16px;
+	overflow: hidden;
+}
+
+.jsl-module__title {
+	background: #f6f7f7;
+	margin: 0;
+	padding: 12px 16px;
+	font-size: 14px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.jsl-lesson-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.jsl-lesson-list__item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 16px;
+	border-bottom: 1px solid #f0f0f1;
+	cursor: grab;
+}
+
+.jsl-lesson-list__item.is-dragging {
+	opacity: 0.4;
+}
+
+.jsl-drag-handle {
+	color: #8c8f94;
+}
+
+.jsl-add-lesson,
+.jsl-add-module {
+	display: flex;
+	gap: 8px;
+	padding: 12px 16px;
+}
+
+.jsl-add-lesson input,
+.jsl-add-module input {
+	flex: 1;
+}
+
+.jsl-add-module {
+	background: #fff;
+	border: 1px dashed #c3c4c7;
+	border-radius: 6px;
+}

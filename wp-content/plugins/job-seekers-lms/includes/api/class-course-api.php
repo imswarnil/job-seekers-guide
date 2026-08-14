@@ -36,6 +36,50 @@ class Course_Api {
 	}
 
 	/**
+	 * A course's modules, each with its ordered lessons. Same shape the
+	 * course-builder REST endpoint returns — this is what the theme
+	 * templates consume.
+	 *
+	 * @param int $course_id Course post ID.
+	 * @return array<int, array{id:int, title:string, lessons: \WP_Post[]}>
+	 */
+	public static function get_modules( int $course_id ): array {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'jsl_modules';
+
+		$modules = $wpdb->get_results(
+			$wpdb->prepare( "SELECT id, title, menu_order FROM {$table} WHERE course_id = %d ORDER BY menu_order ASC", $course_id )
+		);
+
+		$result = array();
+
+		foreach ( $modules as $module ) {
+			$query = new \WP_Query(
+				array(
+					'post_type'      => 'lesson',
+					'posts_per_page' => -1,
+					'meta_query'     => array(
+						array( 'key' => 'jsl_module_id', 'value' => (int) $module->id ),
+					),
+					'meta_key'       => 'jsl_lesson_order',
+					'orderby'        => 'meta_value_num',
+					'order'          => 'ASC',
+					'no_found_rows'  => true,
+				)
+			);
+
+			$result[] = array(
+				'id'      => (int) $module->id,
+				'title'   => $module->title,
+				'lessons' => $query->posts,
+			);
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Courses belonging to a learning path, in author-defined order.
 	 *
 	 * @param int $path_id Learning path post ID.

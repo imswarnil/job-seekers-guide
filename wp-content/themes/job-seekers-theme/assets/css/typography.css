@@ -1,0 +1,66 @@
+/* Typography rules built from the tokens. */
+
+body {
+	font-family: var(--jsl-font-sans);
+	font-size: var(--jsl-text-base);
+	line-height: var(--jsl-leading-normal);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-weight: 700;
+	line-height: var(--jsl-leading-tight);
+	margin: 0 0 var(--jsl-space-4);
+}
+
+h1 {
+	font-size: var(--jsl-text-3xl);
+}
+
+h2 {
+	font-size: var(--jsl-text-2xl);
+}
+
+h3 {
+	font-size: var(--jsl-text-xl);
+}
+
+h4 {
+	font-size: var(--jsl-text-lg);
+}
+
+p {
+	margin: 0 0 var(--jsl-space-4);
+}
+
+.jsl-eyebrow {
+	font-size: var(--jsl-text-sm);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--jsl-color-accent);
+}
+
+.jsl-lede {
+	font-size: var(--jsl-text-md);
+	color: var(--jsl-color-text-muted);
+}
+
+code,
+pre,
+kbd {
+	font-family: var(--jsl-font-mono);
+	font-size: 0.9em;
+}
+
+pre {
+	background: var(--jsl-color-bg-subtle);
+	border: 1px solid var(--jsl-color-border);
+	border-radius: var(--jsl-radius-md);
+	padding: var(--jsl-space-4);
+	overflow-x: auto;
+}

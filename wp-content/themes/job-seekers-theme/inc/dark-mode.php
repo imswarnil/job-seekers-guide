@@ -1,10 +1,8 @@
 <?php
 /**
- * Dark mode: FOUC-safe inline bootstrap script.
- *
- * Runs before first paint so the correct data-theme attribute is set on
- * <html> before any CSS is applied. The click-handling logic lives in
- * assets/js/dark-mode.js, loaded normally (non-blocking).
+ * Dark mode: FOUC-safe inline bootstrap. Runs before first paint so the
+ * correct data-theme is set before any CSS applies. The toggle click
+ * handler lives in assets/js/theme.js (loaded normally, non-blocking).
  */
 
 defined( 'ABSPATH' ) || exit;

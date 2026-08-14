@@ -1,0 +1,220 @@
+/* Reusable UI components built on tokens.css. */
+
+/* Buttons */
+.jsl-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--jsl-space-2);
+	padding: var(--jsl-space-3) var(--jsl-space-5);
+	border-radius: var(--jsl-radius-md);
+	border: 1px solid transparent;
+	font-size: var(--jsl-text-base);
+	font-weight: 600;
+	line-height: 1;
+	cursor: pointer;
+	transition: background-color var(--jsl-duration-ui) var(--jsl-ease-out), transform var(--jsl-duration-fast) var(--jsl-ease-out);
+	text-decoration: none;
+}
+
+.jsl-btn:hover {
+	text-decoration: none;
+	transform: translateY(-1px);
+}
+
+.jsl-btn--primary {
+	background: var(--jsl-color-accent);
+	color: var(--jsl-color-accent-contrast);
+}
+
+.jsl-btn--primary:hover {
+	background: var(--jsl-color-accent-hover);
+	color: var(--jsl-color-accent-contrast);
+}
+
+.jsl-btn--highlight {
+	background: var(--jsl-color-highlight);
+	color: var(--jsl-color-highlight-contrast);
+}
+
+.jsl-btn--outline {
+	background: transparent;
+	border-color: var(--jsl-color-border);
+	color: var(--jsl-color-text);
+}
+
+.jsl-btn--outline:hover {
+	border-color: var(--jsl-color-accent);
+	color: var(--jsl-color-accent);
+}
+
+.jsl-btn--sm {
+	padding: var(--jsl-space-2) var(--jsl-space-3);
+	font-size: var(--jsl-text-sm);
+}
+
+/* Cards */
+.jsl-card {
+	background: var(--jsl-color-bg);
+	border: 1px solid var(--jsl-color-border);
+	border-radius: var(--jsl-radius-lg);
+	padding: var(--jsl-space-5);
+	box-shadow: var(--jsl-shadow-sm);
+	transition: box-shadow var(--jsl-duration-ui) var(--jsl-ease-out), transform var(--jsl-duration-ui) var(--jsl-ease-out);
+}
+
+a.jsl-card:hover {
+	box-shadow: var(--jsl-shadow-md);
+	transform: translateY(-2px);
+	text-decoration: none;
+}
+
+.jsl-card__title {
+	font-size: var(--jsl-text-lg);
+	margin-bottom: var(--jsl-space-2);
+	color: var(--jsl-color-text);
+}
+
+.jsl-card__meta {
+	font-size: var(--jsl-text-sm);
+	color: var(--jsl-color-text-muted);
+}
+
+.jsl-card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+	gap: var(--jsl-space-5);
+}
+
+/* Badges */
+.jsl-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: var(--jsl-space-1) var(--jsl-space-3);
+	border-radius: var(--jsl-radius-full);
+	font-size: var(--jsl-text-xs);
+	font-weight: 600;
+	background: var(--jsl-color-bg-subtle);
+	color: var(--jsl-color-text-muted);
+}
+
+.jsl-badge--free {
+	background: var(--jsl-signal-100);
+	color: var(--jsl-signal-700);
+}
+
+.jsl-badge--paid {
+	background: var(--jsl-spark-100);
+	color: var(--jsl-spark-600);
+}
+
+/* Nav */
+.jsl-nav {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--jsl-space-5);
+	padding-block: var(--jsl-space-4);
+	position: sticky;
+	top: 0;
+	background: var(--jsl-color-bg);
+	border-bottom: 1px solid var(--jsl-color-border);
+	z-index: var(--jsl-layer-nav);
+}
+
+.jsl-nav__brand {
+	font-weight: 700;
+	font-size: var(--jsl-text-md);
+	color: var(--jsl-color-text);
+}
+
+.jsl-nav__links {
+	display: flex;
+	align-items: center;
+	gap: var(--jsl-space-5);
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.jsl-nav__links a {
+	color: var(--jsl-color-text);
+}
+
+.jsl-theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: var(--jsl-radius-full);
+	border: 1px solid var(--jsl-color-border);
+	background: transparent;
+	color: var(--jsl-color-text);
+	cursor: pointer;
+}
+
+/* Course/lesson list (also used visually by the course-builder admin screen) */
+.jsl-module {
+	border: 1px solid var(--jsl-color-border);
+	border-radius: var(--jsl-radius-lg);
+	margin-bottom: var(--jsl-space-4);
+	overflow: hidden;
+}
+
+.jsl-module__title {
+	background: var(--jsl-color-bg-subtle);
+	padding: var(--jsl-space-3) var(--jsl-space-4);
+	font-weight: 600;
+	margin: 0;
+}
+
+.jsl-lesson-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.jsl-lesson-list__item {
+	display: flex;
+	align-items: center;
+	gap: var(--jsl-space-3);
+	padding: var(--jsl-space-3) var(--jsl-space-4);
+	border-top: 1px solid var(--jsl-color-border);
+}
+
+.jsl-lesson-list__item a {
+	color: var(--jsl-color-text);
+	flex: 1;
+}
+
+.jsl-lesson-list__index {
+	color: var(--jsl-color-text-muted);
+	font-size: var(--jsl-text-sm);
+	min-width: 1.5rem;
+}
+
+/* Pricing / CTA */
+.jsl-price-box {
+	background: var(--jsl-color-bg-subtle);
+	border: 1px solid var(--jsl-color-border);
+	border-radius: var(--jsl-radius-lg);
+	padding: var(--jsl-space-5);
+	text-align: center;
+}
+
+.jsl-price-box__amount {
+	font-size: var(--jsl-text-2xl);
+	font-weight: 700;
+	color: var(--jsl-color-text);
+	display: block;
+	margin-bottom: var(--jsl-space-3);
+}
+
+.jsl-hero {
+	padding-block: var(--jsl-space-8);
+}
+
+.jsl-hero--compact {
+	padding-block: var(--jsl-space-6);
+}

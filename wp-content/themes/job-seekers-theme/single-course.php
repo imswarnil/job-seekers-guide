@@ -1,86 +1,87 @@
 <?php
 /**
- * Course landing template.
- *
- * A classic PHP template (WordPress supports mixing these into block
- * themes via the template hierarchy) because the course landing page needs
- * data from the plugin's Course_Api — not something the block editor can
- * express on its own yet. Block themes don't ship header.php/footer.php,
- * so get_header()/get_footer() would silently no-op here; we build the
- * document shell manually and render the header/footer template parts via
- * block_template_part(), which is the supported way to mix a classic PHP
- * template into a block theme.
+ * Course landing page: hero, pricing/enroll box, module/lesson list.
  */
 
 defined( 'ABSPATH' ) || exit;
 
-?><!DOCTYPE html>
-<html <?php language_attributes(); ?>>
-<head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<?php wp_head(); ?>
-</head>
-<body <?php body_class(); ?>>
-<?php wp_body_open(); ?>
+get_header();
 
-<?php block_template_part( 'header' ); ?>
-
-<?php
 while ( have_posts() ) :
 	the_post();
 	$course_id = get_the_ID();
-	$lessons   = class_exists( 'JSL\\Course_Api' ) ? \JSL\Course_Api::get_lessons( $course_id ) : array();
+	$modules   = class_exists( 'JSL\\Course_Api' ) ? \JSL\Course_Api::get_modules( $course_id ) : array();
+	$is_paid   = class_exists( 'JSL\\Payments\\Course_Pricing' ) && \JSL\Payments\Course_Pricing::is_paid( $course_id );
+	$price     = $is_paid && class_exists( 'JSL\\Payments\\Course_Pricing' ) ? \JSL\Payments\Course_Pricing::price_label( $course_id ) : '';
 	?>
 
-	<main class="wp-block-group" style="max-width:var(--wp--style--global--content-size);margin-inline:auto;padding-block:var(--wp--preset--spacing--6)">
-
-		<article>
-			<h1 style="font-size:var(--wp--preset--font-size--2xl)"><?php the_title(); ?></h1>
-
-			<?php if ( has_excerpt() ) : ?>
-				<p style="font-size:var(--wp--preset--font-size--md);color:var(--wp--preset--color--ink-500)">
-					<?php echo esc_html( get_the_excerpt() ); ?>
-				</p>
-			<?php endif; ?>
-
-			<div style="margin-block:var(--wp--preset--spacing--5)">
-				<?php the_content(); ?>
+	<div class="jsl-container">
+		<div class="jsl-hero" style="display:grid;grid-template-columns:2fr 1fr;gap:var(--jsl-space-6);align-items:start">
+			<div>
+				<span class="jsl-badge <?php echo $is_paid ? 'jsl-badge--paid' : 'jsl-badge--free'; ?>">
+					<?php echo $is_paid ? esc_html__( 'Paid', 'job-seekers-theme' ) : esc_html__( 'Free', 'job-seekers-theme' ); ?>
+				</span>
+				<h1><?php the_title(); ?></h1>
+				<?php if ( has_excerpt() ) : ?>
+					<p class="jsl-lede"><?php echo esc_html( get_the_excerpt() ); ?></p>
+				<?php endif; ?>
+				<div><?php the_content(); ?></div>
 			</div>
 
-			<section aria-labelledby="jsl-course-lessons">
-				<h2 id="jsl-course-lessons" style="font-size:var(--wp--preset--font-size--lg)">
-					<?php esc_html_e( 'Lessons', 'job-seekers-theme' ); ?>
-				</h2>
-
-				<?php if ( empty( $lessons ) ) : ?>
-					<p style="color:var(--wp--preset--color--ink-500)">
-						<?php esc_html_e( 'No lessons added yet.', 'job-seekers-theme' ); ?>
-					</p>
+			<div class="jsl-price-box" id="jsl-enroll-box" data-course-id="<?php echo esc_attr( $course_id ); ?>">
+				<?php if ( $is_paid ) : ?>
+					<span class="jsl-price-box__amount"><?php echo esc_html( $price ?: '—' ); ?></span>
 				<?php else : ?>
-					<ol style="list-style:none;padding:0;display:flex;flex-direction:column;gap:var(--wp--preset--spacing--2)">
-						<?php foreach ( $lessons as $index => $lesson ) : ?>
-							<li style="border:1px solid var(--wp--preset--color--paper-200);border-radius:var(--wp--custom--radius--md);padding:var(--wp--preset--spacing--3) var(--wp--preset--spacing--4)">
-								<a href="<?php echo esc_url( get_permalink( $lesson ) ); ?>" style="text-decoration:none">
-									<span style="color:var(--wp--preset--color--ink-500)"><?php echo esc_html( $index + 1 ); ?>.</span>
-									<?php echo esc_html( get_the_title( $lesson ) ); ?>
-								</a>
-							</li>
-						<?php endforeach; ?>
-					</ol>
+					<span class="jsl-price-box__amount"><?php esc_html_e( 'Free', 'job-seekers-theme' ); ?></span>
 				<?php endif; ?>
-			</section>
-		</article>
 
-	</main>
+				<?php if ( is_user_logged_in() ) : ?>
+					<button type="button" class="jsl-btn jsl-btn--primary" id="jsl-enroll-btn" style="width:100%">
+						<?php echo $is_paid ? esc_html__( 'Enroll now', 'job-seekers-theme' ) : esc_html__( 'Start free', 'job-seekers-theme' ); ?>
+					</button>
+					<p class="jsl-card__meta" id="jsl-enroll-status" style="margin-top:var(--jsl-space-3)"></p>
+				<?php else : ?>
+					<a class="jsl-btn jsl-btn--primary" style="width:100%" href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>">
+						<?php esc_html_e( 'Log in to enroll', 'job-seekers-theme' ); ?>
+					</a>
+				<?php endif; ?>
+			</div>
+		</div>
+
+		<section aria-labelledby="jsl-course-modules" style="margin-top:var(--jsl-space-6)">
+			<h2 id="jsl-course-modules"><?php esc_html_e( 'What you\'ll learn', 'job-seekers-theme' ); ?></h2>
+
+			<?php if ( empty( $modules ) ) : ?>
+				<p class="jsl-card__meta"><?php esc_html_e( 'Content coming soon.', 'job-seekers-theme' ); ?></p>
+			<?php else : ?>
+				<?php foreach ( $modules as $module ) : ?>
+					<div class="jsl-module">
+						<h3 class="jsl-module__title"><?php echo esc_html( $module['title'] ); ?></h3>
+						<ol class="jsl-lesson-list">
+							<?php foreach ( $module['lessons'] as $index => $lesson ) : ?>
+								<li class="jsl-lesson-list__item">
+									<span class="jsl-lesson-list__index"><?php echo esc_html( $index + 1 ); ?></span>
+									<a href="<?php echo esc_url( get_permalink( $lesson ) ); ?>"><?php echo get_the_title( $lesson ); ?></a>
+								</li>
+							<?php endforeach; ?>
+						</ol>
+					</div>
+				<?php endforeach; ?>
+			<?php endif; ?>
+		</section>
+	</div>
 
 	<?php
 endwhile;
-?>
 
-<?php block_template_part( 'footer' ); ?>
+wp_enqueue_script( 'jsl-course', JSL_THEME_URI . '/assets/js/course.js', array(), JSL_THEME_VERSION, true );
+wp_localize_script(
+	'jsl-course',
+	'jslCourse',
+	array(
+		'restUrl' => esc_url_raw( rest_url( 'jsl/v1' ) ),
+		'nonce'   => wp_create_nonce( 'wp_rest' ),
+	)
+);
 
-<?php wp_footer(); ?>
-</body>
-</html>
-
+get_footer();
