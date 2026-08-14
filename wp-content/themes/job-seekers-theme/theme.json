@@ -1,0 +1,137 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "settings": {
+    "appearanceTools": true,
+    "layout": {
+      "contentSize": "48rem",
+      "wideSize": "75rem"
+    },
+    "color": {
+      "custom": false,
+      "customDuotone": false,
+      "customGradient": false,
+      "defaultPalette": false,
+      "defaultGradients": false,
+      "palette": [
+        { "slug": "ink-950", "name": "Ink 950", "color": "#0c1116" },
+        { "slug": "ink-900", "name": "Ink 900", "color": "#141b22" },
+        { "slug": "ink-700", "name": "Ink 700", "color": "#32404c" },
+        { "slug": "ink-500", "name": "Ink 500", "color": "#5b6b78" },
+        { "slug": "ink-300", "name": "Ink 300", "color": "#a3b0ba" },
+        { "slug": "paper-50", "name": "Paper 50", "color": "#ffffff" },
+        { "slug": "paper-100", "name": "Paper 100", "color": "#f5f7f8" },
+        { "slug": "paper-200", "name": "Paper 200", "color": "#e7ebed" },
+        { "slug": "signal-700", "name": "Signal 700", "color": "#0b6d63" },
+        { "slug": "signal-500", "name": "Signal 500", "color": "#12977f" },
+        { "slug": "signal-300", "name": "Signal 300", "color": "#5cc9ac" },
+        { "slug": "spark-500", "name": "Spark 500", "color": "#e2892b" },
+        { "slug": "spark-300", "name": "Spark 300", "color": "#f2b366" }
+      ]
+    },
+    "typography": {
+      "customFontSize": false,
+      "fontFamilies": [
+        {
+          "slug": "sans",
+          "name": "Sans",
+          "fontFamily": "\"Inter\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif"
+        },
+        {
+          "slug": "mono",
+          "name": "Mono",
+          "fontFamily": "\"JetBrains Mono\", ui-monospace, SFMono-Regular, Menlo, monospace"
+        }
+      ],
+      "fontSizes": [
+        { "slug": "xs", "name": "XS", "size": "0.75rem" },
+        { "slug": "sm", "name": "SM", "size": "0.875rem" },
+        { "slug": "base", "name": "Base", "size": "1rem" },
+        { "slug": "md", "name": "MD", "size": "1.125rem" },
+        { "slug": "lg", "name": "LG", "size": "1.375rem" },
+        { "slug": "xl", "name": "XL", "size": "1.75rem" },
+        { "slug": "2xl", "name": "2XL", "size": "2.25rem" },
+        { "slug": "3xl", "name": "3XL", "size": "3rem" }
+      ],
+      "lineHeight": true
+    },
+    "spacing": {
+      "customSpacingSize": false,
+      "spacingSizes": [
+        { "slug": "1", "name": "1", "size": "0.25rem" },
+        { "slug": "2", "name": "2", "size": "0.5rem" },
+        { "slug": "3", "name": "3", "size": "0.75rem" },
+        { "slug": "4", "name": "4", "size": "1rem" },
+        { "slug": "5", "name": "5", "size": "1.5rem" },
+        { "slug": "6", "name": "6", "size": "2rem" },
+        { "slug": "7", "name": "7", "size": "3rem" },
+        { "slug": "8", "name": "8", "size": "4rem" }
+      ],
+      "units": ["rem", "px", "%", "vh", "vw"]
+    },
+    "border": {
+      "radius": true,
+      "width": true
+    },
+    "custom": {
+      "radius": {
+        "sm": "0.25rem",
+        "md": "0.5rem",
+        "lg": "0.75rem",
+        "full": "999px"
+      },
+      "shadow": {
+        "sm": "0 1px 2px rgba(12, 17, 22, 0.08)",
+        "md": "0 8px 24px -6px rgba(12, 17, 22, 0.18)",
+        "lg": "0 24px 48px -12px rgba(12, 17, 22, 0.28)"
+      },
+      "duration": {
+        "fast": "150ms",
+        "ui": "200ms"
+      },
+      "ease": {
+        "out": "cubic-bezier(0.23, 1, 0.32, 1)"
+      }
+    }
+  },
+  "styles": {
+    "color": {
+      "background": "var(--wp--preset--color--paper-50)",
+      "text": "var(--wp--preset--color--ink-900)"
+    },
+    "typography": {
+      "fontFamily": "var(--wp--preset--font-family--sans)",
+      "fontSize": "var(--wp--preset--font-size--base)",
+      "lineHeight": "1.6"
+    },
+    "elements": {
+      "link": {
+        "color": { "text": "var(--wp--preset--color--signal-700)" },
+        ":hover": {
+          "color": { "text": "var(--wp--preset--color--signal-500)" }
+        }
+      },
+      "heading": {
+        "typography": { "fontWeight": "700", "lineHeight": "1.25" }
+      },
+      "button": {
+        "color": {
+          "background": "var(--wp--preset--color--signal-700)",
+          "text": "var(--wp--preset--color--paper-50)"
+        },
+        "border": { "radius": "var(--wp--custom--radius--md)" },
+        ":hover": {
+          "color": { "background": "var(--wp--preset--color--signal-500)" }
+        }
+      }
+    },
+    "spacing": {
+      "blockGap": "var(--wp--preset--spacing--5)"
+    }
+  },
+  "customTemplates": [
+    { "name": "course-landing", "title": "Course Landing", "postTypes": ["course"] },
+    { "name": "lesson-player", "title": "Lesson Player", "postTypes": ["lesson"] },
+    { "name": "learning-path", "title": "Learning Path", "postTypes": ["learning_path"] }
+  ]
+}

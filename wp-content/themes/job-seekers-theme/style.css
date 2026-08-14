@@ -1,0 +1,12 @@
+/*
+Theme Name: Job Seekers Theme
+Theme URI: https://github.com/imswarnil/job-seekers-guide
+Author: Job Seekers Guide
+Description: Open-source block theme for the Job Seekers Guide LMS. Design tokens live in theme.json; this file only carries base resets and the dark-mode override layer.
+Version: 0.1.0
+Requires at least: 6.4
+Requires PHP: 8.0
+License: GPL v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: job-seekers-theme
+*/

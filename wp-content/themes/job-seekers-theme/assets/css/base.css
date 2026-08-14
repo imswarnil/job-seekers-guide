@@ -1,0 +1,62 @@
+/* Base resets + dark-mode override layer. Tokens (color/spacing/type) come from theme.json. */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+img,
+svg,
+video {
+	max-width: 100%;
+	height: auto;
+	display: block;
+}
+
+:focus-visible {
+	outline: 2px solid var(--wp--preset--color--signal-500);
+	outline-offset: 2px;
+}
+
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 100;
+	background: var(--wp--preset--color--ink-900);
+	color: var(--wp--preset--color--paper-50);
+	padding: var(--wp--preset--spacing--3) var(--wp--preset--spacing--4);
+	border-radius: var(--wp--custom--radius--sm);
+}
+
+.skip-link:focus {
+	left: var(--wp--preset--spacing--4);
+	top: var(--wp--preset--spacing--4);
+}
+
+/* Dark mode: override the same custom properties WP generates from theme.json,
+   scoped under [data-theme="dark"] on the root element. Applied via inline
+   blocking script in wp_head (see inc/dark-mode.php) to avoid a flash of the
+   wrong theme. */
+:root[data-theme="dark"] {
+	--wp--preset--color--paper-50: #0c1116;
+	--wp--preset--color--paper-100: #141b22;
+	--wp--preset--color--paper-200: #1c252d;
+	--wp--preset--color--ink-900: #f5f7f8;
+	--wp--preset--color--ink-700: #dbe2e6;
+	--wp--preset--color--ink-500: #a3b0ba;
+	--wp--preset--color--ink-300: #5b6b78;
+}
+
+.theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: var(--wp--custom--radius--full);
+	border: 1px solid var(--wp--preset--color--ink-300);
+	background: transparent;
+	cursor: pointer;
+}

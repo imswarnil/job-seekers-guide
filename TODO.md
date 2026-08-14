@@ -1,59 +1,67 @@
-# TODO — Job Seekers Guide (WordPress + Tutor LMS on Hostinger VPS)
+# TODO — Job Seekers Guide (Custom WordPress LMS)
 
-## 1. VPS Provisioning
-- [ ] Confirm Hostinger VPS plan (RAM/CPU/disk) is enough for WordPress + MySQL + Docker
-- [ ] SSH into VPS, create a non-root sudo user, disable root SSH login
-- [ ] Set up UFW firewall (allow 22, 80, 443 only)
-- [ ] Install Docker Engine + Docker Compose plugin
-- [ ] Point domain DNS (A record) to VPS IP
+Custom, open-source LMS for job seekers: structured learning paths, in-browser
+code practice, Dodo Payments checkout, a from-scratch token-based theme, and
+JSON-LD/SEO built in. No Tutor LMS, no WooCommerce — see
+`.claude/plans` history for the architecture writeup.
 
-## 2. Dockerize WordPress
-- [ ] Write `docker/docker-compose.yml` with services: `wordpress`, `db` (MySQL/MariaDB), `phpmyadmin` (optional, dev only)
-- [ ] Create `docker/.env.example` (DB name/user/password, WP table prefix, site URL)
-- [ ] Mount volumes for `wp-content` and DB data so they persist and are version-controlled/backed up
-- [ ] Add `nginx` or Caddy reverse proxy container for TLS termination
-- [ ] Set up Let's Encrypt / Certbot (or Caddy auto-HTTPS) for SSL
+## 1. VPS & Infrastructure — done
+- [x] VPS provisioned, Docker installed, SSH key auth set up
+- [x] `job-seekers-lms` Docker stack live (`wordpress` + `db`, wp-content bind-mounted)
+- [x] Domain `jobseekers.imswarnil.com` on Traefik + Let's Encrypt HTTPS
+- [x] GitHub Actions deploy pipeline (push to `main` → SSH → `git pull` → restart)
+- [ ] `wp db export`/`import` scripts for staging↔prod DB parity when needed
 
-## 3. WordPress Base Setup
-- [ ] Run first-time WP install via container, set site title/admin user
-- [ ] Install & configure essential plugins: SEO (Rank Math/Yoast), caching, security (Wordfence or similar), backups
-- [ ] Configure `wp-config.php` for Docker env vars, disable file editing in dashboard
-- [ ] Set permalinks, timezone, and general settings
+## 2. Design System & Theme (`wp-content/themes/job-seekers-theme`)
+- [x] `theme.json` token set: neutral scale, accent color, spacing/type/radius/shadow/motion tokens
+- [ ] Light/dark style variation + FOUC-safe toggle script (`prefers-color-scheme` default, `localStorage` override)
+- [ ] Base block templates: front page, single post, archive, 404
+- [ ] Custom PHP templates for LMS screens: course landing, lesson/course-player, learning-path overview, pricing, user dashboard
+- [ ] Accessible, keyboard-navigable nav + course-card / path-step block patterns
 
-## 4. Tutor LMS
-- [ ] Install Tutor LMS plugin
-- [ ] Configure course, lesson, quiz, and certificate settings
-- [ ] Set up instructor roles/permissions
-- [ ] Configure payment gateway (if selling courses) — Tutor LMS Pro add-ons as needed
-- [ ] Set up email notifications (SMTP plugin, e.g. WP Mail SMTP, so course emails don't land in spam)
+## 3. Core LMS Plugin (`wp-content/plugins/job-seekers-lms`)
+- [x] Plugin bootstrap, activation/deactivation hooks, capability + rewrite flush
+- [x] CPTs: `Course`, `Lesson`, `Learning Path` + `Module` taxonomy
+- [x] Custom DB tables: `wp_jsl_enrollments`, `wp_jsl_progress` (schema only)
+- [ ] Internal PHP API (`JSL\Course::get_path()`, `JSL\Progress::for_user()`, ...) theme templates consume
+- [ ] Enrollment + progress logic (mark lesson complete, compute path %, certificates)
+- [ ] Admin UI: manage courses/lessons/paths, reorder lessons within a course
 
-## 5. Tutor Starter Theme
-- [ ] Install Tutor Starter theme (or its Pro version if licensed)
-- [ ] Create a child theme for customizations (never edit the parent theme directly)
-- [ ] Customize branding: logo, colors, typography to match Job Seekers Guide identity
-- [ ] Customize homepage, course archive, and single course page templates
-- [ ] Build out core pages: About, Contact, Blog, Pricing/Courses
+## 4. Payments — Dodo Payments (`includes/payments`)
+- [ ] Research Dodo Payments' current API/webhook contract (do not assume shape)
+- [ ] Settings page: API key stored via WP options (never committed/hardcoded)
+- [ ] Checkout flow (pricing block/page → Dodo checkout)
+- [ ] Webhook REST endpoint: verify signature, fire `jsl_payment_confirmed` → auto-enroll
+- [ ] Pricing table block/pattern
 
-## 6. Content & Structure
-- [ ] Plan site information architecture (courses, categories, blog, resources)
-- [ ] Draft initial course(s) content outline
-- [ ] Write starter blog posts / job-seeking resources
+## 5. Code Practice (`includes/code-practice`)
+- [ ] JS sandbox: editor block (Monaco/CodeMirror) + sandboxed iframe execution — client-side only
+- [ ] SQL sandbox: `sql.js` (SQLite/WASM) — client-side only, seed schema per exercise
+- [ ] Java sandbox — **deferred**; needs a safe execution strategy (WASM JVM or external sandboxed judge like self-hosted Judge0) before building, not a default/required feature
 
-## 7. Git & GitHub Sync
-- [x] `git init` local repo
-- [x] Add `README.md`
-- [x] Add `TODO.md`
-- [ ] Add `.gitignore` (exclude `wp-content/uploads`, `.env`, DB volumes, node_modules, etc.)
-- [ ] Create GitHub repo `job-seekers-guide` (public) and push initial commit
-- [ ] Decide sync strategy for existing VPS content → repo (e.g. `rsync` VPS `wp-content` down, or start fresh and deploy up)
-- [ ] Set up a deploy script (`scripts/deploy.sh`) to pull latest and restart containers on the VPS
+## 6. SEO & Search (`includes/schema`, `includes/search`)
+- [ ] JSON-LD: `Course` schema on course pages, `BreadcrumbList` sitewide, `Organization` on homepage
+- [ ] Meta tags (title/description/OG) per template
+- [ ] Sitemap hooks for custom post types
+- [ ] Enhanced native search: relevance weighting (title/tag boost) across courses/lessons
 
-## 8. Backups & Monitoring
-- [ ] Automate DB + `wp-content` backups (cron + offsite storage, e.g. S3/Backblaze)
-- [ ] Set up uptime monitoring (UptimeRobot or similar)
-- [ ] Set up basic log rotation for Docker containers
+## 7. Security (`includes/security`, cross-cutting)
+- [ ] Standing rule across all modules: `$wpdb->prepare()` for all queries, `esc_*()` on all output, nonce + capability checks on all state-changing actions
+- [ ] Security headers, disabled XML-RPC, login rate limiting
+- [ ] Secrets only via WP options / environment, never hardcoded or committed
 
-## 9. Launch
-- [ ] Test full user flow: registration → enroll in course → complete lesson → get certificate
-- [ ] Cross-browser/device QA
-- [ ] Go live, submit sitemap to Google Search Console
+## 8. Content & Launch
+- [ ] Plan initial learning path(s) + course outline for job seekers
+- [ ] Draft starter courses/lessons
+- [ ] QA: full flow — browse path → enroll (free + paid via Dodo) → complete lessons → progress/certificate
+- [ ] Cross-browser/device QA, Lighthouse pass (perf/SEO/accessibility)
+
+## 9. Open-Source Packaging
+- [ ] GPL-2.0-or-later license on theme + plugin (required for WP distribution)
+- [ ] `README.md`/`readme.txt` with clear self-host install steps (clone → `docker compose up` → activate theme/plugin)
+- [ ] Document required env vars / WP options for a fresh install (no assumption of our specific VPS/Dodo account)
+
+## 10. Backups & Monitoring
+- [ ] Automate DB + `wp-content` backups (cron + offsite storage)
+- [ ] Uptime monitoring
+- [ ] Docker log rotation
