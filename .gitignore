@@ -1,0 +1,24 @@
+# Environment / secrets
+.env
+docker/.env
+*.pem
+*.key
+
+# WordPress runtime content (synced separately from VPS, not versioned)
+wp-content/uploads/
+wp-content/cache/
+wp-content/upgrade/
+wp-content/backup*/
+
+# Database
+*.sql
+*.sql.gz
+db-data/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Node (if theme build tooling is used)
+node_modules/
