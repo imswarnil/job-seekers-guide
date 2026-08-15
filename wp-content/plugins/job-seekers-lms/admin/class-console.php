@@ -81,6 +81,10 @@ class Console {
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></svg>
 						<?php esc_html_e( 'Courses', 'job-seekers-lms' ); ?>
 					</a>
+					<a href="#/paths" data-nav="paths">
+						<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,168a32,32,0,1,0,32,32A32,32,0,0,0,216,168Zm0,48a16,16,0,1,1,16-16A16,16,0,0,1,216,216ZM40,88A32,32,0,1,0,8,56,32,32,0,0,0,40,88ZM40,40A16,16,0,1,1,24,56,16,16,0,0,1,40,40Zm128,72a40,40,0,0,1-40,40H88a24,24,0,0,0,0,48h48v16H88a40,40,0,0,1,0-80h40a24,24,0,0,0,0-48H80V72h48A40,40,0,0,1,168,112Z"/></svg>
+						<?php esc_html_e( 'Learning Paths', 'job-seekers-lms' ); ?>
+					</a>
 					<a href="#/learners" data-nav="learners">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16.5 14.5c2.8.3 4.5 2.3 4.5 5.5"/></svg>
 						<?php esc_html_e( 'Learners', 'job-seekers-lms' ); ?>

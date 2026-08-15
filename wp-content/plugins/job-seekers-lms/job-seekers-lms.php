@@ -3,7 +3,7 @@
  * Plugin Name: Job Seekers LMS
  * Plugin URI: https://github.com/imswarnil/job-seekers-guide
  * Description: Open-source, structured-learning-path LMS for job seekers. Courses, lessons, learning paths, a visual course builder, enrollment/progress tracking, and Dodo Payments checkout.
- * Version: 0.5.0
+ * Version: 0.6.0
  * Requires at least: 6.4
  * Requires PHP: 8.0
  * Author: Job Seekers Guide
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'JSL_VERSION', '0.5.0' );
+define( 'JSL_VERSION', '0.6.0' );
 define( 'JSL_PLUGIN_FILE', __FILE__ );
 define( 'JSL_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JSL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -33,6 +33,8 @@ require_once JSL_PLUGIN_DIR . 'includes/access/class-access.php';
 require_once JSL_PLUGIN_DIR . 'includes/api/class-course-api.php';
 require_once JSL_PLUGIN_DIR . 'includes/builder/class-tables.php';
 require_once JSL_PLUGIN_DIR . 'includes/builder/class-rest.php';
+require_once JSL_PLUGIN_DIR . 'includes/builder/class-path-tables.php';
+require_once JSL_PLUGIN_DIR . 'includes/builder/class-path-rest.php';
 require_once JSL_PLUGIN_DIR . 'includes/payments/class-settings.php';
 require_once JSL_PLUGIN_DIR . 'includes/payments/class-course-pricing.php';
 require_once JSL_PLUGIN_DIR . 'includes/payments/class-checkout.php';
@@ -62,6 +64,7 @@ function jsl_boot() {
 	JSL\Schema\Json_Ld::init();
 	JSL\Progress\Progress::init();
 	JSL\Builder\Rest::init();
+	JSL\Builder\Path_Rest::init();
 	JSL\Payments\Settings::init();
 	JSL\Payments\Course_Pricing::init();
 	JSL\Payments\Checkout::init();
@@ -94,6 +97,8 @@ function jsl_maybe_upgrade_schema() {
 
 	JSL\Enrollment\Tables::create();
 	JSL\Builder\Tables::create();
+	JSL\Builder\Path_Tables::create();
+	JSL\Builder\Path_Tables::migrate_legacy_course_links();
 
 	update_option( 'jsl_db_version', JSL_VERSION, false );
 }
@@ -108,6 +113,7 @@ function jsl_activate() {
 	JSL\Permalinks::add_rewrite_rules();
 	JSL\Enrollment\Tables::create();
 	JSL\Builder\Tables::create();
+	JSL\Builder\Path_Tables::create();
 	flush_rewrite_rules();
 }
 register_activation_hook( __FILE__, 'jsl_activate' );

@@ -140,12 +140,82 @@ class Course_Api {
 	}
 
 	/**
+	 * The ordered steps of a learning path.
+	 *
+	 * A step is either a whole course or a standalone lesson (an article, a
+	 * video, or a quiz that belongs to no course), which is what lets a path
+	 * mix "take this course" with "read this one thing".
+	 *
+	 * @param int  $path_id     Learning path post ID.
+	 * @param bool $include_ids Include the step row id — the console needs it
+	 *                          to reorder and delete; the theme does not.
+	 * @return array<int, array{step_id:int, type:string, id:int, title:string, permalink:string, status:string, lesson_type:string, post:\WP_Post}>
+	 */
+	public static function get_path_steps( int $path_id, bool $include_ids = false ): array {
+		global $wpdb;
+
+		$table = $wpdb->prefix . 'jsl_path_steps';
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare( "SELECT id, step_type, object_id FROM {$table} WHERE path_id = %d ORDER BY menu_order ASC, id ASC", $path_id )
+		);
+
+		$steps = array();
+
+		foreach ( (array) $rows as $row ) {
+			$post = get_post( (int) $row->object_id );
+
+			// A step whose content was deleted is skipped rather than
+			// rendered as a broken row.
+			if ( ! $post || 'trash' === $post->post_status ) {
+				continue;
+			}
+
+			$step = array(
+				'type'        => (string) $row->step_type,
+				'id'          => (int) $post->ID,
+				'title'       => $post->post_title,
+				'permalink'   => (string) get_permalink( $post ),
+				'status'      => $post->post_status,
+				'lesson_type' => 'lesson' === $row->step_type
+					? ( (string) get_post_meta( $post->ID, 'jsl_lesson_type', true ) ?: 'article' )
+					: '',
+				'post'        => $post,
+			);
+
+			if ( $include_ids ) {
+				$step['step_id'] = (int) $row->id;
+			}
+
+			$steps[] = $step;
+		}
+
+		return $steps;
+	}
+
+	/**
 	 * Courses belonging to a learning path, in author-defined order.
+	 *
+	 * Reads the path-steps table (the source of truth since the visual path
+	 * builder landed) and falls back to the older jsl_path_id meta for any
+	 * path that predates it and has no steps yet.
 	 *
 	 * @param int $path_id Learning path post ID.
 	 * @return \WP_Post[]
 	 */
 	public static function get_path_courses( int $path_id ): array {
+		$courses = array();
+
+		foreach ( self::get_path_steps( $path_id ) as $step ) {
+			if ( 'course' === $step['type'] ) {
+				$courses[] = $step['post'];
+			}
+		}
+
+		if ( ! empty( $courses ) ) {
+			return $courses;
+		}
+
 		$query = new \WP_Query(
 			array(
 				'post_type'      => 'course',

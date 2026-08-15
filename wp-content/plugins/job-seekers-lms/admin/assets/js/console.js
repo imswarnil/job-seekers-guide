@@ -66,6 +66,9 @@
 		flame: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21c-3.9 0-6.5-2.5-6.5-6 0-2.6 1.7-4.6 3-6.2C9.7 7.3 10.7 6 11 4c2.5 1.5 4 3.5 4 6 1-0.6 1.6-1.4 2-2.5 1 1.5 1.5 3.2 1.5 5 0 4.6-2.6 8.5-6.5 8.5Z"/></svg>',
 		arrowL: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12H4m6-6-6 6 6 6"/></svg>',
 		external: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M9 5H5v14h14v-4"/></svg>',
+		path: '<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,168a32,32,0,1,0,32,32A32,32,0,0,0,216,168Zm0,48a16,16,0,1,1,16-16A16,16,0,0,1,216,216ZM40,88A32,32,0,1,0,8,56,32,32,0,0,0,40,88ZM40,40A16,16,0,1,1,24,56,16,16,0,0,1,40,40Zm128,72a40,40,0,0,1-40,40H88a24,24,0,0,0,0,48h48v16H88a40,40,0,0,1,0-80h40a24,24,0,0,0,0-48H80V72h48A40,40,0,0,1,168,112Z"/></svg>',
+		video: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5v5l4.5-2.5-4.5-2.5Z"/></svg>',
+		quiz: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.2 2.4c-.6.2-.9.7-.9 1.3v.3"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>',
 	};
 
 	function toast( message, isError ) {
@@ -159,6 +162,12 @@
 		}
 		if ( hash.indexOf( '/courses' ) === 0 ) {
 			return renderCourses();
+		}
+		if ( ( m = hash.match( /^\/paths\/(\d+)/ ) ) ) {
+			return renderPathEditor( parseInt( m[ 1 ], 10 ) );
+		}
+		if ( hash.indexOf( '/paths' ) === 0 ) {
+			return renderPaths();
 		}
 		if ( ( m = hash.match( /^\/learners\/(\d+)/ ) ) ) {
 			return renderLearner( parseInt( m[ 1 ], 10 ) );
@@ -1119,6 +1128,324 @@
 			closeDrawer();
 			fail( err );
 		} );
+	}
+
+	/* ================= learning paths ================= */
+
+	/**
+	 * A path is an ordered arrangement of things a learner works through:
+	 * whole courses, or single standalone pieces (article / video / quiz)
+	 * written right here. All of it is drag-ordered — there is no editor
+	 * to leave for.
+	 */
+	function renderPaths() {
+		setNav( 'paths' );
+		loading();
+
+		req( 'jsl/v1/paths' ).then( function ( data ) {
+			var cards = data.paths.map( function ( p ) {
+				return '<div class="jsl-course-card" data-href="#/paths/' + p.id + '" role="link" tabindex="0">' +
+					'<div class="jsl-course-card__top"><span class="jsl-badge jsl-badge--' + esc( p.status ) + '">' + esc( p.status ) + '</span></div>' +
+					'<h3>' + esc( p.title || '(untitled)' ) + '</h3>' +
+					( p.excerpt ? '<p class="jsl-sub">' + esc( p.excerpt ) + '</p>' : '' ) +
+					'<div class="jsl-course-card__meta"><span>' + ICONS.path + p.steps + ( p.steps === 1 ? ' step' : ' steps' ) + '</span></div>' +
+				'</div>';
+			} ).join( '' );
+
+			view.innerHTML =
+				'<header class="jsl-page-head"><div><h1>Learning paths</h1><p class="jsl-sub">Arrange courses, articles and videos into a route from A to B.</p></div>' +
+				'<div class="jsl-page-head__actions"><form class="jsl-inline-form" id="jsl-new-path"><input class="jsl-input" type="text" placeholder="New path title…" required style="width:240px"><button class="jsl-btn jsl-btn--primary" type="submit">' + ICONS.plus + 'Create path</button></form></div></header>' +
+				( cards
+					? '<div class="jsl-course-grid">' + cards + '</div>'
+					: '<div class="jsl-empty-state"><h3>No learning paths yet</h3><p>A path is the spine of the site — create one above, then drop courses and lessons into it.</p></div>' );
+
+			bindRowLinks();
+
+			var form  = document.getElementById( 'jsl-new-path' );
+			var input = form.querySelector( 'input' );
+			form.addEventListener( 'submit', function ( e ) {
+				e.preventDefault();
+				var title = input.value.trim();
+				if ( ! title ) {
+					return;
+				}
+				form.querySelector( 'button' ).disabled = true;
+				req( 'jsl/v1/paths', { method: 'POST', body: { title: title } } )
+					.then( function ( path ) {
+						toast( 'Path created' );
+						window.location.hash = '/paths/' + path.id;
+					} )
+					.catch( function ( err ) {
+						form.querySelector( 'button' ).disabled = false;
+						fail( err );
+					} );
+			} );
+		} ).catch( fail );
+	}
+
+	function stepIcon( step ) {
+		if ( step.type === 'course' ) {
+			return ICONS.layers;
+		}
+		if ( step.lesson_type === 'video' ) {
+			return ICONS.video;
+		}
+		if ( step.lesson_type === 'quiz' ) {
+			return ICONS.quiz;
+		}
+		return ICONS.doc;
+	}
+
+	function stepKindLabel( step ) {
+		if ( step.type === 'course' ) {
+			return 'Course';
+		}
+		return step.lesson_type === 'video' ? 'Video' : step.lesson_type === 'quiz' ? 'Quiz' : 'Article';
+	}
+
+	function persistSteps( pathId ) {
+		var ids = Array.prototype.map.call( document.querySelectorAll( '#jsl-path-steps .jsl-step' ), function ( row ) {
+			return parseInt( row.dataset.stepId, 10 );
+		} );
+		api( 'jsl/v1/paths/' + pathId + '/steps/reorder', { method: 'POST', body: { step_ids: ids } } );
+	}
+
+	function renumberSteps() {
+		Array.prototype.forEach.call( document.querySelectorAll( '#jsl-path-steps .jsl-step' ), function ( row, i ) {
+			var num = row.querySelector( '.jsl-step__num' );
+			if ( num ) {
+				num.textContent = String( i + 1 ).padStart( 2, '0' );
+			}
+		} );
+	}
+
+	function stepRow( pathId, step ) {
+		var row = el( 'li', { class: 'jsl-step', 'data-step-id': step.step_id } );
+
+		var handle = el( 'span', { class: 'jsl-handle', title: 'Drag to reorder' } );
+		handle.innerHTML = ICONS.grip;
+		row.appendChild( handle );
+
+		row.appendChild( el( 'span', { class: 'jsl-step__num' }, '00' ) );
+
+		var kind = el( 'span', { class: 'jsl-step__kind' } );
+		kind.innerHTML = stepIcon( step ) + '<span>' + esc( stepKindLabel( step ) ) + '</span>';
+		row.appendChild( kind );
+
+		var title = el( 'span', { class: 'jsl-step__title' }, step.title || '(untitled)' );
+		row.appendChild( title );
+
+		// Courses are renamed in the course editor; a standalone step is
+		// renamed right here, since this is the only place it exists.
+		if ( step.type === 'lesson' ) {
+			editable( title, function ( value ) {
+				api( 'wp/v2/lessons/' + step.id, { method: 'POST', body: { title: value } } );
+			} );
+		}
+
+		if ( step.status !== 'publish' ) {
+			row.appendChild( el( 'span', { class: 'jsl-badge jsl-badge--draft' }, 'draft' ) );
+		}
+
+		var actions = el( 'span', { class: 'jsl-step__actions' } );
+
+		var open = el( 'a', {
+			class: 'jsl-icon-btn',
+			title: step.type === 'course' ? 'Open course builder' : 'Write this step',
+			href: step.type === 'course' ? '#/courses/' + step.id : step.permalink,
+		} );
+		if ( step.type !== 'course' ) {
+			open.setAttribute( 'target', '_blank' );
+			open.setAttribute( 'rel', 'noopener' );
+		}
+		open.innerHTML = step.type === 'course' ? ICONS.external : ICONS.pencil;
+		actions.appendChild( open );
+
+		var del = el( 'button', { type: 'button', class: 'jsl-icon-btn jsl-icon-btn--danger', title: 'Remove from this path' } );
+		del.innerHTML = ICONS.trash;
+		del.addEventListener( 'click', function () {
+			confirmInline(
+				row.parentNode.parentNode,
+				step.type === 'course'
+					? 'Remove this course from the path? The course itself is kept.'
+					: 'Remove this step from the path?',
+				function () {
+					row.remove();
+					renumberSteps();
+					api( 'jsl/v1/path-steps/' + step.step_id, { method: 'DELETE' } );
+				}
+			);
+		} );
+		actions.appendChild( del );
+		row.appendChild( actions );
+
+		/* drag */
+		armHandle( handle, row );
+		row.addEventListener( 'dragstart', function ( e ) {
+			dragged = { type: 'step', node: row };
+			row.classList.add( 'is-dragging' );
+			e.dataTransfer.effectAllowed = 'move';
+			try { e.dataTransfer.setData( 'text/plain', String( step.step_id ) ); } catch ( err ) {}
+		} );
+		row.addEventListener( 'dragend', function () {
+			row.classList.remove( 'is-dragging' );
+			row.removeAttribute( 'draggable' );
+			clearIndicator();
+			dragged = null;
+			renumberSteps();
+			persistSteps( pathId );
+		} );
+
+		return row;
+	}
+
+	function renderPathEditor( pathId ) {
+		setNav( 'paths' );
+		loading();
+
+		req( 'jsl/v1/paths/' + pathId ).then( function ( path ) {
+			view.innerHTML =
+				'<header class="jsl-page-head">' +
+					'<div>' +
+						'<button class="jsl-btn jsl-btn--ghost jsl-btn--sm" id="jsl-path-back">' + ICONS.arrowL + 'All paths</button>' +
+						'<h1 id="jsl-path-title" style="margin-top:10px">' + esc( path.title ) + '</h1>' +
+						'<p class="jsl-sub" id="jsl-path-excerpt">' + esc( path.excerpt || 'Add a one-line description…' ) + '</p>' +
+					'</div>' +
+					'<div class="jsl-page-head__actions">' +
+						'<span id="jsl-save-state" class="jsl-save-state"></span>' +
+						'<label class="jsl-switch"><input type="checkbox" id="jsl-path-status"' + ( path.status === 'publish' ? ' checked' : '' ) + '><span>Published</span></label>' +
+						'<a class="jsl-btn jsl-btn--ghost jsl-btn--sm" href="' + esc( path.permalink ) + '" target="_blank" rel="noopener">' + ICONS.external + 'View</a>' +
+					'</div>' +
+				'</header>' +
+
+				'<div class="jsl-card">' +
+					'<div class="jsl-card__head"><h2>Path steps</h2><span class="jsl-sub" id="jsl-step-count"></span></div>' +
+					'<div class="jsl-card__body">' +
+						'<ol class="jsl-steps" id="jsl-path-steps"></ol>' +
+						'<div class="jsl-step-add" id="jsl-step-add">' +
+							'<form class="jsl-inline-form" id="jsl-add-course">' +
+								'<select class="jsl-input" id="jsl-course-picker" style="min-width:220px"><option value="">Add an existing course…</option></select>' +
+								'<button class="jsl-btn jsl-btn--ghost jsl-btn--sm" type="submit">' + ICONS.plus + 'Add course</button>' +
+							'</form>' +
+							'<form class="jsl-inline-form" id="jsl-add-inline">' +
+								'<select class="jsl-input" id="jsl-inline-type"><option value="article">Article</option><option value="video">Video</option><option value="quiz">Quiz</option></select>' +
+								'<input class="jsl-input" id="jsl-inline-title" type="text" placeholder="Step title…" required style="width:220px">' +
+								'<button class="jsl-btn jsl-btn--primary jsl-btn--sm" type="submit">' + ICONS.plus + 'Add step</button>' +
+							'</form>' +
+						'</div>' +
+					'</div>' +
+				'</div>';
+
+			var list = document.getElementById( 'jsl-path-steps' );
+
+			function paint( steps ) {
+				list.innerHTML = '';
+				steps.forEach( function ( step ) {
+					list.appendChild( stepRow( pathId, step ) );
+				} );
+				renumberSteps();
+				document.getElementById( 'jsl-step-count' ).textContent =
+					steps.length + ( steps.length === 1 ? ' step' : ' steps' );
+				if ( ! steps.length ) {
+					list.innerHTML = '<li class="jsl-empty-row">Nothing in this path yet — add a course or write a step below.</li>';
+				}
+			}
+
+			paint( path.steps );
+
+			document.getElementById( 'jsl-path-back' ).addEventListener( 'click', function () {
+				window.location.hash = '/paths';
+			} );
+
+			editable( document.getElementById( 'jsl-path-title' ), function ( value ) {
+				api( 'jsl/v1/paths/' + pathId, { method: 'PATCH', body: { title: value } } );
+			} );
+
+			editable( document.getElementById( 'jsl-path-excerpt' ), function ( value ) {
+				api( 'jsl/v1/paths/' + pathId, { method: 'PATCH', body: { excerpt: value } } );
+			} );
+
+			document.getElementById( 'jsl-path-status' ).addEventListener( 'change', function ( e ) {
+				api( 'jsl/v1/paths/' + pathId, {
+					method: 'PATCH',
+					body: { status: e.target.checked ? 'publish' : 'draft' },
+				} );
+			} );
+
+			/* Drop target for reordering */
+			list.addEventListener( 'dragover', function ( e ) {
+				if ( ! dragged || dragged.type !== 'step' ) {
+					return;
+				}
+				e.preventDefault();
+				var rows = Array.prototype.filter.call( list.querySelectorAll( '.jsl-step' ), function ( r ) {
+					return r !== dragged.node;
+				} );
+				var after = rows.find( function ( r ) {
+					var box = r.getBoundingClientRect();
+					return e.clientY < box.top + box.height / 2;
+				} );
+				if ( after ) {
+					list.insertBefore( indicator, after );
+				} else {
+					list.appendChild( indicator );
+				}
+			} );
+
+			list.addEventListener( 'drop', function ( e ) {
+				if ( ! dragged || dragged.type !== 'step' ) {
+					return;
+				}
+				e.preventDefault();
+				if ( indicator.parentNode ) {
+					list.insertBefore( dragged.node, indicator );
+				}
+				clearIndicator();
+				renumberSteps();
+				persistSteps( pathId );
+			} );
+
+			/* Course picker */
+			var picker = document.getElementById( 'jsl-course-picker' );
+			req( 'jsl/v1/paths/' + pathId + '/available-courses' ).then( function ( data ) {
+				data.courses.forEach( function ( c ) {
+					var opt = el( 'option', { value: String( c.id ) }, c.title + ( c.status !== 'publish' ? ' (draft)' : '' ) );
+					picker.appendChild( opt );
+				} );
+			} ).catch( function () {} );
+
+			document.getElementById( 'jsl-add-course' ).addEventListener( 'submit', function ( e ) {
+				e.preventDefault();
+				var courseId = parseInt( picker.value, 10 );
+				if ( ! courseId ) {
+					return;
+				}
+				api( 'jsl/v1/paths/' + pathId + '/steps', {
+					method: 'POST',
+					body: { step_type: 'course', object_id: courseId },
+				} ).then( function () {
+					toast( 'Course added to path' );
+					renderPathEditor( pathId );
+				} ).catch( function () {} );
+			} );
+
+			document.getElementById( 'jsl-add-inline' ).addEventListener( 'submit', function ( e ) {
+				e.preventDefault();
+				var titleInput = document.getElementById( 'jsl-inline-title' );
+				var title = titleInput.value.trim();
+				if ( ! title ) {
+					return;
+				}
+				api( 'jsl/v1/paths/' + pathId + '/steps', {
+					method: 'POST',
+					body: { step_type: document.getElementById( 'jsl-inline-type' ).value, title: title },
+				} ).then( function () {
+					titleInput.value = '';
+					toast( 'Step added' );
+					renderPathEditor( pathId );
+				} ).catch( function () {} );
+			} );
+		} ).catch( fail );
 	}
 
 	/* ================= learners ================= */

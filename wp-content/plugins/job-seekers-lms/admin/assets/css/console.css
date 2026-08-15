@@ -785,3 +785,84 @@
 
 .jsl-cat-check { display: flex; align-items: center; gap: 7px; font-size: 13px; color: var(--ink-700); padding: 3px 0; }
 .jsl-cat-check input { margin: 0; accent-color: var(--signal-700); }
+
+/* =============== Learning-path builder =============== */
+
+.jsl-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+
+.jsl-step {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 9px 12px;
+	border: 1px solid var(--paper-200);
+	border-radius: var(--r-md);
+	background: var(--paper-0);
+	transition: border-color 130ms var(--ease), box-shadow 130ms var(--ease);
+}
+
+.jsl-step:hover { border-color: var(--ink-300); }
+.jsl-step.is-dragging { opacity: 0.4; }
+
+.jsl-step__num {
+	font-family: var(--md-font-mono, ui-monospace), monospace;
+	font-size: 11px;
+	font-weight: 700;
+	color: var(--ink-500);
+	min-width: 20px;
+}
+
+.jsl-step__kind {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 3px 8px;
+	border-radius: var(--md-shape-full);
+	background: var(--signal-100);
+	color: var(--signal-800);
+	font-size: 11px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.jsl-step__kind svg { width: 13px; height: 13px; }
+
+.jsl-step__title {
+	flex: 1;
+	min-width: 0;
+	font-weight: 600;
+	font-size: 13.5px;
+	color: var(--ink-900);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.jsl-step__title[contenteditable="true"]:focus {
+	white-space: normal;
+	outline: 2px solid var(--signal-500);
+	outline-offset: 3px;
+	border-radius: var(--r-sm);
+}
+
+.jsl-step__actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+
+.jsl-step-add {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px 20px;
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px dashed var(--paper-300);
+}
+
+.jsl-empty-row {
+	padding: 20px;
+	text-align: center;
+	color: var(--ink-500);
+	font-size: 13px;
+	border: 1px dashed var(--paper-300);
+	border-radius: var(--r-md);
+}
+
+.jsl-switch { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; color: var(--ink-700); cursor: pointer; }

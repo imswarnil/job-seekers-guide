@@ -9,7 +9,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'JSL_THEME_VERSION', '0.5.0' );
+define( 'JSL_THEME_VERSION', '0.6.0' );
 define( 'JSL_THEME_DIR', get_template_directory() );
 define( 'JSL_THEME_URI', get_template_directory_uri() );
 
