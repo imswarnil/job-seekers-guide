@@ -477,6 +477,10 @@
 		align-items: center;
 		gap: 8px;
 		height: 32px;
+		/* A chip is always the width of its label. Without this it stretches
+		   to full width inside any column flex container (every .md-card),
+		   because a cross-size of auto makes align-items: stretch apply. */
+		width: fit-content;
 		padding-inline: 16px;
 		border: 1px solid var(--md-sys-outline);
 		border-radius: var(--md-shape-sm);
