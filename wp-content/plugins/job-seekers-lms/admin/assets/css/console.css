@@ -720,6 +720,9 @@
 .jsl-rte__sep { width: 1px; height: 18px; background: var(--paper-200); margin: 0 5px; }
 
 .jsl-rte__urlbar { display: flex; gap: 8px; align-items: center; padding: 8px; background: var(--signal-50); border-bottom: 1px solid var(--paper-200); }
+/* An author `display` beats the UA rule for [hidden], so the bar has to opt
+   back out explicitly or it shows on open. */
+.jsl-rte__urlbar[hidden] { display: none; }
 .jsl-rte__urlbar .jsl-input { flex: 1; }
 
 .jsl-rte__area {
@@ -866,3 +869,61 @@
 }
 
 .jsl-switch { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; color: var(--ink-700); cursor: pointer; }
+
+/* =============== Course details drawer =============== */
+
+.jsl-drawer--wide { width: min(760px, 100%); }
+
+
+/* Repeatable one-line list (outcomes, requirements) */
+.jsl-linelist { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.jsl-linelist__row { display: flex; align-items: center; gap: 6px; width: 100%; }
+.jsl-linelist__row .jsl-input { flex: 1; }
+
+/* Featured-image picker */
+.jsl-media-pick { display: flex; align-items: center; gap: 14px; }
+
+.jsl-media-pick__preview {
+	display: grid;
+	place-items: center;
+	width: 160px;
+	height: 90px;
+	flex-shrink: 0;
+	border: 1px dashed var(--paper-300);
+	border-radius: var(--r-md);
+	background: var(--paper-50);
+	overflow: hidden;
+}
+
+.jsl-media-pick__preview img { width: 100%; height: 100%; object-fit: cover; }
+.jsl-media-pick__actions { display: flex; flex-direction: column; gap: 6px; }
+
+/* Segmented control */
+.jsl-segmented { display: inline-flex; border-radius: var(--md-shape-full); overflow: hidden; }
+
+.jsl-segmented button {
+	min-height: 34px;
+	padding-inline: 18px;
+	border: 1px solid var(--paper-300);
+	border-left-width: 0;
+	background: var(--paper-0);
+	color: var(--ink-700);
+	font: inherit;
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.jsl-segmented button:first-child { border-left-width: 1px; border-radius: var(--md-shape-full) 0 0 var(--md-shape-full); }
+.jsl-segmented button:last-child { border-radius: 0 var(--md-shape-full) var(--md-shape-full) 0; }
+.jsl-segmented button[aria-selected="true"] { background: var(--signal-100); color: var(--signal-800); border-color: var(--signal-300); }
+
+.jsl-drawer__eyebrow {
+	display: block;
+	font-size: 10.5px;
+	font-weight: 700;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: var(--ink-500);
+	margin-bottom: 2px;
+}

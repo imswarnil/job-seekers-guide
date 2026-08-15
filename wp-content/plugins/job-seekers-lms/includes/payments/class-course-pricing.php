@@ -15,8 +15,49 @@ class Course_Pricing {
 	const META_PRICE_LABEL = 'jsl_price_label'; // display-only, e.g. "$49" — the real price lives in Dodo
 
 	public static function init() {
+		add_action( 'init', array( __CLASS__, 'register_meta' ) );
 		add_action( 'add_meta_boxes', array( __CLASS__, 'register_meta_box' ) );
 		add_action( 'save_post_course', array( __CLASS__, 'save' ) );
+	}
+
+	/**
+	 * Pricing is edited in the LMS console, so it has to be reachable over
+	 * REST — the metabox below is now only a fallback for anyone who reaches
+	 * a course through the classic editor.
+	 */
+	public static function register_meta() {
+		$can_edit = function () {
+			return current_user_can( 'edit_posts' );
+		};
+
+		register_post_meta(
+			'course',
+			self::META_TYPE,
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => 'free',
+				'sanitize_callback' => function ( $value ) {
+					return 'paid' === $value ? 'paid' : 'free';
+				},
+				'auth_callback'     => $can_edit,
+			)
+		);
+
+		foreach ( array( self::META_PRODUCT_ID, self::META_PRICE_LABEL ) as $key ) {
+			register_post_meta(
+				'course',
+				$key,
+				array(
+					'type'              => 'string',
+					'single'            => true,
+					'show_in_rest'      => true,
+					'sanitize_callback' => 'sanitize_text_field',
+					'auth_callback'     => $can_edit,
+				)
+			);
+		}
 	}
 
 	public static function register_meta_box() {

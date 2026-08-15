@@ -353,9 +353,9 @@
 							'<textarea class="jsl-input" id="jsl-course-excerpt" rows="4" placeholder="One or two sentences shown on course cards…"></textarea>' +
 							'<span class="jsl-help">Saved when you click away.</span></div>' +
 						'</div></section>' +
-						'<section class="jsl-card"><div class="jsl-card__head"><h2>More</h2></div><div class="jsl-card__body" style="display:flex;flex-direction:column;gap:8px">' +
-							'<a class="jsl-btn jsl-btn--ghost" href="' + esc( cfg.adminUrl ) + 'post.php?post=' + courseId + '&action=edit">Full WordPress editor</a>' +
-							'<a class="jsl-btn jsl-btn--ghost" href="' + esc( cfg.adminUrl ) + 'post.php?post=' + courseId + '&action=edit#jsl-pricing">Pricing (free / paid)</a>' +
+						'<section class="jsl-card"><div class="jsl-card__head"><h2>Course page</h2></div><div class="jsl-card__body" style="display:flex;flex-direction:column;gap:8px">' +
+							'<button class="jsl-btn jsl-btn--primary" id="jsl-open-details" type="button">' + ICONS.pencil + 'Edit details &amp; description</button>' +
+							'<span class="jsl-help">Full description, image, level, outcomes, requirements and pricing.</span>' +
 						'</div></section>' +
 					'</aside>' +
 				'</div>';
@@ -381,6 +381,10 @@
 					document.getElementById( 'jsl-toggle-status' ).textContent = next === 'publish' ? 'Unpublish' : 'Publish';
 					toast( next === 'publish' ? 'Course published' : 'Course set to draft' );
 				} );
+			} );
+
+			document.getElementById( 'jsl-open-details' ).addEventListener( 'click', function () {
+				openCourseDrawer( courseId, course );
 			} );
 
 			/* Course code */
@@ -999,6 +1003,249 @@
 		if ( e.key === 'Escape' && ! document.querySelector( '.jsl-rte__urlbar:not([hidden])' ) ) {
 			closeDrawer();
 		}
+	}
+
+	/**
+	 * Repeatable single-line list (used for "what you'll learn" and
+	 * "requirements"). Returns a reader for the current values.
+	 */
+	function lineListEditor( host, values, placeholder ) {
+		host.innerHTML = '';
+		host.className = 'jsl-linelist';
+
+		function addRow( value ) {
+			var row = el( 'div', { class: 'jsl-linelist__row' } );
+			var input = el( 'input', { class: 'jsl-input', type: 'text', placeholder: placeholder } );
+			input.value = value || '';
+
+			var remove = el( 'button', { type: 'button', class: 'jsl-icon-btn jsl-icon-btn--danger', title: 'Remove' } );
+			remove.innerHTML = ICONS.trash;
+			remove.addEventListener( 'click', function () { row.remove(); } );
+
+			// Enter adds the next row, so a list can be typed without reaching
+			// for the mouse between items.
+			input.addEventListener( 'keydown', function ( e ) {
+				if ( e.key === 'Enter' ) {
+					e.preventDefault();
+					var next = addRow( '' );
+					next.querySelector( 'input' ).focus();
+				}
+			} );
+
+			row.appendChild( input );
+			row.appendChild( remove );
+			host.insertBefore( row, addBtn );
+			return row;
+		}
+
+		var addBtn = el( 'button', { type: 'button', class: 'jsl-btn jsl-btn--ghost jsl-btn--sm' } );
+		addBtn.innerHTML = ICONS.plus + 'Add line';
+		addBtn.addEventListener( 'click', function () {
+			addRow( '' ).querySelector( 'input' ).focus();
+		} );
+		host.appendChild( addBtn );
+
+		( values && values.length ? values : [ '' ] ).forEach( addRow );
+
+		return {
+			getValues: function () {
+				return Array.prototype.map.call( host.querySelectorAll( 'input' ), function ( i ) {
+					return i.value.trim();
+				} ).filter( Boolean );
+			},
+		};
+	}
+
+	/**
+	 * Everything about a course that isn't its lesson structure: the
+	 * description learners actually read, the card image, level, outcomes,
+	 * requirements and pricing. This is what the classic editor used to be
+	 * for.
+	 */
+	function openCourseDrawer( courseId, course ) {
+		closeDrawer();
+
+		var scrim = el( 'div', { class: 'jsl-drawer-scrim' } );
+		scrim.addEventListener( 'click', closeDrawer );
+		document.body.appendChild( scrim );
+
+		var drawer = el( 'aside', { class: 'jsl-drawer jsl-drawer--wide', role: 'dialog', 'aria-label': 'Course details' } );
+		var meta   = course.meta || {};
+
+		drawer.innerHTML =
+			'<header class="jsl-drawer__head">' +
+				'<div style="flex:1"><span class="jsl-drawer__eyebrow">Course details</span>' +
+				'<input class="jsl-drawer__title" id="jsl-cd-title" type="text" placeholder="Course title"></div>' +
+				'<button class="jsl-icon-btn" id="jsl-cd-close" title="Close" type="button">✕</button>' +
+			'</header>' +
+
+			'<div class="jsl-drawer__body">' +
+				'<div class="jsl-field"><label for="jsl-cd-excerpt">Short description</label>' +
+					'<textarea class="jsl-input" id="jsl-cd-excerpt" rows="3" placeholder="One or two sentences shown on cards and in search results…"></textarea></div>' +
+
+				'<div class="jsl-field"><label>Course image</label>' +
+					'<div class="jsl-media-pick" id="jsl-cd-image">' +
+						'<div class="jsl-media-pick__preview" id="jsl-cd-image-preview"></div>' +
+						'<div class="jsl-media-pick__actions">' +
+							'<button class="jsl-btn jsl-btn--ghost jsl-btn--sm" id="jsl-cd-image-set" type="button">Choose image</button>' +
+							'<button class="jsl-btn jsl-btn--danger jsl-btn--sm" id="jsl-cd-image-clear" type="button">Remove</button>' +
+						'</div>' +
+					'</div>' +
+					'<span class="jsl-help">Leave empty to use the generated placeholder art.</span></div>' +
+
+				'<div class="jsl-field"><label for="jsl-cd-level">Level</label>' +
+					'<select class="jsl-input" id="jsl-cd-level" style="max-width:220px">' +
+						'<option value="">Not specified</option>' +
+						'<option value="beginner">Beginner</option>' +
+						'<option value="intermediate">Intermediate</option>' +
+						'<option value="advanced">Advanced</option>' +
+					'</select></div>' +
+
+				'<div class="jsl-field"><label>Full description</label>' +
+					'<div id="jsl-cd-editor"></div>' +
+					'<span class="jsl-help">Shown on the course page under the “About” tab.</span></div>' +
+
+				'<div class="jsl-field"><label>What you’ll learn</label><div id="jsl-cd-outcomes"></div></div>' +
+
+				'<div class="jsl-field"><label>Requirements</label><div id="jsl-cd-reqs"></div></div>' +
+
+				'<div class="jsl-field"><label>Pricing</label>' +
+					'<div class="jsl-segmented" id="jsl-cd-pricing">' +
+						'<button type="button" data-price="free">Free</button>' +
+						'<button type="button" data-price="paid">Paid</button>' +
+					'</div></div>' +
+
+				'<div id="jsl-cd-paid-fields">' +
+					'<div class="jsl-field"><label for="jsl-cd-product">Dodo product ID</label>' +
+						'<input class="jsl-input" id="jsl-cd-product" type="text" placeholder="pdt_…"></div>' +
+					'<div class="jsl-field"><label for="jsl-cd-price">Price label</label>' +
+						'<input class="jsl-input" id="jsl-cd-price" type="text" placeholder="$49" style="max-width:180px">' +
+						'<span class="jsl-help">Display only — the amount charged is whatever the Dodo product says.</span></div>' +
+				'</div>' +
+			'</div>' +
+
+			'<footer class="jsl-drawer__foot">' +
+				'<span class="jsl-help" id="jsl-cd-state"></span>' +
+				'<div style="margin-left:auto;display:flex;gap:8px">' +
+					'<button class="jsl-btn jsl-btn--ghost" id="jsl-cd-cancel" type="button">Cancel</button>' +
+					'<button class="jsl-btn jsl-btn--primary" id="jsl-cd-save" type="button">Save details</button>' +
+				'</div>' +
+			'</footer>';
+
+		document.body.appendChild( drawer );
+		document.addEventListener( 'keydown', escClose );
+
+		document.getElementById( 'jsl-cd-title' ).value = ( course.title && course.title.raw ) || '';
+		document.getElementById( 'jsl-cd-excerpt' ).value = ( course.excerpt && course.excerpt.raw ) || '';
+		document.getElementById( 'jsl-cd-level' ).value = meta.jsl_course_level || '';
+		document.getElementById( 'jsl-cd-product' ).value = meta.jsl_dodo_product_id || '';
+		document.getElementById( 'jsl-cd-price' ).value = meta.jsl_price_label || '';
+
+		var editor = richEditor(
+			document.getElementById( 'jsl-cd-editor' ),
+			( course.content && course.content.raw ) || ''
+		);
+
+		var outcomes = lineListEditor( document.getElementById( 'jsl-cd-outcomes' ), meta.jsl_course_outcomes || [], 'e.g. Write a résumé that survives an ATS' );
+		var reqs = lineListEditor( document.getElementById( 'jsl-cd-reqs' ), meta.jsl_course_requirements || [], 'e.g. No prior experience needed' );
+
+		/* ---- Featured image ---- */
+		var imageId = course.featured_media || 0;
+		var preview = document.getElementById( 'jsl-cd-image-preview' );
+
+		function paintImage() {
+			preview.innerHTML = '';
+			if ( ! imageId ) {
+				preview.appendChild( el( 'span', { class: 'jsl-help' }, 'No image set' ) );
+				return;
+			}
+			req( 'wp/v2/media/' + imageId )
+				.then( function ( m ) {
+					var img = el( 'img', { src: m.source_url, alt: '' } );
+					preview.innerHTML = '';
+					preview.appendChild( img );
+				} )
+				.catch( function () {
+					preview.appendChild( el( 'span', { class: 'jsl-help' }, 'Image #' + imageId ) );
+				} );
+		}
+		paintImage();
+
+		document.getElementById( 'jsl-cd-image-set' ).addEventListener( 'click', function () {
+			if ( ! window.wp || ! wp.media ) {
+				toast( 'Media library unavailable', true );
+				return;
+			}
+			var frame = wp.media( { title: 'Choose course image', multiple: false, library: { type: 'image' } } );
+			frame.on( 'select', function () {
+				imageId = frame.state().get( 'selection' ).first().toJSON().id;
+				paintImage();
+			} );
+			frame.open();
+		} );
+
+		document.getElementById( 'jsl-cd-image-clear' ).addEventListener( 'click', function () {
+			imageId = 0;
+			paintImage();
+		} );
+
+		/* ---- Pricing ---- */
+		var pricing = meta.jsl_pricing_type === 'paid' ? 'paid' : 'free';
+		var paidFields = document.getElementById( 'jsl-cd-paid-fields' );
+
+		function paintPricing() {
+			document.querySelectorAll( '#jsl-cd-pricing button' ).forEach( function ( b ) {
+				b.setAttribute( 'aria-selected', b.dataset.price === pricing ? 'true' : 'false' );
+			} );
+			paidFields.hidden = pricing !== 'paid';
+		}
+
+		document.querySelectorAll( '#jsl-cd-pricing button' ).forEach( function ( b ) {
+			b.addEventListener( 'click', function () {
+				pricing = b.dataset.price;
+				paintPricing();
+			} );
+		} );
+		paintPricing();
+
+		/* ---- Save ---- */
+		document.getElementById( 'jsl-cd-close' ).addEventListener( 'click', closeDrawer );
+		document.getElementById( 'jsl-cd-cancel' ).addEventListener( 'click', closeDrawer );
+
+		document.getElementById( 'jsl-cd-save' ).addEventListener( 'click', function () {
+			var btn = document.getElementById( 'jsl-cd-save' );
+			btn.disabled = true;
+			document.getElementById( 'jsl-cd-state' ).textContent = 'Saving…';
+
+			var body = {
+				title: document.getElementById( 'jsl-cd-title' ).value.trim(),
+				excerpt: document.getElementById( 'jsl-cd-excerpt' ).value,
+				content: editor.getHTML(),
+				featured_media: imageId,
+				meta: {
+					jsl_course_level: document.getElementById( 'jsl-cd-level' ).value,
+					jsl_course_outcomes: outcomes.getValues(),
+					jsl_course_requirements: reqs.getValues(),
+					jsl_pricing_type: pricing,
+					jsl_dodo_product_id: document.getElementById( 'jsl-cd-product' ).value.trim(),
+					jsl_price_label: document.getElementById( 'jsl-cd-price' ).value.trim(),
+				},
+			};
+
+			req( 'wp/v2/courses/' + courseId, { method: 'POST', body: body } )
+				.then( function () {
+					toast( 'Course details saved' );
+					closeDrawer();
+					renderCourseEditor( courseId );
+				} )
+				.catch( function ( err ) {
+					btn.disabled = false;
+					document.getElementById( 'jsl-cd-state' ).textContent = '';
+					fail( err );
+				} );
+		} );
+
+		document.getElementById( 'jsl-cd-title' ).focus();
 	}
 
 	function openLessonDrawer( courseId, lessonId, row ) {

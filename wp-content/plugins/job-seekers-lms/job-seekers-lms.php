@@ -53,6 +53,21 @@ require_once JSL_PLUGIN_DIR . 'admin/class-admin-theme.php';
 require_once JSL_PLUGIN_DIR . 'includes/cli/class-seed-command.php';
 
 /**
+ * Cache-busting version for a plugin asset: the file's own modification
+ * time. JSL_VERSION alone is not enough — the console's CSS and JS change
+ * far more often than the version constant is bumped, and a stale cached
+ * console looks exactly like a broken feature.
+ *
+ * @param string $relative_path Path from the plugin root, no leading slash.
+ */
+function jsl_plugin_asset_version( $relative_path ) {
+	$file = JSL_PLUGIN_DIR . $relative_path;
+	$time = file_exists( $file ) ? filemtime( $file ) : 0;
+
+	return $time ? JSL_VERSION . '.' . $time : JSL_VERSION;
+}
+
+/**
  * Boot the plugin.
  */
 function jsl_boot() {

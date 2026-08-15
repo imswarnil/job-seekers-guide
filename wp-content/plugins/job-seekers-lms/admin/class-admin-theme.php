@@ -27,19 +27,19 @@ class Admin_Theme {
 	 * variables against — always enqueued first.
 	 */
 	public static function enqueue_tokens() {
-		wp_enqueue_style( 'jsl-md3-tokens', JSL_PLUGIN_URL . 'admin/assets/css/md3-tokens.css', array(), JSL_VERSION );
+		wp_enqueue_style( 'jsl-md3-tokens', JSL_PLUGIN_URL . 'admin/assets/css/md3-tokens.css', array(), jsl_plugin_asset_version( 'admin/assets/css/md3-tokens.css' ) );
 	}
 
 	public static function enqueue() {
 		wp_enqueue_style( 'jsl-admin-fonts', self::FONTS_URL, array(), null );
 		self::enqueue_tokens();
-		wp_enqueue_style( 'jsl-admin-theme', JSL_PLUGIN_URL . 'admin/assets/css/admin-theme.css', array( 'jsl-admin-fonts', 'jsl-md3-tokens' ), JSL_VERSION );
+		wp_enqueue_style( 'jsl-admin-theme', JSL_PLUGIN_URL . 'admin/assets/css/admin-theme.css', array( 'jsl-admin-fonts', 'jsl-md3-tokens' ), jsl_plugin_asset_version( 'admin/assets/css/admin-theme.css' ) );
 	}
 
 	public static function enqueue_login() {
 		wp_enqueue_style( 'jsl-login-fonts', self::FONTS_URL, array(), null );
 		self::enqueue_tokens();
-		wp_enqueue_style( 'jsl-login-theme', JSL_PLUGIN_URL . 'admin/assets/css/login-theme.css', array( 'jsl-login-fonts', 'jsl-md3-tokens' ), JSL_VERSION );
+		wp_enqueue_style( 'jsl-login-theme', JSL_PLUGIN_URL . 'admin/assets/css/login-theme.css', array( 'jsl-login-fonts', 'jsl-md3-tokens' ), jsl_plugin_asset_version( 'admin/assets/css/login-theme.css' ) );
 	}
 
 	public static function login_url() {

@@ -78,6 +78,20 @@ while ( have_posts() ) :
 					<?php if ( $stats['minutes'] ) : ?>
 						<span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5"><?php echo jsl_icon( 'clock', 'w-4 h-4' ); ?><?php printf( esc_html__( '%d min total', 'job-seekers-theme' ), (int) $stats['minutes'] ); ?></span>
 					<?php endif; ?>
+					<?php
+					$course_level = class_exists( 'JSL\\Course_Meta' ) ? \JSL\Course_Meta::get_level( $course_id ) : '';
+					if ( $course_level ) :
+						$level_labels = array(
+							'beginner'     => __( 'Beginner', 'job-seekers-theme' ),
+							'intermediate' => __( 'Intermediate', 'job-seekers-theme' ),
+							'advanced'     => __( 'Advanced', 'job-seekers-theme' ),
+						);
+						?>
+						<span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5">
+							<?php echo jsl_icon( 'target', 'w-4 h-4' ); ?>
+							<?php echo esc_html( $level_labels[ $course_level ] ?? $course_level ); ?>
+						</span>
+					<?php endif; ?>
 				</div>
 
 				<?php if ( $user_id && $has_access && $stats['lessons'] ) : ?>
@@ -150,8 +164,29 @@ while ( have_posts() ) :
 
 	<?php $jsl_has_about = (bool) trim( (string) get_the_content() ); ?>
 
+	<?php
+	$course_outcomes = class_exists( 'JSL\\Course_Meta' ) ? \JSL\Course_Meta::get_outcomes( $course_id ) : array();
+	$course_reqs     = class_exists( 'JSL\\Course_Meta' ) ? \JSL\Course_Meta::get_requirements( $course_id ) : array();
+	?>
+
 	<div class="jsl-container py-10">
 		<div class="mx-auto max-w-4xl">
+
+			<?php if ( ! empty( $course_outcomes ) ) : ?>
+				<!-- Outcomes sit above the tabs: it's the question every
+				     prospective learner asks first. -->
+				<section class="md-card md-card--filled mb-10 p-7 md:p-8" aria-labelledby="jsl-outcomes">
+					<h2 id="jsl-outcomes" class="m-0 font-display text-lg font-bold"><?php esc_html_e( 'What you’ll learn', 'job-seekers-theme' ); ?></h2>
+					<ul class="m-0 mt-5 grid list-none gap-x-8 gap-y-3 p-0 sm:grid-cols-2">
+						<?php foreach ( $course_outcomes as $outcome ) : ?>
+							<li class="flex items-start gap-3 text-sm leading-relaxed">
+								<span class="mt-0.5 shrink-0 text-primary"><?php echo jsl_icon( 'check-circle-fill', 'w-4.5 h-4.5' ); ?></span>
+								<?php echo esc_html( $outcome ); ?>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+				</section>
+			<?php endif; ?>
 
 			<!-- M3 primary tabs -->
 			<div class="md-tabs" role="tablist" data-tabs aria-label="<?php esc_attr_e( 'Course sections', 'job-seekers-theme' ); ?>">
@@ -233,6 +268,20 @@ while ( have_posts() ) :
 			<?php if ( $jsl_has_about ) : ?>
 				<section class="pt-8" id="panel-about" role="tabpanel" aria-labelledby="tab-about" tabindex="0" hidden>
 					<div class="jsl-prose"><?php the_content(); ?></div>
+
+					<?php if ( ! empty( $course_reqs ) ) : ?>
+						<div class="md-card mt-10 p-7">
+							<h3 class="m-0 font-display text-base font-bold"><?php esc_html_e( 'Requirements', 'job-seekers-theme' ); ?></h3>
+							<ul class="m-0 mt-4 flex list-none flex-col gap-2.5 p-0">
+								<?php foreach ( $course_reqs as $req ) : ?>
+									<li class="flex items-start gap-3 text-sm text-on-surface-variant">
+										<span class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-outline"></span>
+										<?php echo esc_html( $req ); ?>
+									</li>
+								<?php endforeach; ?>
+							</ul>
+						</div>
+					<?php endif; ?>
 				</section>
 			<?php endif; ?>
 		</div>
