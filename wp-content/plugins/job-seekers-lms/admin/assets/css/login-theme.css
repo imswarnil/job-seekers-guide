@@ -4,7 +4,7 @@ body.login {
 	background: #0e0f1f;
 	background-image: radial-gradient(circle at 20% 20%, rgba(106, 104, 242, 0.12), transparent 45%),
 		radial-gradient(circle at 80% 80%, rgba(143, 197, 20, 0.08), transparent 45%);
-	font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	font-family: var(--md-font-body);
 }
 
 .login h1 a {

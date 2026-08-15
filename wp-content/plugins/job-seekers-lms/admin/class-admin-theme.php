@@ -20,16 +20,26 @@ class Admin_Theme {
 		add_filter( 'admin_footer_text', array( __CLASS__, 'footer_text' ) );
 	}
 
-	const FONTS_URL = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap';
+	const FONTS_URL = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap';
+
+	/**
+	 * The Material 3 token sheet every admin stylesheet resolves its
+	 * variables against — always enqueued first.
+	 */
+	public static function enqueue_tokens() {
+		wp_enqueue_style( 'jsl-md3-tokens', JSL_PLUGIN_URL . 'admin/assets/css/md3-tokens.css', array(), JSL_VERSION );
+	}
 
 	public static function enqueue() {
 		wp_enqueue_style( 'jsl-admin-fonts', self::FONTS_URL, array(), null );
-		wp_enqueue_style( 'jsl-admin-theme', JSL_PLUGIN_URL . 'admin/assets/css/admin-theme.css', array( 'jsl-admin-fonts' ), JSL_VERSION );
+		self::enqueue_tokens();
+		wp_enqueue_style( 'jsl-admin-theme', JSL_PLUGIN_URL . 'admin/assets/css/admin-theme.css', array( 'jsl-admin-fonts', 'jsl-md3-tokens' ), JSL_VERSION );
 	}
 
 	public static function enqueue_login() {
 		wp_enqueue_style( 'jsl-login-fonts', self::FONTS_URL, array(), null );
-		wp_enqueue_style( 'jsl-login-theme', JSL_PLUGIN_URL . 'admin/assets/css/login-theme.css', array( 'jsl-login-fonts' ), JSL_VERSION );
+		self::enqueue_tokens();
+		wp_enqueue_style( 'jsl-login-theme', JSL_PLUGIN_URL . 'admin/assets/css/login-theme.css', array( 'jsl-login-fonts', 'jsl-md3-tokens' ), JSL_VERSION );
 	}
 
 	public static function login_url() {

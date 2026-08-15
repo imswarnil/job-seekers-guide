@@ -45,6 +45,40 @@
 	--color-transparent: transparent;
 	--color-current: currentColor;
 
+	/* Material 3 roles, available directly as utilities (bg-primary,
+	   text-on-surface-variant, border-outline-variant, …). New work should
+	   prefer these over the compat aliases above. */
+	--color-primary: var(--md-sys-primary);
+	--color-on-primary: var(--md-sys-on-primary);
+	--color-primary-container: var(--md-sys-primary-container);
+	--color-on-primary-container: var(--md-sys-on-primary-container);
+	--color-secondary: var(--md-sys-secondary);
+	--color-on-secondary: var(--md-sys-on-secondary);
+	--color-secondary-container: var(--md-sys-secondary-container);
+	--color-on-secondary-container: var(--md-sys-on-secondary-container);
+	--color-tertiary: var(--md-sys-tertiary);
+	--color-on-tertiary: var(--md-sys-on-tertiary);
+	--color-tertiary-container: var(--md-sys-tertiary-container);
+	--color-on-tertiary-container: var(--md-sys-on-tertiary-container);
+	--color-error: var(--md-sys-error);
+	--color-on-error: var(--md-sys-on-error);
+	--color-error-container: var(--md-sys-error-container);
+	--color-on-error-container: var(--md-sys-on-error-container);
+	--color-on-surface: var(--md-sys-on-surface);
+	--color-on-surface-variant: var(--md-sys-on-surface-variant);
+	--color-surface-dim: var(--md-sys-surface-dim);
+	--color-surface-bright: var(--md-sys-surface-bright);
+	--color-surface-lowest: var(--md-sys-surface-container-lowest);
+	--color-surface-low: var(--md-sys-surface-container-low);
+	--color-surface-container: var(--md-sys-surface-container);
+	--color-surface-high: var(--md-sys-surface-container-high);
+	--color-surface-highest: var(--md-sys-surface-container-highest);
+	--color-outline: var(--md-sys-outline);
+	--color-outline-variant: var(--md-sys-outline-variant);
+	--color-inverse-surface: var(--md-sys-inverse-surface);
+	--color-inverse-on-surface: var(--md-sys-inverse-on-surface);
+	--color-scrim: var(--md-sys-scrim);
+
 	/* Primitive ramps still handy in templates */
 	--color-ink-950: var(--jsl-ink-950);
 	--color-ink-900: var(--jsl-ink-900);
@@ -61,17 +95,25 @@
 	--font-display: var(--jsl-font-display);
 	--font-mono: var(--jsl-font-mono);
 
-	--radius-sm: var(--jsl-radius-sm);
-	--radius-md: var(--jsl-radius-md);
-	--radius-lg: var(--jsl-radius-lg);
-	--radius-xl: var(--jsl-radius-xl);
+	/* M3 shape scale */
+	--radius-xs: var(--md-shape-xs);
+	--radius-sm: var(--md-shape-sm);
+	--radius-md: var(--md-shape-md);
+	--radius-lg: var(--md-shape-lg);
+	--radius-xl: var(--md-shape-xl);
 
 	--shadow-sm: var(--jsl-shadow-sm);
 	--shadow-md: var(--jsl-shadow-md);
 	--shadow-lg: var(--jsl-shadow-lg);
 	--shadow-accent: var(--jsl-shadow-accent);
 
+	/* M3 elevation levels */
+	--shadow-e1: var(--md-elevation-1);
+	--shadow-e2: var(--md-elevation-2);
+	--shadow-e3: var(--md-elevation-3);
+
 	--ease-out: var(--jsl-ease-out);
+	--ease-emphasized: var(--md-easing-emphasized);
 }
 
 @layer base {
@@ -128,67 +170,219 @@
 
 	.skip-link:focus { left: var(--jsl-space-4); top: var(--jsl-space-4); }
 
-	/* Buttons */
+	/* ----------------------------------------------------------------
+	 * Buttons — Material 3.
+	 *
+	 * M3 buttons are pill-shaped, 40dp tall, label-large type, and express
+	 * interaction through a *state layer*: a tinted overlay at 8% on hover
+	 * and 10% on focus/press, rather than by changing the base colour or
+	 * lifting the element. The ::before below is that state layer.
+	 * ---------------------------------------------------------------- */
 	.jsl-btn {
+		position: relative;
+		isolation: isolate;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		gap: 0.5rem;
-		padding: 0.75rem 1.5rem;
-		border-radius: var(--jsl-radius-md);
+		min-height: 2.5rem;
+		padding: 0.625rem 1.5rem;
+		border-radius: var(--md-shape-full);
 		border: 1px solid transparent;
-		font-size: var(--jsl-text-base);
+		font-family: var(--jsl-font-sans);
+		font-size: var(--md-label-large);
 		font-weight: 600;
-		line-height: 1.2;
+		letter-spacing: 0.006em;
+		line-height: 1.25;
 		cursor: pointer;
 		text-decoration: none;
-		transition: background-color var(--jsl-duration-ui) var(--jsl-ease-out),
-			border-color var(--jsl-duration-ui) var(--jsl-ease-out),
-			transform var(--jsl-duration-fast) var(--jsl-ease-out),
-			box-shadow var(--jsl-duration-ui) var(--jsl-ease-out);
+		overflow: hidden;
+		transition: box-shadow var(--md-duration-medium) var(--md-easing-emphasized),
+			background-color var(--md-duration-medium) var(--md-easing-emphasized),
+			border-color var(--md-duration-medium) var(--md-easing-emphasized);
 	}
 
-	.jsl-btn:hover { transform: translateY(-1px); text-decoration: none; }
-	.jsl-btn:active { transform: translateY(0); }
-
-	.jsl-btn--primary {
-		background: var(--jsl-color-accent);
-		color: var(--jsl-color-accent-contrast);
-		box-shadow: var(--jsl-shadow-accent);
+	/* The state layer: currentColor at an M3 opacity, over the base fill. */
+	.jsl-btn::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: currentColor;
+		opacity: 0;
+		transition: opacity var(--md-duration-short) var(--md-easing-standard);
 	}
-	.jsl-btn--primary:hover { background: var(--jsl-color-accent-strong); color: var(--jsl-color-accent-contrast); }
+	.jsl-btn:hover::before { opacity: var(--md-state-hover); }
+	.jsl-btn:focus-visible::before { opacity: var(--md-state-focus); }
+	.jsl-btn:active::before { opacity: var(--md-state-pressed); }
+	.jsl-btn:hover { text-decoration: none; }
 
-	.jsl-btn--ghost {
+	.jsl-btn[disabled],
+	.jsl-btn[aria-disabled="true"] {
+		pointer-events: none;
+		background: color-mix(in srgb, var(--md-sys-on-surface) 12%, transparent);
+		color: color-mix(in srgb, var(--md-sys-on-surface) 38%, transparent);
+		box-shadow: none;
+		border-color: transparent;
+	}
+
+	/* Filled — the high-emphasis default. */
+	.jsl-btn--primary,
+	.jsl-btn--filled {
+		background: var(--md-sys-primary);
+		color: var(--md-sys-on-primary);
+	}
+	.jsl-btn--primary:hover,
+	.jsl-btn--filled:hover {
+		color: var(--md-sys-on-primary);
+		box-shadow: var(--jsl-shadow-sm);
+	}
+
+	/* Filled tonal — medium emphasis, for secondary actions in a group. */
+	.jsl-btn--tonal {
+		background: var(--md-sys-secondary-container);
+		color: var(--md-sys-on-secondary-container);
+	}
+
+	/* Outlined — medium emphasis on a plain surface. */
+	.jsl-btn--ghost,
+	.jsl-btn--outlined {
 		background: transparent;
-		border-color: var(--jsl-color-border-strong);
-		color: var(--jsl-color-text);
+		border-color: var(--md-sys-outline);
+		color: var(--md-sys-primary);
 	}
-	.jsl-btn--ghost:hover { border-color: var(--jsl-color-accent); color: var(--jsl-color-accent); }
 
+	/* Text — lowest emphasis, no container. */
+	.jsl-btn--text {
+		background: transparent;
+		color: var(--md-sys-primary);
+		padding-inline: 0.75rem;
+	}
+
+	/* Elevated — filled-tonal with a shadow, for use over busy surfaces. */
+	.jsl-btn--elevated {
+		background: var(--md-sys-surface-container-low);
+		color: var(--md-sys-primary);
+		box-shadow: var(--md-elevation-1);
+	}
+
+	/* On a dark hero, the outline has to come from the hero's own palette. */
 	.jsl-btn--hero-ghost {
-		background: rgba(255, 255, 255, 0.06);
-		border-color: rgba(255, 255, 255, 0.2);
+		background: transparent;
+		border-color: color-mix(in srgb, var(--jsl-color-hero-text) 45%, transparent);
 		color: var(--jsl-color-hero-text);
 	}
-	.jsl-btn--hero-ghost:hover { border-color: var(--jsl-signal-300); color: var(--jsl-signal-300); }
 
-	.jsl-btn--sm { padding: 0.5rem 0.875rem; font-size: var(--jsl-text-sm); }
+	.jsl-btn--sm { min-height: 2rem; padding: 0.375rem 1rem; font-size: var(--md-label-medium); }
+	.jsl-btn--lg { min-height: 3rem; padding: 0.875rem 2rem; font-size: var(--md-title-medium); }
+	.jsl-btn--block { width: 100%; }
 
-	/* Badges */
+	/* M3 icon button — 40dp target, circular state layer. */
+	.jsl-icon-btn {
+		position: relative;
+		isolation: isolate;
+		display: inline-grid;
+		place-items: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		border: 0;
+		border-radius: var(--md-shape-full);
+		background: transparent;
+		color: var(--md-sys-on-surface-variant);
+		cursor: pointer;
+		overflow: hidden;
+	}
+	.jsl-icon-btn::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: currentColor;
+		opacity: 0;
+		transition: opacity var(--md-duration-short) var(--md-easing-standard);
+	}
+	.jsl-icon-btn:hover::before { opacity: var(--md-state-hover); }
+	.jsl-icon-btn:focus-visible::before { opacity: var(--md-state-focus); }
+	.jsl-icon-btn:active::before { opacity: var(--md-state-pressed); }
+
+	/* M3 FAB */
+	.jsl-fab {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.75rem;
+		min-height: 3.5rem;
+		padding-inline: 1.25rem;
+		border: 0;
+		border-radius: var(--md-shape-lg);
+		background: var(--md-sys-primary-container);
+		color: var(--md-sys-on-primary-container);
+		box-shadow: var(--md-elevation-3);
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	/* M3 card — filled / elevated / outlined */
+	.jsl-card {
+		border-radius: var(--md-shape-md);
+		background: var(--md-sys-surface-container-lowest);
+		border: 1px solid var(--md-sys-outline-variant);
+		transition: box-shadow var(--md-duration-medium) var(--md-easing-emphasized),
+			border-color var(--md-duration-medium) var(--md-easing-emphasized);
+	}
+	.jsl-card--elevated { border-color: transparent; box-shadow: var(--jsl-shadow-sm); }
+	.jsl-card--elevated:hover { box-shadow: var(--jsl-shadow-md); }
+	.jsl-card--filled { background: var(--md-sys-surface-container-high); border-color: transparent; }
+
+	/* M3 assist/filter chip */
+	.jsl-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		min-height: 2rem;
+		padding-inline: 0.75rem;
+		border-radius: var(--md-shape-sm);
+		border: 1px solid var(--md-sys-outline-variant);
+		background: transparent;
+		color: var(--md-sys-on-surface-variant);
+		font-size: var(--md-label-large);
+		font-weight: 500;
+		text-decoration: none;
+	}
+	.jsl-chip--selected {
+		background: var(--md-sys-secondary-container);
+		color: var(--md-sys-on-secondary-container);
+		border-color: transparent;
+	}
+
+	/* Badges — M3 container colours */
 	.jsl-badge {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.375rem;
-		padding: 0.25rem 0.75rem;
-		border-radius: var(--jsl-radius-full);
-		font-size: var(--jsl-text-xs);
+		padding: 0.25rem 0.625rem;
+		border-radius: var(--md-shape-sm);
+		font-size: var(--md-label-medium);
 		font-weight: 600;
 		letter-spacing: 0.02em;
-		background: var(--jsl-color-bg-subtle);
-		color: var(--jsl-color-text-muted);
+		background: var(--md-sys-surface-container-high);
+		color: var(--md-sys-on-surface-variant);
 	}
-	.jsl-badge--free { background: var(--jsl-color-accent-soft); color: var(--jsl-color-accent); }
-	.jsl-badge--paid { background: var(--jsl-color-highlight-soft); color: var(--jsl-color-highlight); }
+	.jsl-badge--free { background: var(--md-sys-primary-container); color: var(--md-sys-on-primary-container); }
+	.jsl-badge--paid { background: var(--md-sys-tertiary-container); color: var(--md-sys-on-tertiary-container); }
+
+	/* M3 linear progress indicator */
+	.jsl-progress {
+		height: 4px;
+		border-radius: var(--md-shape-full);
+		background: var(--md-sys-secondary-container);
+		overflow: hidden;
+	}
+	.jsl-progress__bar {
+		height: 100%;
+		border-radius: var(--md-shape-full);
+		background: var(--md-sys-primary);
+		transition: width var(--md-duration-long) var(--md-easing-emphasized);
+	}
 
 	.jsl-eyebrow {
 		display: inline-block;

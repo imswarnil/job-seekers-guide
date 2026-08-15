@@ -6,38 +6,43 @@
  * one product. App-grade density: 13-14px UI type, 8px grid, 1px borders.
  */
 
+/*
+ * The console's local names are aliases onto the Material 3 roles in
+ * md3-tokens.css, so retinting the product is a one-file change and the
+ * console can never drift from the learner-facing site.
+ */
 :root {
-	--ink-950: #0e0f1f;
-	--ink-900: #16182e;
-	--ink-800: #232649;
-	--ink-700: #363a63;
-	--ink-500: #6a6f94;
-	--ink-300: #a9adc7;
-	--ink-200: #c9ccdd;
-	--ink-100: #e4e6ef;
-	--paper-0: #ffffff;
-	--paper-50: #f7f8fc;
-	--paper-100: #eef0f7;
-	--paper-200: #e1e4ef;
-	--paper-300: #cdd1e0;
-	--signal-800: #3d3dab;
-	--signal-700: #4c4ccc;
-	--signal-500: #6a68f2;
-	--signal-300: #a5a4f8;
-	--signal-100: #e5e5fd;
-	--signal-50: #f2f2fe;
-	--spark-600: #6e9414;
-	--spark-500: #8fc514;
-	--spark-100: #edf7d2;
-	--danger: #b3352e;
-	--danger-soft: #fbeaea;
-	--r-sm: 6px;
-	--r-md: 10px;
-	--r-lg: 14px;
-	--sh-sm: 0 1px 2px rgba(14, 15, 31, 0.05), 0 1px 1px rgba(14, 15, 31, 0.03);
-	--sh-md: 0 8px 24px -8px rgba(14, 15, 31, 0.16);
-	--sh-lg: 0 24px 60px -16px rgba(14, 15, 31, 0.28);
-	--ease: cubic-bezier(0.22, 1, 0.36, 1);
+	--ink-950: var(--md-neutral-4);
+	--ink-900: var(--md-sys-on-surface);
+	--ink-800: var(--md-neutral-20);
+	--ink-700: var(--md-sys-on-surface-variant);
+	--ink-500: var(--md-neutral-50);
+	--ink-300: var(--md-neutral-70);
+	--ink-200: var(--md-neutral-80);
+	--ink-100: var(--md-neutral-90);
+	--paper-0: var(--md-sys-surface-container-lowest);
+	--paper-50: var(--md-sys-surface);
+	--paper-100: var(--md-sys-surface-container-low);
+	--paper-200: var(--md-sys-surface-container-high);
+	--paper-300: var(--md-neutral-87);
+	--signal-800: var(--md-primary-20);
+	--signal-700: var(--md-sys-primary);
+	--signal-500: var(--md-primary-50);
+	--signal-300: var(--md-primary-80);
+	--signal-100: var(--md-sys-primary-container);
+	--signal-50: var(--md-primary-95);
+	--spark-600: var(--md-sys-tertiary);
+	--spark-500: var(--md-tertiary-60);
+	--spark-100: var(--md-sys-tertiary-container);
+	--danger: var(--md-sys-error);
+	--danger-soft: var(--md-sys-error-container);
+	--r-sm: var(--md-shape-xs);
+	--r-md: var(--md-shape-sm);
+	--r-lg: var(--md-shape-md);
+	--sh-sm: var(--md-elevation-1);
+	--sh-md: var(--md-elevation-2);
+	--sh-lg: var(--md-elevation-3);
+	--ease: var(--md-easing-emphasized-decelerate);
 	--nav-w: 216px;
 }
 
@@ -48,7 +53,7 @@
 	margin-left: -20px;
 	background: var(--paper-50);
 	color: var(--ink-900);
-	font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	font-family: var(--md-font-body);
 	font-size: 13.5px;
 	line-height: 1.55;
 }
@@ -159,7 +164,7 @@
 	margin-bottom: 20px;
 }
 
-.jsl-page-head h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; font-family: "Space Grotesk", "Manrope", sans-serif; }
+.jsl-page-head h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; font-family: var(--md-font-display), "Manrope", sans-serif; }
 .jsl-page-head .jsl-sub { color: var(--ink-500); font-size: 13px; margin-top: 2px; }
 .jsl-page-head__actions { display: flex; align-items: center; gap: 8px; }
 
@@ -234,7 +239,7 @@
 
 .jsl-stat__label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-500); display: flex; align-items: center; gap: 6px; }
 .jsl-stat__label svg { width: 14px; height: 14px; color: var(--signal-700); }
-.jsl-stat__value { font-family: "Space Grotesk", "Manrope", sans-serif; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink-900); font-variant-numeric: tabular-nums; }
+.jsl-stat__value { font-family: var(--md-font-display), "Manrope", sans-serif; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink-900); font-variant-numeric: tabular-nums; }
 .jsl-stat__hint { font-size: 12px; color: var(--ink-500); }
 
 .jsl-grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; align-items: start; }
@@ -569,7 +574,7 @@
 	animation: jsl-slide-in 240ms var(--ease);
 	font-size: 13.5px;
 	color: var(--ink-900);
-	font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	font-family: var(--md-font-body);
 }
 
 @keyframes jsl-fade { from { opacity: 0; } }
@@ -658,7 +663,7 @@
 	align-items: center;
 	gap: 8px;
 	animation: jsl-pop 240ms var(--ease);
-	font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	font-family: var(--md-font-body);
 }
 .jsl-toast--error { background: var(--danger); }
 .jsl-toast__icon { color: var(--signal-300); display: grid; place-items: center; }
@@ -728,8 +733,8 @@
 	outline: none;
 }
 
-.jsl-rte__area h2 { font-size: 20px; font-weight: 700; margin: 1.2em 0 0.4em; font-family: "Space Grotesk", "Manrope", sans-serif; }
-.jsl-rte__area h3 { font-size: 16px; font-weight: 700; margin: 1.1em 0 0.4em; font-family: "Space Grotesk", "Manrope", sans-serif; }
+.jsl-rte__area h2 { font-size: 20px; font-weight: 700; margin: 1.2em 0 0.4em; font-family: var(--md-font-display), "Manrope", sans-serif; }
+.jsl-rte__area h3 { font-size: 16px; font-weight: 700; margin: 1.1em 0 0.4em; font-family: var(--md-font-display), "Manrope", sans-serif; }
 .jsl-rte__area p { margin: 0.6em 0; }
 .jsl-rte__area a { color: var(--signal-700); text-decoration: underline; }
 .jsl-rte__area blockquote { border-left: 3px solid var(--signal-500); margin: 0.8em 0; padding: 0.2em 0 0.2em 14px; color: var(--ink-500); }

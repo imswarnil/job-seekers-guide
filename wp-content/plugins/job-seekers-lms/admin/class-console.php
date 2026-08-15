@@ -37,7 +37,8 @@ class Console {
 			return;
 		}
 
-		wp_enqueue_style( 'jsl-console', JSL_PLUGIN_URL . 'admin/assets/css/console.css', array(), JSL_VERSION );
+		Admin_Theme::enqueue_tokens();
+		wp_enqueue_style( 'jsl-console', JSL_PLUGIN_URL . 'admin/assets/css/console.css', array( 'jsl-md3-tokens' ), JSL_VERSION );
 		wp_enqueue_media();
 		wp_enqueue_script( 'jsl-console', JSL_PLUGIN_URL . 'admin/assets/js/console.js', array( 'media-editor' ), JSL_VERSION, true );
 

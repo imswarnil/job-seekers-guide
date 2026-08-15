@@ -3,31 +3,32 @@
  * CSS-only overrides of core admin chrome; no layout changes.
  */
 
+/* Aliases onto the Material 3 roles in md3-tokens.css. */
 :root {
-	--jsl-ink-950: #0e0f1f;
-	--jsl-ink-900: #16182e;
-	--jsl-ink-800: #232649;
-	--jsl-ink-700: #363a63;
-	--jsl-ink-500: #6a6f94;
-	--jsl-ink-300: #a9adc7;
-	--jsl-paper-0: #ffffff;
-	--jsl-paper-50: #f7f8fc;
-	--jsl-paper-100: #eef0f7;
-	--jsl-paper-200: #e1e4ef;
-	--jsl-paper-300: #cdd1e0;
-	--jsl-signal-800: #3d3dab;
-	--jsl-signal-700: #4c4ccc;
-	--jsl-signal-500: #6a68f2;
-	--jsl-signal-300: #a5a4f8;
-	--jsl-signal-100: #e5e5fd;
-	--jsl-spark-500: #8fc514;
+	--jsl-ink-950: var(--md-neutral-4);
+	--jsl-ink-900: var(--md-sys-on-surface);
+	--jsl-ink-800: var(--md-neutral-20);
+	--jsl-ink-700: var(--md-sys-on-surface-variant);
+	--jsl-ink-500: var(--md-neutral-50);
+	--jsl-ink-300: var(--md-neutral-70);
+	--jsl-paper-0: var(--md-sys-surface-container-lowest);
+	--jsl-paper-50: var(--md-sys-surface);
+	--jsl-paper-100: var(--md-sys-surface-container-low);
+	--jsl-paper-200: var(--md-sys-surface-container-high);
+	--jsl-paper-300: var(--md-neutral-87);
+	--jsl-signal-800: var(--md-primary-20);
+	--jsl-signal-700: var(--md-sys-primary);
+	--jsl-signal-500: var(--md-primary-50);
+	--jsl-signal-300: var(--md-primary-80);
+	--jsl-signal-100: var(--md-sys-primary-container);
+	--jsl-spark-500: var(--md-tertiary-60);
 }
 
 /* ---- Canvas + type ---- */
 
 body {
 	background: var(--jsl-paper-50);
-	font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	font-family: var(--md-font-body);
 	color: var(--jsl-ink-900);
 }
 

@@ -1,0 +1,133 @@
+/*
+ * Material 3 tokens for the admin side (LMS console, wp-admin skin, login).
+ *
+ * These are the same reference palettes and system roles as the theme's
+ * assets/css/tokens.css — the plugin carries its own copy so it stays
+ * self-contained and reskins wp-admin even if another theme is active.
+ * Keep the two in sync when the palette changes.
+ */
+
+:root {
+	/* Reference — primary (indigo) */
+	--md-primary-10: #101340;
+	--md-primary-20: #1e2465;
+	--md-primary-30: #2e3782;
+	--md-primary-40: #414ba0;
+	--md-primary-50: #5560b8;
+	--md-primary-60: #6e79ce;
+	--md-primary-70: #8892e0;
+	--md-primary-80: #b4baf0;
+	--md-primary-90: #e0e2ff;
+	--md-primary-95: #f0f0ff;
+	--md-primary-100: #ffffff;
+
+	/* Reference — secondary */
+	--md-secondary-10: #171a2c;
+	--md-secondary-20: #2c2f42;
+	--md-secondary-30: #424659;
+	--md-secondary-40: #5a5d71;
+	--md-secondary-80: #c3c5dd;
+	--md-secondary-90: #e0e1f9;
+
+	/* Reference — tertiary (teal-green) */
+	--md-tertiary-10: #002014;
+	--md-tertiary-20: #003825;
+	--md-tertiary-30: #005138;
+	--md-tertiary-40: #006c4b;
+	--md-tertiary-60: #3aad82;
+	--md-tertiary-80: #6fdbae;
+	--md-tertiary-90: #8df8c8;
+
+	/* Reference — error */
+	--md-error-10: #410002;
+	--md-error-30: #93000a;
+	--md-error-40: #ba1a1a;
+	--md-error-80: #ffb4ab;
+	--md-error-90: #ffdad6;
+
+	/* Reference — neutral */
+	--md-neutral-0: #000000;
+	--md-neutral-4: #0c0c11;
+	--md-neutral-6: #121218;
+	--md-neutral-10: #1b1b21;
+	--md-neutral-12: #1f1f26;
+	--md-neutral-17: #2a2a31;
+	--md-neutral-20: #303038;
+	--md-neutral-22: #34343c;
+	--md-neutral-30: #46464f;
+	--md-neutral-40: #5e5e67;
+	--md-neutral-50: #777680;
+	--md-neutral-60: #91909a;
+	--md-neutral-70: #abaab4;
+	--md-neutral-80: #c7c6d0;
+	--md-neutral-87: #dbdae4;
+	--md-neutral-90: #e4e1ec;
+	--md-neutral-92: #eae7f2;
+	--md-neutral-94: #f0edf8;
+	--md-neutral-95: #f3f0fa;
+	--md-neutral-96: #f6f3fd;
+	--md-neutral-98: #fcf8ff;
+	--md-neutral-100: #ffffff;
+
+	--md-neutral-variant-30: #46464f;
+	--md-neutral-variant-50: #777680;
+	--md-neutral-variant-60: #91909a;
+	--md-neutral-variant-80: #c7c5d0;
+	--md-neutral-variant-90: #e3e1ec;
+
+	/* System roles — light */
+	--md-sys-primary: var(--md-primary-40);
+	--md-sys-on-primary: var(--md-primary-100);
+	--md-sys-primary-container: var(--md-primary-90);
+	--md-sys-on-primary-container: var(--md-primary-10);
+	--md-sys-secondary-container: var(--md-secondary-90);
+	--md-sys-on-secondary-container: var(--md-secondary-10);
+	--md-sys-tertiary: var(--md-tertiary-40);
+	--md-sys-tertiary-container: var(--md-tertiary-90);
+	--md-sys-on-tertiary-container: var(--md-tertiary-10);
+	--md-sys-error: var(--md-error-40);
+	--md-sys-error-container: var(--md-error-90);
+	--md-sys-on-error-container: var(--md-error-10);
+
+	--md-sys-surface: var(--md-neutral-98);
+	--md-sys-on-surface: var(--md-neutral-10);
+	--md-sys-on-surface-variant: var(--md-neutral-variant-30);
+	--md-sys-surface-container-lowest: var(--md-neutral-100);
+	--md-sys-surface-container-low: var(--md-neutral-96);
+	--md-sys-surface-container: var(--md-neutral-94);
+	--md-sys-surface-container-high: var(--md-neutral-92);
+	--md-sys-surface-container-highest: var(--md-neutral-90);
+	--md-sys-outline: var(--md-neutral-variant-50);
+	--md-sys-outline-variant: var(--md-neutral-variant-80);
+	--md-sys-inverse-surface: var(--md-neutral-20);
+	--md-sys-inverse-on-surface: var(--md-neutral-95);
+
+	/* State layers */
+	--md-state-hover: 0.08;
+	--md-state-focus: 0.10;
+	--md-state-pressed: 0.10;
+
+	/* Elevation, tuned for a light admin canvas */
+	--md-elevation-1: 0 1px 2px rgba(27, 27, 33, 0.08), 0 1px 3px 1px rgba(27, 27, 33, 0.05);
+	--md-elevation-2: 0 2px 6px 2px rgba(27, 27, 33, 0.08), 0 1px 2px rgba(27, 27, 33, 0.10);
+	--md-elevation-3: 0 8px 24px 4px rgba(27, 27, 33, 0.12), 0 2px 6px rgba(27, 27, 33, 0.08);
+
+	/* Shape */
+	--md-shape-xs: 4px;
+	--md-shape-sm: 8px;
+	--md-shape-md: 12px;
+	--md-shape-lg: 16px;
+	--md-shape-xl: 28px;
+	--md-shape-full: 999px;
+
+	/* Motion */
+	--md-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+	--md-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+	--md-duration-short: 100ms;
+	--md-duration-medium: 250ms;
+
+	/* Type */
+	--md-font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	--md-font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	--md-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}

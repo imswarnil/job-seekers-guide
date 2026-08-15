@@ -13,6 +13,7 @@ define( 'JSL_THEME_VERSION', '0.5.0' );
 define( 'JSL_THEME_DIR', get_template_directory() );
 define( 'JSL_THEME_URI', get_template_directory_uri() );
 
+require_once JSL_THEME_DIR . '/inc/icons.php';
 require_once JSL_THEME_DIR . '/inc/dark-mode.php';
 
 add_action( 'after_setup_theme', 'jsl_theme_setup' );
@@ -33,43 +34,95 @@ function jsl_theme_favicon() {
 }
 
 function jsl_theme_assets() {
+	// Plus Jakarta Sans (display) + Inter (body/UI) + JetBrains Mono (code).
 	wp_enqueue_style(
 		'jsl-fonts',
-		'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap',
+		'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;600&display=swap',
 		array(),
 		null
 	);
-	wp_enqueue_style( 'jsl-app', JSL_THEME_URI . '/assets/css/app.css', array( 'jsl-fonts' ), JSL_THEME_VERSION );
-	wp_enqueue_script( 'jsl-theme', JSL_THEME_URI . '/assets/js/theme.js', array(), JSL_THEME_VERSION, true );
+	wp_enqueue_style( 'jsl-app', JSL_THEME_URI . '/assets/css/app.css', array( 'jsl-fonts' ), jsl_asset_version( '/assets/css/app.css' ) );
+	wp_enqueue_script( 'jsl-theme', JSL_THEME_URI . '/assets/js/theme.js', array(), jsl_asset_version( '/assets/js/theme.js' ), true );
 }
 
 /**
- * Small inline SVG icon helper. Icons are hand-drawn 24px strokes.
+ * Cache-busting version for a theme asset: the file's own modification time.
  *
- * @param string $name Icon key.
- * @param string $class Extra classes.
+ * The theme version alone is not enough — CSS and JS change far more often
+ * than the version constant gets bumped, and a stale cached stylesheet after
+ * a deploy looks exactly like a broken design.
+ *
+ * @param string $relative_path Path from the theme root, with a leading slash.
  */
-function jsl_icon( $name, $class = 'w-5 h-5' ) {
-	$paths = array(
-		'play'      => '<path d="M8 5.5v13l11-6.5-11-6.5Z"/>',
-		'check'     => '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
-		'arrow-r'   => '<path d="M4 12h16m-6-6 6 6-6 6"/>',
-		'arrow-l'   => '<path d="M20 12H4m6-6-6 6 6 6"/>',
-		'clock'     => '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
-		'layers'    => '<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/>',
-		'doc'       => '<path d="M7 3h7l5 5v13H7V3Z"/><path d="M14 3v5h5"/>',
-		'lock'      => '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
-		'menu'      => '<path d="M4 7h16M4 12h16M4 17h16"/>',
-		'x'         => '<path d="m6 6 12 12M18 6 6 18"/>',
-		'compass'   => '<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/>',
-		'spark'     => '<path d="M12 3v4m0 10v4m9-9h-4M7 12H3m14.5-6.5-3 3m-5 5-3 3m11 0-3-3m-5-5-3-3"/>',
+function jsl_asset_version( $relative_path ) {
+	$file = JSL_THEME_DIR . $relative_path;
+	$time = file_exists( $file ) ? filemtime( $file ) : 0;
+
+	return $time ? JSL_THEME_VERSION . '.' . $time : JSL_THEME_VERSION;
+}
+
+/**
+ * Inline Phosphor icon.
+ *
+ * Icons are baked into inc/icons.php by `npm run icons`, so rendering one
+ * costs an array lookup — no icon font, no network request, and it works
+ * offline in the PWA. Append "-fill" to a name for the solid variant
+ * (e.g. jsl_icon( 'check-circle-fill' )).
+ *
+ * @param string $name  Phosphor icon name, or a legacy alias.
+ * @param string $class Classes for the <svg> element.
+ * @param string $title Accessible name. Empty (default) renders the icon as
+ *                      decorative, which is right when adjacent text already
+ *                      names the action.
+ */
+function jsl_icon( $name, $class = 'w-5 h-5', $title = '' ) {
+	static $paths = null;
+
+	if ( null === $paths ) {
+		$paths = jsl_icon_paths();
+	}
+
+	// Names used by templates written before the Phosphor switch.
+	$aliases = array(
+		'play'    => 'play-fill',
+		'arrow-r' => 'arrow-right',
+		'arrow-l' => 'arrow-left',
+		'layers'  => 'stack',
+		'doc'     => 'article',
+		'menu'    => 'list',
+		'spark'   => 'sparkle',
 	);
 
-	if ( ! isset( $paths[ $name ] ) ) {
+	$key = $aliases[ $name ] ?? $name;
+
+	if ( ! isset( $paths[ $key ] ) ) {
 		return '';
 	}
 
-	return '<svg class="' . esc_attr( $class ) . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $paths[ $name ] . '</svg>';
+	$a11y = $title
+		? 'role="img" aria-label="' . esc_attr( $title ) . '"'
+		: 'aria-hidden="true" focusable="false"';
+
+	return '<svg class="' . esc_attr( $class ) . '" viewBox="0 0 256 256" fill="currentColor" ' . $a11y . '>' . $paths[ $key ] . '</svg>';
+}
+
+/**
+ * The brand mark, inline. A magnifying glass with a briefcase in the lens —
+ * the job search, and the thing being searched for.
+ *
+ * Kept in sync with assets/img/logo.svg (that file is the standalone asset
+ * for the manifest, OG images and anywhere an <img> is needed; this is the
+ * inline version so it can take its colour from its container).
+ *
+ * @param string $class Classes for the <svg>.
+ */
+function jsl_logo_mark( $class = 'w-5 h-5' ) {
+	return '<svg class="' . esc_attr( $class ) . '" viewBox="0 0 256 256" fill="none" aria-hidden="true" focusable="false">'
+		. '<circle cx="106" cy="106" r="72" stroke="currentColor" stroke-width="18"/>'
+		. '<path d="M158 158L214 214" stroke="currentColor" stroke-width="24" stroke-linecap="round"/>'
+		. '<path d="M90 90V82a12 12 0 0 1 12-12h8a12 12 0 0 1 12 12v8" stroke="currentColor" stroke-width="13" stroke-linecap="round"/>'
+		. '<path d="M70 90h72a12 12 0 0 1 12 12v34a12 12 0 0 1-12 12H70a12 12 0 0 1-12-12v-34a12 12 0 0 1 12-12Zm28 22h16a4 4 0 0 1 0 8H98a4 4 0 0 1 0-8Z" fill="currentColor" fill-rule="evenodd"/>'
+		. '</svg>';
 }
 
 /**

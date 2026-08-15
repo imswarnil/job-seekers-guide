@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-get_header();
+get_header( 'player' );
 
 while ( have_posts() ) :
 	the_post();
@@ -131,26 +131,20 @@ while ( have_posts() ) :
 
 		<!-- Main column -->
 		<article class="min-w-0 flex-1">
-			<!-- Player toolbar -->
-			<div class="sticky top-[3.5rem] z-20 flex items-center gap-3 border-b border-line bg-surface/90 px-4 py-2 backdrop-blur-md md:px-8">
-				<button type="button" class="grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-md border border-line text-ink lg:hidden" data-player-nav-toggle aria-expanded="false" aria-label="<?php esc_attr_e( 'Course content', 'job-seekers-theme' ); ?>">
-					<?php echo jsl_icon( 'layers', 'w-4 h-4' ); ?>
-				</button>
-
-				<?php if ( $course_id ) : ?>
-					<a class="hidden items-center gap-1.5 truncate text-sm font-medium text-ink-muted hover:text-accent sm:inline-flex" href="<?php echo esc_url( get_permalink( $course_id ) ); ?>">
-						<?php echo jsl_icon( 'arrow-l', 'w-4 h-4' ); ?>
-						<span class="truncate"><?php echo esc_html( get_the_title( $course_id ) ); ?></span>
-					</a>
-					<?php if ( $position && $total ) : ?>
-						<span class="text-xs text-ink-muted"><?php printf( esc_html__( 'Lesson %1$d of %2$d', 'job-seekers-theme' ), (int) $position, (int) $total ); ?></span>
-					<?php endif; ?>
+			<!-- Lesson action bar. Course title, position and progress live in
+			     the app bar above; this holds only the action for THIS lesson. -->
+			<div class="sticky top-[3.5rem] z-20 flex items-center gap-3 border-b border-outline-variant bg-surface/90 px-4 py-2 backdrop-blur-md md:px-8">
+				<?php if ( $duration ) : ?>
+					<span class="inline-flex items-center gap-1.5 text-xs font-medium text-on-surface-variant">
+						<?php echo jsl_icon( 'clock', 'w-4 h-4' ); ?>
+						<?php printf( esc_html__( '%d min', 'job-seekers-theme' ), (int) $duration ); ?>
+					</span>
 				<?php endif; ?>
 
 				<div class="ml-auto flex items-center gap-2">
-					<?php if ( $user_id && $course_id ) : ?>
+					<?php if ( $user_id && $course_id && ! $locked ) : ?>
 						<button type="button"
-							class="jsl-btn jsl-btn--sm <?php echo $is_done ? 'jsl-btn--ghost' : 'jsl-btn--primary'; ?>"
+							class="jsl-btn jsl-btn--sm <?php echo $is_done ? 'jsl-btn--tonal' : 'jsl-btn--primary'; ?>"
 							id="jsl-complete-btn"
 							data-lesson-id="<?php echo esc_attr( $lesson_id ); ?>"
 							data-completed="<?php echo $is_done ? '1' : '0'; ?>"
@@ -196,10 +190,7 @@ while ( have_posts() ) :
 			<?php endif; ?>
 
 				<header class="<?php echo $video ? 'mt-6' : ''; ?>">
-					<h1 class="m-0 text-2xl font-extrabold tracking-tight md:text-3xl"><?php the_title(); ?></h1>
-					<?php if ( $duration ) : ?>
-						<p class="mt-1 inline-flex items-center gap-1.5 text-sm text-ink-muted"><?php echo jsl_icon( 'clock', 'w-4 h-4' ); ?><?php printf( esc_html__( '%d min', 'job-seekers-theme' ), $duration ); ?></p>
-					<?php endif; ?>
+					<h1 class="m-0 font-display text-2xl font-extrabold tracking-tight md:text-3xl"><?php the_title(); ?></h1>
 				</header>
 
 				<?php if ( $locked ) : ?>
@@ -261,7 +252,7 @@ while ( have_posts() ) :
 	<?php
 endwhile;
 
-wp_enqueue_script( 'jsl-lesson', JSL_THEME_URI . '/assets/js/lesson.js', array(), JSL_THEME_VERSION, true );
+wp_enqueue_script( 'jsl-lesson', JSL_THEME_URI . '/assets/js/lesson.js', array(), jsl_asset_version( '/assets/js/lesson.js' ), true );
 wp_localize_script(
 	'jsl-lesson',
 	'jslLesson',

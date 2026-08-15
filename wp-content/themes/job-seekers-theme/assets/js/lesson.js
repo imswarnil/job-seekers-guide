@@ -183,12 +183,15 @@
 				} );
 		}
 
-		var btn = document.getElementById( 'jsl-complete-btn' );
-		if ( ! btn || ! window.jslLesson ) {
+		var btn      = document.getElementById( 'jsl-complete-btn' );
+		var nextLink = document.getElementById( 'jsl-next-link' );
+
+		if ( ! window.jslLesson ) {
 			return;
 		}
 
-		var checkIcon = '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+		// Phosphor "check", matching the server-rendered icons.
+		var checkIcon = '<svg class="w-3 h-3" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>';
 
 		function setDot( lessonId, done ) {
 			var row = document.querySelector( '[data-lesson-row="' + lessonId + '"]' );
@@ -197,37 +200,47 @@
 				return;
 			}
 			if ( done ) {
-				dot.className = 'grid h-5 w-5 shrink-0 place-items-center rounded-full bg-accent text-on-accent';
+				dot.className = 'grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary text-on-primary';
 				dot.innerHTML = checkIcon;
 			} else {
-				dot.className = 'grid h-5 w-5 shrink-0 place-items-center rounded-full border border-line-strong text-ink-muted';
+				dot.className = 'grid h-5 w-5 shrink-0 place-items-center rounded-full border border-outline text-on-surface-variant';
 				dot.innerHTML = '';
 			}
 		}
 
+		/**
+		 * Progress is shown in two places at once — the app bar and the
+		 * curriculum sidebar — so update every instance, not just the first.
+		 */
 		function setProgress( progress ) {
-			var bar     = document.querySelector( '[data-progress-bar]' );
-			var label   = document.querySelector( '[data-progress-label]' );
-			var percent = document.querySelector( '[data-progress-percent]' );
-			if ( bar ) {
+			document.querySelectorAll( '[data-progress-bar]' ).forEach( function ( bar ) {
 				bar.style.width = progress.percent + '%';
-			}
-			if ( label ) {
-				label.textContent = progress.completed + ' / ' + progress.total + ' complete';
-			}
-			if ( percent ) {
-				percent.textContent = progress.percent + '%';
-			}
+			} );
+			document.querySelectorAll( '[data-progress-percent]' ).forEach( function ( el ) {
+				el.textContent = progress.percent + '%';
+			} );
+			document.querySelectorAll( '[data-progress-label]' ).forEach( function ( el ) {
+				el.textContent = progress.completed + ' / ' + progress.total + ' complete';
+			} );
 		}
 
-		btn.addEventListener( 'click', function () {
-			var lessonId = btn.getAttribute( 'data-lesson-id' );
-			var done     = btn.getAttribute( 'data-completed' ) === '1';
+		function paintButton( done ) {
+			if ( ! btn ) {
+				return;
+			}
+			btn.setAttribute( 'data-completed', done ? '1' : '0' );
+			btn.textContent = done ? btn.getAttribute( 'data-label-done' ) : btn.getAttribute( 'data-label-todo' );
+			btn.classList.toggle( 'jsl-btn--primary', ! done );
+			btn.classList.toggle( 'jsl-btn--tonal', done );
+		}
 
-			btn.disabled = true;
-
-			fetch( window.jslLesson.restUrl + '/lessons/' + lessonId + '/complete', {
-				method: done ? 'DELETE' : 'POST',
+		/**
+		 * @param {string} method POST to complete, DELETE to un-complete.
+		 * @returns {Promise} Resolves once the server has confirmed.
+		 */
+		function setCompletion( lessonId, method ) {
+			return fetch( window.jslLesson.restUrl + '/lessons/' + lessonId + '/complete', {
+				method: method,
 				headers: { 'X-WP-Nonce': window.jslLesson.nonce },
 			} )
 				.then( function ( res ) {
@@ -238,24 +251,69 @@
 				} )
 				.then( function ( data ) {
 					var nowDone = !! data.completed;
-					btn.setAttribute( 'data-completed', nowDone ? '1' : '0' );
-					btn.textContent = nowDone ? btn.getAttribute( 'data-label-done' ) : btn.getAttribute( 'data-label-todo' );
-					btn.classList.toggle( 'jsl-btn--primary', ! nowDone );
-					btn.classList.toggle( 'jsl-btn--ghost', nowDone );
+					paintButton( nowDone );
 					setDot( lessonId, nowDone );
 					if ( data.progress ) {
 						setProgress( data.progress );
 					}
-					btn.disabled = false;
-
-					var next = document.getElementById( 'jsl-next-link' );
-					if ( nowDone && next ) {
-						next.classList.add( 'border-accent' );
-					}
-				} )
-				.catch( function () {
-					btn.disabled = false;
+					return nowDone;
 				} );
-		} );
+		}
+
+		if ( btn ) {
+			btn.addEventListener( 'click', function () {
+				var lessonId = btn.getAttribute( 'data-lesson-id' );
+				var done     = btn.getAttribute( 'data-completed' ) === '1';
+
+				btn.disabled = true;
+
+				setCompletion( lessonId, done ? 'DELETE' : 'POST' )
+					.catch( function () {} )
+					.then( function () {
+						btn.disabled = false;
+					} );
+			} );
+		}
+
+		/**
+		 * Moving on IS finishing the lesson. Clicking "Next" marks the current
+		 * lesson complete first, then navigates — so a learner working through
+		 * a course never has to also remember to press a button.
+		 *
+		 * The navigation is not held hostage to the request: if the write
+		 * fails or is slow, we still go to the next lesson after a short
+		 * grace period rather than stranding the learner on a dead link.
+		 */
+		if ( nextLink && btn && btn.getAttribute( 'data-completed' ) !== '1' ) {
+			nextLink.addEventListener( 'click', function ( event ) {
+				// Let modified clicks (new tab/window) behave normally.
+				if ( event.metaKey || event.ctrlKey || event.shiftKey || 1 === event.button ) {
+					return;
+				}
+
+				if ( nextLink.dataset.jslGo === '1' ) {
+					return; // Second pass, after the write settled.
+				}
+
+				event.preventDefault();
+
+				var lessonId = btn.getAttribute( 'data-lesson-id' );
+				var go       = function () {
+					nextLink.dataset.jslGo = '1';
+					window.location.href = nextLink.href;
+				};
+
+				var settled = false;
+				var once    = function () {
+					if ( ! settled ) {
+						settled = true;
+						go();
+					}
+				};
+
+				setCompletion( lessonId, 'POST' ).catch( function () {} ).then( once );
+				window.setTimeout( once, 1200 );
+			} );
+		}
 	} );
 } )();

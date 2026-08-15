@@ -172,7 +172,7 @@ while ( have_posts() ) :
 	<?php
 endwhile;
 
-wp_enqueue_script( 'jsl-course', JSL_THEME_URI . '/assets/js/course.js', array(), JSL_THEME_VERSION, true );
+wp_enqueue_script( 'jsl-course', JSL_THEME_URI . '/assets/js/course.js', array(), jsl_asset_version( '/assets/js/course.js' ), true );
 wp_localize_script(
 	'jsl-course',
 	'jslCourse',
