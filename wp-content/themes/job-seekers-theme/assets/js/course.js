@@ -5,8 +5,49 @@
 		var btn = document.getElementById( 'jsl-enroll-btn' );
 		var box = document.getElementById( 'jsl-enroll-box' );
 		var status = document.getElementById( 'jsl-enroll-status' );
+		var subBtn = document.getElementById( 'jsl-subscribe-btn' );
 
-		if ( ! btn || ! box || ! window.jslCourse ) {
+		if ( ! box || ! window.jslCourse ) {
+			return;
+		}
+
+		// Subscribe to the whole platform instead of buying this one course.
+		if ( subBtn ) {
+			subBtn.addEventListener( 'click', function () {
+				subBtn.disabled = true;
+				if ( status ) {
+					status.textContent = 'Opening checkout…';
+				}
+
+				fetch( window.jslCourse.restUrl + '/subscribe', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': window.jslCourse.nonce },
+				} )
+					.then( function ( res ) { return res.json(); } )
+					.then( function ( data ) {
+						if ( data.checkout_url ) {
+							window.location.href = data.checkout_url;
+							return;
+						}
+						if ( data.already_subscribed ) {
+							window.location.reload();
+							return;
+						}
+						if ( status ) {
+							status.textContent = data.error || 'Could not start checkout.';
+						}
+						subBtn.disabled = false;
+					} )
+					.catch( function () {
+						if ( status ) {
+							status.textContent = 'Network error — try again.';
+						}
+						subBtn.disabled = false;
+					} );
+			} );
+		}
+
+		if ( ! btn ) {
 			return;
 		}
 

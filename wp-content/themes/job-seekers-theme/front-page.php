@@ -196,6 +196,68 @@ $jsl_my = array_slice( $jsl_my, 0, 3 );
 		</section>
 	<?php endforeach; ?>
 
+	<?php
+	// Pricing: only shown once a subscription is actually configured, so a
+	// site that only sells individual courses doesn't advertise a plan that
+	// cannot be bought.
+	$jsl_sub_on = class_exists( 'JSL\\Payments\\Subscription' ) && \JSL\Payments\Subscription::is_enabled();
+	if ( $jsl_sub_on ) :
+		$jsl_sub_price = \JSL\Payments\Subscription::price_label();
+		$jsl_sub_blurb = \JSL\Payments\Subscription::blurb();
+		$jsl_all_access = class_exists( 'JSL\\Access\\Access' ) && \JSL\Access\Access::has_all_access();
+		?>
+		<section class="mt-20 md:mt-28" aria-labelledby="jsl-pricing-head">
+			<div class="text-center">
+				<span class="jsl-eyebrow"><?php esc_html_e( 'Pricing', 'job-seekers-theme' ); ?></span>
+				<h2 id="jsl-pricing-head" class="m-0 mt-2 font-display text-2xl font-extrabold tracking-tight md:text-3xl"><?php esc_html_e( 'Two ways in', 'job-seekers-theme' ); ?></h2>
+				<p class="mx-auto mt-3 max-w-lg text-on-surface-variant"><?php esc_html_e( 'Buy a single course and keep it, or subscribe and get everything on the platform while you’re job hunting.', 'job-seekers-theme' ); ?></p>
+			</div>
+
+			<div class="mx-auto mt-10 grid max-w-4xl gap-6 md:grid-cols-2">
+				<!-- Per course -->
+				<div class="jsl-card flex flex-col p-8">
+					<h3 class="m-0 font-display text-lg font-bold"><?php esc_html_e( 'A single course', 'job-seekers-theme' ); ?></h3>
+					<p class="mt-2 text-sm text-on-surface-variant"><?php esc_html_e( 'Pay once for the course you need. Every lesson in it unlocks immediately, and it stays yours.', 'job-seekers-theme' ); ?></p>
+					<ul class="m-0 mt-6 flex flex-1 list-none flex-col gap-3 p-0 text-sm">
+						<li class="flex items-start gap-2.5"><span class="mt-0.5 text-primary"><?php echo jsl_icon( 'check-circle-fill', 'w-4 h-4' ); ?></span><?php esc_html_e( 'All lessons in that course', 'job-seekers-theme' ); ?></li>
+						<li class="flex items-start gap-2.5"><span class="mt-0.5 text-primary"><?php echo jsl_icon( 'check-circle-fill', 'w-4 h-4' ); ?></span><?php esc_html_e( 'Progress tracking and quizzes', 'job-seekers-theme' ); ?></li>
+						<li class="flex items-start gap-2.5"><span class="mt-0.5 text-primary"><?php echo jsl_icon( 'check-circle-fill', 'w-4 h-4' ); ?></span><?php esc_html_e( 'No recurring charge', 'job-seekers-theme' ); ?></li>
+					</ul>
+					<a class="jsl-btn jsl-btn--outlined mt-7" href="<?php echo esc_url( get_post_type_archive_link( 'course' ) ); ?>"><?php esc_html_e( 'Browse courses', 'job-seekers-theme' ); ?></a>
+				</div>
+
+				<!-- Everything -->
+				<div class="relative flex flex-col rounded-xl border-2 border-primary bg-surface-lowest p-8 shadow-md">
+					<span class="absolute -top-3 left-8 rounded-full bg-primary px-3 py-1 text-xs font-bold text-on-primary"><?php esc_html_e( 'Best value', 'job-seekers-theme' ); ?></span>
+					<h3 class="m-0 font-display text-lg font-bold"><?php esc_html_e( 'Everything', 'job-seekers-theme' ); ?></h3>
+					<?php if ( $jsl_sub_price ) : ?>
+						<p class="m-0 mt-3 font-display text-3xl font-extrabold tracking-tight"><?php echo esc_html( $jsl_sub_price ); ?></p>
+					<?php endif; ?>
+					<p class="mt-2 text-sm text-on-surface-variant">
+						<?php echo $jsl_sub_blurb ? esc_html( $jsl_sub_blurb ) : esc_html__( 'Every course, every path, for as long as your subscription is active.', 'job-seekers-theme' ); ?>
+					</p>
+					<ul class="m-0 mt-6 flex flex-1 list-none flex-col gap-3 p-0 text-sm">
+						<li class="flex items-start gap-2.5"><span class="mt-0.5 text-primary"><?php echo jsl_icon( 'check-circle-fill', 'w-4 h-4' ); ?></span><?php esc_html_e( 'Every course on the platform', 'job-seekers-theme' ); ?></li>
+						<li class="flex items-start gap-2.5"><span class="mt-0.5 text-primary"><?php echo jsl_icon( 'check-circle-fill', 'w-4 h-4' ); ?></span><?php esc_html_e( 'Every new course as it lands', 'job-seekers-theme' ); ?></li>
+						<li class="flex items-start gap-2.5"><span class="mt-0.5 text-primary"><?php echo jsl_icon( 'check-circle-fill', 'w-4 h-4' ); ?></span><?php esc_html_e( 'Cancel whenever you’re hired', 'job-seekers-theme' ); ?></li>
+					</ul>
+
+					<?php if ( $jsl_all_access ) : ?>
+						<p class="mt-7 inline-flex items-center justify-center gap-2 rounded-full bg-tertiary-container px-4 py-3 text-sm font-semibold text-on-tertiary-container">
+							<?php echo jsl_icon( 'check-circle-fill', 'w-4 h-4' ); ?>
+							<?php esc_html_e( 'You have full access', 'job-seekers-theme' ); ?>
+						</p>
+					<?php elseif ( is_user_logged_in() ) : ?>
+						<button type="button" class="jsl-btn jsl-btn--primary mt-7" id="jsl-home-subscribe"><?php esc_html_e( 'Subscribe', 'job-seekers-theme' ); ?></button>
+						<p class="m-0 mt-2 min-h-5 text-center text-xs text-on-surface-variant" id="jsl-home-subscribe-status" aria-live="polite"></p>
+					<?php else : ?>
+						<a class="jsl-btn jsl-btn--primary mt-7" href="<?php echo esc_url( wp_login_url( home_url( '/' ) ) ); ?>"><?php esc_html_e( 'Sign in to subscribe', 'job-seekers-theme' ); ?></a>
+					<?php endif; ?>
+				</div>
+			</div>
+		</section>
+	<?php endif; ?>
+
 	<!-- CTA band -->
 	<section class="mt-20 overflow-hidden rounded-2xl bg-hero px-8 py-12 text-center text-on-hero md:mt-28 md:px-16 md:py-16">
 		<h2 class="m-0 text-2xl font-extrabold tracking-tight md:text-3xl"><?php esc_html_e( 'Ready to start your path?', 'job-seekers-theme' ); ?></h2>
@@ -207,4 +269,18 @@ $jsl_my = array_slice( $jsl_my, 0, 3 );
 	</section>
 </div>
 
-<?php get_footer(); ?>
+<?php
+if ( $jsl_sub_on && is_user_logged_in() ) {
+	wp_enqueue_script( 'jsl-subscribe', JSL_THEME_URI . '/assets/js/subscribe.js', array(), jsl_asset_version( '/assets/js/subscribe.js' ), true );
+	wp_localize_script(
+		'jsl-subscribe',
+		'jslSubscribe',
+		array(
+			'restUrl' => esc_url_raw( rest_url( 'jsl/v1' ) ),
+			'nonce'   => wp_create_nonce( 'wp_rest' ),
+		)
+	);
+}
+
+get_footer();
+?>

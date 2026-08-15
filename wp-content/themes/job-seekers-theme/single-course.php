@@ -17,8 +17,21 @@ while ( have_posts() ) :
 	$is_paid   = class_exists( 'JSL\\Payments\\Course_Pricing' ) && \JSL\Payments\Course_Pricing::is_paid( $course_id );
 	$price     = $is_paid ? \JSL\Payments\Course_Pricing::price_label( $course_id ) : '';
 
-	$user_id     = get_current_user_id();
+	$user_id = get_current_user_id();
+
+	// "Enrolled" is no longer the only way in: a platform subscription (or
+	// being staff) grants access too. Ask the access layer, not the
+	// enrollment table, so every surface agrees.
+	$has_access  = class_exists( 'JSL\\Access\\Access' )
+		? \JSL\Access\Access::can_view_course_content( $course_id, $user_id )
+		: true;
 	$is_enrolled = $user_id && class_exists( 'JSL\\Enrollment\\Enrollment' ) && \JSL\Enrollment\Enrollment::is_enrolled( $user_id, $course_id );
+	// Access to a paid course without having bought this specific course
+	// means it came from a subscription (or staff privileges).
+	$via_plan = $has_access && $is_paid && ! $is_enrolled;
+
+	$subscription_on = class_exists( 'JSL\\Payments\\Subscription' ) && \JSL\Payments\Subscription::is_enabled();
+	$sub_price       = $subscription_on ? \JSL\Payments\Subscription::price_label() : '';
 	$completed   = $user_id && class_exists( 'JSL\\Progress\\Progress' ) ? \JSL\Progress\Progress::completed_lesson_ids( $user_id, $course_id ) : array();
 	$progress    = $stats['lessons'] > 0 ? (int) round( count( $completed ) / $stats['lessons'] * 100 ) : 0;
 
@@ -49,8 +62,8 @@ while ( have_posts() ) :
 						<span class="rounded-md border border-white/15 bg-white/5 px-2.5 py-1 font-mono text-xs font-semibold tracking-wider text-signal-300"><?php echo esc_html( $course_code ); ?></span>
 					<?php endif; ?>
 					<span class="jsl-badge <?php echo $is_paid ? 'jsl-badge--paid' : 'jsl-badge--free'; ?>"><?php echo $is_paid ? esc_html__( 'Paid', 'job-seekers-theme' ) : esc_html__( 'Free', 'job-seekers-theme' ); ?></span>
-					<?php if ( $is_enrolled ) : ?>
-						<span class="jsl-badge jsl-badge--free"><?php echo jsl_icon( 'check', 'w-3 h-3' ); ?> <?php esc_html_e( 'Enrolled', 'job-seekers-theme' ); ?></span>
+					<?php if ( $is_enrolled || $via_plan ) : ?>
+						<span class="jsl-badge jsl-badge--free"><?php echo jsl_icon( 'check', 'w-3 h-3' ); ?> <?php echo $via_plan ? esc_html__( 'In your plan', 'job-seekers-theme' ) : esc_html__( 'Enrolled', 'job-seekers-theme' ); ?></span>
 					<?php endif; ?>
 				</div>
 
@@ -67,7 +80,7 @@ while ( have_posts() ) :
 					<?php endif; ?>
 				</div>
 
-				<?php if ( $is_enrolled && $stats['lessons'] ) : ?>
+				<?php if ( $user_id && $has_access && $stats['lessons'] ) : ?>
 					<div class="mt-7 max-w-md">
 						<div class="flex items-center justify-between text-xs font-semibold text-hero-muted">
 							<span><?php printf( esc_html__( '%1$d of %2$d lessons complete', 'job-seekers-theme' ), count( $completed ), (int) $stats['lessons'] ); ?></span>
@@ -82,24 +95,47 @@ while ( have_posts() ) :
 
 			<!-- Enroll card -->
 			<aside class="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm md:sticky md:top-24" id="jsl-enroll-box" data-course-id="<?php echo esc_attr( $course_id ); ?>">
-				<p class="m-0 text-3xl font-extrabold text-on-hero">
-					<?php echo $is_paid ? esc_html( $price ?: '—' ) : esc_html__( 'Free', 'job-seekers-theme' ); ?>
-				</p>
-				<p class="mt-1 text-sm text-hero-muted"><?php echo $is_paid ? esc_html__( 'One-time payment, lifetime access.', 'job-seekers-theme' ) : esc_html__( 'Full access, no card required.', 'job-seekers-theme' ); ?></p>
+				<?php if ( $via_plan ) : ?>
+					<p class="m-0 inline-flex items-center gap-2 text-lg font-extrabold text-on-hero">
+						<?php echo jsl_icon( 'check-circle-fill', 'w-5 h-5' ); ?>
+						<?php esc_html_e( 'Included in your plan', 'job-seekers-theme' ); ?>
+					</p>
+					<p class="mt-1 text-sm text-hero-muted"><?php esc_html_e( 'Your subscription covers this course.', 'job-seekers-theme' ); ?></p>
+				<?php else : ?>
+					<p class="m-0 text-3xl font-extrabold text-on-hero">
+						<?php echo $is_paid ? esc_html( $price ?: '—' ) : esc_html__( 'Free', 'job-seekers-theme' ); ?>
+					</p>
+					<p class="mt-1 text-sm text-hero-muted"><?php echo $is_paid ? esc_html__( 'One-time payment. Buy once and every lesson in this course unlocks.', 'job-seekers-theme' ) : esc_html__( 'Full access, no card required.', 'job-seekers-theme' ); ?></p>
+				<?php endif; ?>
 
 				<div class="mt-5 flex flex-col gap-3">
-					<?php if ( $is_enrolled && $resume ) : ?>
+					<?php if ( $has_access && $resume ) : ?>
 						<a class="jsl-btn jsl-btn--primary w-full" href="<?php echo esc_url( get_permalink( $resume ) ); ?>">
 							<?php echo jsl_icon( 'play', 'w-4.5 h-4.5' ); ?>
 							<?php echo $progress > 0 ? esc_html__( 'Continue learning', 'job-seekers-theme' ) : esc_html__( 'Start course', 'job-seekers-theme' ); ?>
 						</a>
 					<?php elseif ( is_user_logged_in() ) : ?>
 						<button type="button" class="jsl-btn jsl-btn--primary w-full" id="jsl-enroll-btn">
-							<?php echo $is_paid ? esc_html__( 'Enroll now', 'job-seekers-theme' ) : esc_html__( 'Start free', 'job-seekers-theme' ); ?>
+							<?php echo $is_paid ? esc_html__( 'Get this course', 'job-seekers-theme' ) : esc_html__( 'Start free', 'job-seekers-theme' ); ?>
 						</button>
 						<p class="m-0 min-h-5 text-center text-sm text-hero-muted" id="jsl-enroll-status" aria-live="polite"></p>
+
+						<?php if ( $is_paid && $subscription_on ) : ?>
+							<div class="flex items-center gap-3 text-xs uppercase tracking-widest text-hero-muted">
+								<span class="h-px flex-1 bg-white/15"></span><?php esc_html_e( 'or', 'job-seekers-theme' ); ?><span class="h-px flex-1 bg-white/15"></span>
+							</div>
+							<button type="button" class="jsl-btn jsl-btn--hero-ghost w-full" id="jsl-subscribe-btn">
+								<?php echo jsl_icon( 'sparkle', 'w-4 h-4' ); ?>
+								<?php
+								echo $sub_price
+									/* translators: %s: subscription price, e.g. "$19/month". */
+									? esc_html( sprintf( __( 'Unlock everything — %s', 'job-seekers-theme' ), $sub_price ) )
+									: esc_html__( 'Unlock every course', 'job-seekers-theme' );
+								?>
+							</button>
+						<?php endif; ?>
 					<?php else : ?>
-						<a class="jsl-btn jsl-btn--primary w-full" href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>"><?php esc_html_e( 'Log in to enroll', 'job-seekers-theme' ); ?></a>
+						<a class="jsl-btn jsl-btn--primary w-full" href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>"><?php esc_html_e( 'Sign in to start', 'job-seekers-theme' ); ?></a>
 					<?php endif; ?>
 				</div>
 
@@ -143,7 +179,7 @@ while ( have_posts() ) :
 										$is_done    = in_array( (int) $lesson->ID, $completed, true );
 										$duration   = (int) get_post_meta( $lesson->ID, 'jsl_duration_minutes', true );
 										$is_preview = (bool) get_post_meta( $lesson->ID, 'jsl_is_preview', true );
-										$locked     = $is_paid && ! $is_enrolled && ! $is_preview;
+										$locked     = ! $has_access && ! $is_preview;
 										?>
 										<li class="border-t border-line first:border-t-0">
 											<a class="flex items-center gap-3.5 px-5 py-3.5 no-underline transition hover:bg-subtle" href="<?php echo esc_url( get_permalink( $lesson ) ); ?>">
@@ -151,7 +187,7 @@ while ( have_posts() ) :
 													<?php echo $is_done ? jsl_icon( 'check', 'w-3.5 h-3.5' ) : ( $locked ? jsl_icon( 'lock', 'w-3.5 h-3.5' ) : jsl_icon( 'play', 'w-3 h-3' ) ); ?>
 												</span>
 												<span class="flex-1 text-sm font-medium text-ink"><?php echo esc_html( get_the_title( $lesson ) ); ?></span>
-												<?php if ( $is_preview && ! $is_enrolled ) : ?>
+												<?php if ( $is_preview && ! $has_access ) : ?>
 													<span class="jsl-badge jsl-badge--free"><?php esc_html_e( 'Preview', 'job-seekers-theme' ); ?></span>
 												<?php endif; ?>
 												<?php if ( $duration ) : ?>
