@@ -30,17 +30,6 @@ class Console {
 			3
 		);
 
-		// Muscle-memory redirect: old Course Builder submenu points into the console.
-		add_submenu_page(
-			'edit.php?post_type=course',
-			__( 'Course Builder', 'job-seekers-lms' ),
-			__( 'Course Builder', 'job-seekers-lms' ),
-			'edit_posts',
-			'jsl-course-builder',
-			function () {
-				echo '<script>window.location = ' . wp_json_encode( admin_url( 'admin.php?page=' . self::SLUG . '#/courses' ) ) . ';</script>';
-			}
-		);
 	}
 
 	public static function enqueue( $hook ) {

@@ -49,6 +49,12 @@ class Webhook {
 			return new \WP_REST_Response( array( 'error' => 'Missing signature headers.' ), 400 );
 		}
 
+		// Reject stale deliveries outright — a captured request shouldn't stay
+		// replayable forever just because its signature is still valid.
+		if ( abs( time() - (int) $timestamp ) > 5 * MINUTE_IN_SECONDS ) {
+			return new \WP_REST_Response( array( 'error' => 'Timestamp outside tolerance.' ), 400 );
+		}
+
 		$signed_content = $id . '.' . $timestamp . '.' . $raw_body;
 		$expected       = base64_encode( hash_hmac( 'sha256', $signed_content, $secret, true ) );
 
@@ -75,17 +81,76 @@ class Webhook {
 
 		$payload = json_decode( $raw_body, true );
 
-		if ( 'payment.succeeded' === ( $payload['type'] ?? '' ) ) {
-			$metadata  = $payload['data']['metadata'] ?? array();
-			$course_id = isset( $metadata['course_id'] ) ? (int) $metadata['course_id'] : 0;
-			$user_id   = isset( $metadata['user_id'] ) ? (int) $metadata['user_id'] : 0;
-
-			if ( $course_id && $user_id ) {
-				Enrollment::enroll( $user_id, $course_id, 'course', 'dodo' );
-				do_action( 'jsl_payment_confirmed', $user_id, $course_id, $payload );
-			}
+		if ( ! is_array( $payload ) ) {
+			return new \WP_REST_Response( array( 'error' => 'Malformed payload.' ), 400 );
 		}
 
+		// Replay protection: Standard Webhooks ids are unique per delivery, so
+		// remembering the ones we've processed makes redelivery a no-op rather
+		// than a second grant.
+		if ( self::already_processed( $id ) ) {
+			return new \WP_REST_Response( array( 'received' => true, 'duplicate' => true ), 200 );
+		}
+
+		$type     = (string) ( $payload['type'] ?? '' );
+		$data     = $payload['data'] ?? array();
+		$metadata = $data['metadata'] ?? array();
+		$user_id  = isset( $metadata['user_id'] ) ? (int) $metadata['user_id'] : 0;
+		$is_plan  = 'platform' === ( $metadata['plan'] ?? '' );
+
+		if ( $user_id && ! get_userdata( $user_id ) ) {
+			$user_id = 0;
+		}
+
+		switch ( $type ) {
+			case 'payment.succeeded':
+				if ( ! $user_id ) {
+					break;
+				}
+				if ( $is_plan ) {
+					Subscription::grant( $user_id, (string) ( $data['subscription_id'] ?? '' ), (string) ( $data['next_billing_date'] ?? '' ) );
+					do_action( 'jsl_subscription_activated', $user_id, $payload );
+					break;
+				}
+				$course_id = isset( $metadata['course_id'] ) ? (int) $metadata['course_id'] : 0;
+				if ( $course_id && 'course' === get_post_type( $course_id ) ) {
+					Enrollment::enroll( $user_id, $course_id, 'course', 'dodo', null, (string) ( $data['payment_id'] ?? '' ) );
+					do_action( 'jsl_payment_confirmed', $user_id, $course_id, $payload );
+				}
+				break;
+
+			case 'subscription.active':
+			case 'subscription.renewed':
+				if ( $user_id ) {
+					Subscription::grant( $user_id, (string) ( $data['subscription_id'] ?? '' ), (string) ( $data['next_billing_date'] ?? '' ) );
+					do_action( 'jsl_subscription_activated', $user_id, $payload );
+				}
+				break;
+
+			case 'subscription.cancelled':
+			case 'subscription.expired':
+			case 'subscription.failed':
+				if ( $user_id ) {
+					Subscription::revoke( $user_id );
+					do_action( 'jsl_subscription_ended', $user_id, $payload );
+				}
+				break;
+		}
+
+		self::remember( $id );
+
 		return new \WP_REST_Response( array( 'received' => true ), 200 );
+	}
+
+	/**
+	 * Delivery ids we've already acted on, kept for a day — long enough to
+	 * cover any realistic retry window without growing without bound.
+	 */
+	private static function already_processed( string $id ): bool {
+		return (bool) get_transient( 'jsl_wh_' . md5( $id ) );
+	}
+
+	private static function remember( string $id ): void {
+		set_transient( 'jsl_wh_' . md5( $id ), 1, DAY_IN_SECONDS );
 	}
 }

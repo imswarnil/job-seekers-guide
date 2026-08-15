@@ -20,6 +20,7 @@ define( 'JSL_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JSL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 require_once JSL_PLUGIN_DIR . 'includes/post-types/class-post-types.php';
+require_once JSL_PLUGIN_DIR . 'includes/post-types/class-permalinks.php';
 require_once JSL_PLUGIN_DIR . 'includes/post-types/class-lesson-meta.php';
 require_once JSL_PLUGIN_DIR . 'includes/post-types/class-course-meta.php';
 require_once JSL_PLUGIN_DIR . 'includes/quiz/class-quiz.php';
@@ -28,12 +29,14 @@ require_once JSL_PLUGIN_DIR . 'includes/schema/class-json-ld.php';
 require_once JSL_PLUGIN_DIR . 'includes/progress/class-progress.php';
 require_once JSL_PLUGIN_DIR . 'includes/enrollment/class-tables.php';
 require_once JSL_PLUGIN_DIR . 'includes/enrollment/class-enrollment.php';
+require_once JSL_PLUGIN_DIR . 'includes/access/class-access.php';
 require_once JSL_PLUGIN_DIR . 'includes/api/class-course-api.php';
 require_once JSL_PLUGIN_DIR . 'includes/builder/class-tables.php';
 require_once JSL_PLUGIN_DIR . 'includes/builder/class-rest.php';
 require_once JSL_PLUGIN_DIR . 'includes/payments/class-settings.php';
 require_once JSL_PLUGIN_DIR . 'includes/payments/class-course-pricing.php';
 require_once JSL_PLUGIN_DIR . 'includes/payments/class-checkout.php';
+require_once JSL_PLUGIN_DIR . 'includes/payments/class-subscription.php';
 require_once JSL_PLUGIN_DIR . 'includes/payments/class-webhook.php';
 require_once JSL_PLUGIN_DIR . 'includes/analytics/class-analytics.php';
 require_once JSL_PLUGIN_DIR . 'includes/security/class-hardening.php';
@@ -48,6 +51,7 @@ require_once JSL_PLUGIN_DIR . 'includes/cli/class-seed-command.php';
  */
 function jsl_boot() {
 	JSL\Post_Types::init();
+	JSL\Permalinks::init();
 	JSL\Lesson_Meta::init();
 	JSL\Course_Meta::init();
 	JSL\Quiz\Quiz::init();
@@ -57,7 +61,9 @@ function jsl_boot() {
 	JSL\Payments\Settings::init();
 	JSL\Payments\Course_Pricing::init();
 	JSL\Payments\Checkout::init();
+	JSL\Payments\Subscription::init();
 	JSL\Payments\Webhook::init();
+	JSL\Access\Access::init();
 	JSL\Analytics\Analytics::init();
 	JSL\Security\Hardening::init();
 	JSL\Security\Comments_Off::init();
@@ -69,11 +75,29 @@ function jsl_boot() {
 add_action( 'plugins_loaded', 'jsl_boot' );
 
 /**
+ * Apply schema changes on upgrade, not just on activation — an existing
+ * install updated in place (git pull / plugin update) never re-fires the
+ * activation hook, so new columns would otherwise never appear.
+ */
+function jsl_maybe_upgrade_schema() {
+	if ( get_option( 'jsl_db_version' ) === JSL_VERSION ) {
+		return;
+	}
+
+	JSL\Enrollment\Tables::create();
+	JSL\Builder\Tables::create();
+
+	update_option( 'jsl_db_version', JSL_VERSION, false );
+}
+add_action( 'admin_init', 'jsl_maybe_upgrade_schema' );
+
+/**
  * Activation: register post types/taxonomies so rewrite rules are known,
  * create custom tables, then flush rewrites.
  */
 function jsl_activate() {
-	JSL\Post_Types::init();
+	JSL\Post_Types::register();
+	JSL\Permalinks::add_rewrite_rules();
 	JSL\Enrollment\Tables::create();
 	JSL\Builder\Tables::create();
 	flush_rewrite_rules();

@@ -125,6 +125,11 @@ class Quiz {
 			return new \WP_REST_Response( array( 'error' => 'Not found.' ), 404 );
 		}
 
+		// Quiz questions are lesson content — same gate as the lesson body.
+		if ( ! \JSL\Access\Access::can_view_lesson( $lesson_id ) ) {
+			return new \WP_REST_Response( array( 'error' => 'Access denied.' ), 403 );
+		}
+
 		$quiz = self::get_quiz( $lesson_id );
 
 		return rest_ensure_response(
@@ -147,6 +152,10 @@ class Quiz {
 		$lesson_id = (int) $request['id'];
 		if ( 'lesson' !== get_post_type( $lesson_id ) ) {
 			return new \WP_REST_Response( array( 'error' => 'Not found.' ), 404 );
+		}
+
+		if ( ! \JSL\Access\Access::can_view_lesson( $lesson_id ) ) {
+			return new \WP_REST_Response( array( 'error' => 'Access denied.' ), 403 );
 		}
 
 		$quiz = self::get_quiz( $lesson_id );

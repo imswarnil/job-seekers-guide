@@ -44,12 +44,15 @@ class Tables {
 			object_type VARCHAR(20) NOT NULL DEFAULT 'course',
 			status VARCHAR(20) NOT NULL DEFAULT 'active',
 			source VARCHAR(20) NOT NULL DEFAULT 'free',
+			external_id VARCHAR(191) NULL,
 			enrolled_at DATETIME NOT NULL,
+			expires_at DATETIME NULL,
 			completed_at DATETIME NULL,
 			PRIMARY KEY  (id),
 			UNIQUE KEY user_object (user_id, object_id, object_type),
 			KEY object_id (object_id),
-			KEY user_id (user_id)
+			KEY user_id (user_id),
+			KEY external_id (external_id)
 		) {$charset_collate};
 
 		CREATE TABLE {$progress_table} (

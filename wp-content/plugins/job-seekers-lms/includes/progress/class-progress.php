@@ -45,6 +45,12 @@ class Progress {
 			return new \WP_REST_Response( array( 'error' => 'Not a lesson.' ), 404 );
 		}
 
+		// Completing a lesson you can't open would let anyone farm progress
+		// (and reveal the course's lesson count) without paying for it.
+		if ( ! \JSL\Access\Access::can_view_lesson( $lesson_id ) ) {
+			return new \WP_REST_Response( array( 'error' => 'Access denied.' ), 403 );
+		}
+
 		self::complete( get_current_user_id(), $lesson_id, $course_id );
 
 		return new \WP_REST_Response(

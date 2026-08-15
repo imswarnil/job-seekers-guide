@@ -40,6 +40,12 @@ while ( have_posts() ) :
 		}
 	}
 
+	// Access is decided by the plugin, never by the template — the template
+	// only chooses which state to draw. The lesson body is already stripped
+	// server-side when locked.
+	$lock_reason = class_exists( 'JSL\\Access\\Access' ) ? \JSL\Access\Access::lesson_denial_reason( $lesson_id ) : 'ok';
+	$locked      = ! in_array( $lock_reason, array( 'ok', 'not_found' ), true );
+
 	$video_start = (int) get_post_meta( $lesson_id, 'jsl_video_start', true );
 	$video_end   = (int) get_post_meta( $lesson_id, 'jsl_video_end', true );
 	$video       = class_exists( 'JSL\\Lesson_Meta' ) ? \JSL\Lesson_Meta::embed_info( (string) get_post_meta( $lesson_id, 'jsl_video_url', true ), $video_start, $video_end ) : null;
@@ -159,7 +165,7 @@ while ( have_posts() ) :
 			</div>
 
 			<div class="px-4 py-6 md:px-8 lg:px-12">
-				<?php if ( $video && 'quiz' !== $lesson_type ) : ?>
+				<?php if ( $video && 'quiz' !== $lesson_type && ! $locked ) : ?>
 				<div class="jsl-player group relative overflow-hidden rounded-xl bg-ink-950 shadow-lg"
 					data-embed-type="<?php echo esc_attr( $video['type'] ); ?>"
 					data-embed-src="<?php echo esc_url( $video['src'] ); ?>"
@@ -183,7 +189,7 @@ while ( have_posts() ) :
 				</div>
 			<?php endif; ?>
 
-			<?php if ( 'quiz' === $lesson_type ) : ?>
+			<?php if ( 'quiz' === $lesson_type && ! $locked ) : ?>
 				<div id="jsl-quiz-app" class="rounded-xl border border-line bg-raised p-6 shadow-sm md:p-8" data-lesson-id="<?php echo esc_attr( $lesson_id ); ?>">
 					<p class="m-0 flex items-center gap-2 text-sm text-ink-muted"><span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-line border-t-accent"></span><?php esc_html_e( 'Loading quiz…', 'job-seekers-theme' ); ?></p>
 				</div>
@@ -196,7 +202,23 @@ while ( have_posts() ) :
 					<?php endif; ?>
 				</header>
 
-				<div class="jsl-prose mt-5 max-w-[76ch]"><?php the_content(); ?></div>
+				<?php if ( $locked ) : ?>
+					<div class="mt-6 max-w-[46rem] rounded-xl border border-line bg-raised p-8 text-center shadow-sm">
+						<span class="mx-auto grid h-14 w-14 place-items-center rounded-full bg-accent-softer text-accent"><?php echo jsl_icon( 'lock', 'w-6 h-6' ); ?></span>
+						<h2 class="mt-4 text-xl font-bold"><?php esc_html_e( 'This lesson is part of a paid course', 'job-seekers-theme' ); ?></h2>
+						<?php if ( 'login_required' === $lock_reason ) : ?>
+							<p class="mt-2 text-ink-secondary"><?php esc_html_e( 'Sign in to check whether your plan already includes it.', 'job-seekers-theme' ); ?></p>
+							<a class="jsl-btn jsl-btn--primary mt-5" href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>"><?php esc_html_e( 'Sign in', 'job-seekers-theme' ); ?></a>
+						<?php else : ?>
+							<p class="mt-2 text-ink-secondary"><?php esc_html_e( 'Get this course once and every lesson in it unlocks — or subscribe for access to everything on the platform.', 'job-seekers-theme' ); ?></p>
+							<?php if ( $course_id ) : ?>
+								<a class="jsl-btn jsl-btn--primary mt-5" href="<?php echo esc_url( get_permalink( $course_id ) ); ?>"><?php esc_html_e( 'View plans', 'job-seekers-theme' ); ?></a>
+							<?php endif; ?>
+						<?php endif; ?>
+					</div>
+				<?php else : ?>
+					<div class="jsl-prose mt-5 max-w-[76ch]"><?php the_content(); ?></div>
+				<?php endif; ?>
 			</div>
 
 			<!-- Prev / next bar -->

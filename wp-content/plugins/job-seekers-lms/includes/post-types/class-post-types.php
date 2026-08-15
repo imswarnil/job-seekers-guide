@@ -31,35 +31,48 @@ class Post_Types {
 					'add_new_item'  => __( 'Add New Course', 'job-seekers-lms' ),
 					'edit_item'     => __( 'Edit Course', 'job-seekers-lms' ),
 				),
-				'public'       => true,
-				'show_in_rest' => true,
-				'rest_base'    => 'courses',
-				'has_archive'  => true,
-				'rewrite'      => array( 'slug' => 'courses' ),
-				'menu_icon'    => 'dashicons-welcome-learn-more',
-				'supports'     => array( 'title', 'editor', 'excerpt', 'thumbnail', 'custom-fields' ),
-				'template'     => array(),
+				'public'            => true,
+				'show_ui'           => true,
+				'show_in_menu'      => false,
+				'show_in_nav_menus' => true,
+				'show_in_rest'      => true,
+				'rest_base'         => 'courses',
+				'has_archive'       => true,
+				'rewrite'           => array( 'slug' => Permalinks::COURSE_BASE, 'with_front' => false ),
+				'menu_icon'         => 'dashicons-welcome-learn-more',
+				'supports'          => array( 'title', 'editor', 'excerpt', 'thumbnail', 'custom-fields' ),
+				'template'          => array(),
 			)
 		);
 	}
 
+	/**
+	 * Lessons are public but have no rewrite base of their own — their URLs
+	 * are built by JSL\Permalinks as /courses/{course}/{lesson}/ so a lesson
+	 * never has a second, duplicate address. show_in_menu is off because all
+	 * authoring happens in the LMS console.
+	 */
 	private static function register_lesson() {
 		register_post_type(
 			'lesson',
 			array(
-				'labels'       => array(
+				'labels'             => array(
 					'name'          => __( 'Lessons', 'job-seekers-lms' ),
 					'singular_name' => __( 'Lesson', 'job-seekers-lms' ),
 					'add_new_item'  => __( 'Add New Lesson', 'job-seekers-lms' ),
 					'edit_item'     => __( 'Edit Lesson', 'job-seekers-lms' ),
 				),
-				'public'       => true,
-				'show_in_rest' => true,
-				'rest_base'    => 'lessons',
-				'has_archive'  => false,
-				'rewrite'      => array( 'slug' => 'lessons' ),
-				'menu_icon'    => 'dashicons-media-document',
-				'supports'     => array( 'title', 'editor', 'custom-fields' ),
+				'public'             => true,
+				'publicly_queryable' => true,
+				'show_ui'            => true,
+				'show_in_menu'       => false,
+				'show_in_nav_menus'  => false,
+				'show_in_rest'       => true,
+				'rest_base'          => 'lessons',
+				'has_archive'        => false,
+				'rewrite'            => false,
+				'menu_icon'          => 'dashicons-media-document',
+				'supports'           => array( 'title', 'editor', 'custom-fields', 'thumbnail' ),
 			)
 		);
 	}
@@ -74,13 +87,16 @@ class Post_Types {
 					'add_new_item'  => __( 'Add New Learning Path', 'job-seekers-lms' ),
 					'edit_item'     => __( 'Edit Learning Path', 'job-seekers-lms' ),
 				),
-				'public'       => true,
-				'show_in_rest' => true,
-				'rest_base'    => 'learning-paths',
-				'has_archive'  => true,
-				'rewrite'      => array( 'slug' => 'learning-paths' ),
-				'menu_icon'    => 'dashicons-networking',
-				'supports'     => array( 'title', 'editor', 'excerpt', 'thumbnail', 'custom-fields' ),
+				'public'            => true,
+				'show_ui'           => true,
+				'show_in_menu'      => false,
+				'show_in_nav_menus' => true,
+				'show_in_rest'      => true,
+				'rest_base'         => 'learning-paths',
+				'has_archive'       => true,
+				'rewrite'           => array( 'slug' => 'learning-paths', 'with_front' => false ),
+				'menu_icon'         => 'dashicons-networking',
+				'supports'          => array( 'title', 'editor', 'excerpt', 'thumbnail', 'custom-fields' ),
 			)
 		);
 	}
@@ -94,12 +110,14 @@ class Post_Types {
 					'name'          => __( 'Course Categories', 'job-seekers-lms' ),
 					'singular_name' => __( 'Course Category', 'job-seekers-lms' ),
 				),
-				'public'       => true,
-				'show_in_rest' => true,
-				'rest_base'    => 'course-categories',
-				'hierarchical' => true,
+				'public'            => true,
+				'show_ui'           => true,
+				'show_in_menu'      => false,
+				'show_in_rest'      => true,
+				'rest_base'         => 'course-categories',
+				'hierarchical'      => true,
 				'show_admin_column' => true,
-				'rewrite'      => array( 'slug' => 'course-category' ),
+				'rewrite'           => array( 'slug' => 'topics', 'with_front' => false ),
 			)
 		);
 	}
@@ -113,10 +131,13 @@ class Post_Types {
 					'name'          => __( 'Modules', 'job-seekers-lms' ),
 					'singular_name' => __( 'Module', 'job-seekers-lms' ),
 				),
-				'public'       => true,
-				'show_in_rest' => true,
+				// Modules live in wp_jsl_modules; the taxonomy is internal
+				// bookkeeping only, so it gets no public archive URL.
+				'public'       => false,
+				'show_ui'      => false,
+				'show_in_rest' => false,
 				'hierarchical' => true,
-				'rewrite'      => array( 'slug' => 'module' ),
+				'rewrite'      => false,
 			)
 		);
 	}
