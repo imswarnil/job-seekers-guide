@@ -261,6 +261,12 @@ class Path_Rest {
 				return new \WP_REST_Response( array( 'error' => __( 'That course does not exist.', 'job-seekers-lms' ) ), 404 );
 			}
 
+			// Adding a course to a path writes jsl_path_id onto the course, so
+			// it takes edit rights on the course as well as on the path.
+			if ( ! current_user_can( 'edit_post', $object_id ) ) {
+				return new \WP_REST_Response( array( 'error' => __( 'You cannot add that course.', 'job-seekers-lms' ) ), 403 );
+			}
+
 			$step_type = 'course';
 		} elseif ( in_array( $type, self::INLINE_TYPES, true ) ) {
 			$title = sanitize_text_field( (string) $request->get_param( 'title' ) );

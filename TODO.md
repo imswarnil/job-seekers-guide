@@ -20,6 +20,11 @@ hand-rolled design-token system (no block theme, no theme.json — see
 - [x] Homepage redesign: hero + stats, numbered learning-path sections with course cards + lesson peeks, CTA band, logged-in "Jump back in" resume strip
 - [x] Lesson player v2: full-width app shell (fixed course sidebar w/ progress + durations, mobile slide-over drawer, sticky toolbar with Lesson N of M + mark-complete, prev/next bar)
 - [x] "My Learning" learner dashboard (`page-templates/my-learning.php` + `/my-learning/` page): stats, streak, resume cards, 14-day activity chart
+- [x] Material Design 3 token system (tonal palettes → system roles → compat aliases), shared by theme, console, wp-admin skin and login
+- [x] Phosphor icons baked to `inc/icons.php` by `npm run icons` — only what's used, inline, offline-safe
+- [x] New brand mark (magnifier + briefcase); Plus Jakarta Sans / Inter pairing
+- [x] Course-player app bar (`header-player.php`) separate from the marketing header
+- [x] Asset cache-busting by file mtime
 - [ ] Accessible keyboard-nav pass (current nav/focus states are baseline, not audited)
 
 ## 3. Core LMS Plugin (`wp-content/plugins/job-seekers-lms`)
@@ -44,31 +49,46 @@ hand-rolled design-token system (no block theme, no theme.json — see
 - [x] Dynamic JSON-LD (`includes/schema/class-json-ld.php`): Course with lesson ItemList/hasPart, LearningResource + VideoObject on lessons, ItemList on paths, WebSite/Organization on home
 - [x] Generated SVG placeholder card art (`includes/media/class-placeholder.php`) with course code, wrapped title, lesson count; brand SVGs (logo, favicon, empty-state) in theme assets
 - [x] Realistic seed curriculum (`wp jsl seed --fresh`): 2 paths, 4 coded courses, 24 lessons incl. video-with-clip and 4 quizzes
+- [x] Nested lesson permalinks `/courses/{course}/{lesson}/` — one URL per lesson, old/wrong URLs 301
+- [x] LMS-only wp-admin: Course/Lesson/Path menus hidden, native editors redirect into the console
+- [x] Visual learning-path builder: ordered steps mixing courses with standalone articles/videos/quizzes, authored in the console
+- [x] Google sign-in/sign-up (OAuth 2.0 + PKCE, verified-email linking only)
+- [x] PWA: generated manifest, network-first service worker, offline page, install support
+- [x] Auto-complete the current lesson when the learner clicks Next
+- [x] One tabbed LMS → Settings screen (Payments / Subscription / Google / SEO / PWA)
 - [ ] Certificates
 
-## 4. Payments — Dodo Payments (`includes/payments`) — real implementation, untested against a live account
+## 4. Payments & access — Dodo Payments (`includes/payments`, `includes/access`) — untested against a live account
 - [x] Researched Dodo's actual API/webhook contract (Bearer auth, `POST /checkouts`, Standard Webhooks HMAC-SHA256 signing)
 - [x] Settings page (`Settings → Dodo Payments`): API key, mode, webhook secret via WP options
 - [x] Course pricing meta box: free/paid, Dodo Product ID, display price label
 - [x] `Checkout::create_session()` — builds and sends the real `wp_remote_post` request
 - [x] `Webhook` REST route — verifies `webhook-id`/`webhook-signature`/`webhook-timestamp` per spec, enrolls on `payment.succeeded`
 - [ ] End-to-end test against a real Dodo test-mode product (needs your Dodo dashboard account — nothing more to build until then)
-- [ ] Pricing table block/pattern (currently just the single price box on the course page)
+- [x] Platform subscription (`class-subscription.php`): one plan unlocks every course, time-boxed grant renewed/cancelled by webhook
+- [x] Buying a course unlocks all of its lessons (no per-lesson purchase)
+- [x] Homepage pricing section + "Included in your plan" state on course pages
 
 ## 5. Code Practice (`includes/code-practice`) — not started
 - [ ] JS sandbox: editor block (Monaco/CodeMirror) + sandboxed iframe execution — client-side only
 - [ ] SQL sandbox: `sql.js` (SQLite/WASM) — client-side only, seed schema per exercise
 - [ ] Java sandbox — **deferred**; needs a safe execution strategy (WASM JVM or external sandboxed judge like self-hosted Judge0) before building, not a default/required feature
 
-## 6. SEO & Search (`includes/schema`, `includes/search`) — not started
-- [ ] JSON-LD: `Course` schema on course pages, `BreadcrumbList` sitewide, `Organization` on homepage
-- [ ] Meta tags (title/description/OG) per template
-- [ ] Sitemap hooks for custom post types
+## 6. SEO & Search (`includes/seo`, `includes/schema`) — done except search
+- [x] JSON-LD: `Course` + lesson ItemList, `LearningResource`/`VideoObject`, `ItemList` on paths, `WebSite`/`Organization` on home
+- [x] `BreadcrumbList` reflecting the nested `/courses/{course}/{lesson}/` hierarchy
+- [x] Meta tags (title/description/OG/Twitter) per template; canonical taken over from core so there is exactly one
+- [x] Locked lesson bodies are never used as a meta description — paid content can't leak into a snippet
+- [x] CPT sitemaps (native WP sitemaps pick up courses/lessons/paths)
+- [x] SEO settings tab (default description, social image, Twitter handle, organization name)
 - [ ] Enhanced native search: relevance weighting (title/tag boost) across courses/lessons
 
-## 7. Security (`includes/security`)
+## 7. Security (`includes/security`, `includes/access`)
 - [x] Standing rule applied so far: `$wpdb->prepare()` on all queries, nonce + `current_user_can()` checks on all builder/pricing writes, webhook authenticity via HMAC (not a WP capability, since it's an external caller)
-- [ ] Security headers, disabled XML-RPC, login rate limiting — not yet built
+- [x] Security headers, XML-RPC disabled, user-enumeration blocked, generic login errors
+- [x] Unified access layer (`includes/access/class-access.php`): one gatekeeper consulted by templates, progress REST, quiz REST and `wp/v2` lesson content
+- [x] Webhook replay protection (delivery-id transient) + 5-minute timestamp tolerance; provider error bodies no longer echoed to the browser
+- [ ] Login rate limiting — not yet built
 - [x] Secrets only via WP options / environment — verified nothing hardcoded or committed (also cleaned up two accidental token pastes into tracked files during this project)
 
 ## 8. Content & Launch
@@ -79,8 +99,8 @@ hand-rolled design-token system (no block theme, no theme.json — see
 
 ## 9. Open-Source Packaging
 - [x] GPL-2.0-or-later declared in theme/plugin headers
-- [ ] Top-level `README.md`/`readme.txt` self-host install steps (clone → `docker compose up` → activate theme/plugin → `wp jsl seed` optionally)
-- [ ] Document required WP options for a fresh install (Dodo keys, etc. — no assumption of our specific VPS/Dodo account)
+- [x] End-to-end setup + operating guide (`SETUP.md`): install, curriculum authoring, pricing, Google OAuth, SEO, PWA, troubleshooting
+- [ ] Top-level `README.md`/`readme.txt` short install blurb pointing at SETUP.md
 
 ## 10. Backups & Monitoring
 - [ ] Automate DB + `wp-content` backups (cron + offsite storage)

@@ -59,8 +59,14 @@ class Pwa {
 		return (string) ( get_option( self::OPTION_SHORT_NAME, '' ) ?: mb_substr( self::app_name(), 0, 12 ) );
 	}
 
+	/**
+	 * Always re-sanitized on the way out, not just on save: this value is
+	 * printed into a <style> block on the offline page, where escaping
+	 * helpers meant for HTML would not stop a CSS injection.
+	 */
 	public static function theme_color(): string {
-		return (string) ( get_option( self::OPTION_THEME_COLOR, '' ) ?: '#414BA0' );
+		$stored = sanitize_hex_color( (string) get_option( self::OPTION_THEME_COLOR, '' ) );
+		return $stored ?: '#414BA0';
 	}
 
 	/* ---------------------------------------------------------------
