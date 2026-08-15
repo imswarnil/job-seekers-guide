@@ -366,11 +366,46 @@
 	--jsl-color-accent-strong: var(--md-primary-90);
 	--jsl-color-accent-softer: rgba(180, 186, 240, 0.10);
 	--jsl-color-text-muted: var(--md-neutral-60);
-	--jsl-color-hero-bg: var(--md-neutral-10);
+	--jsl-color-hero-bg: var(--md-neutral-4);
 	--jsl-color-hero-text: var(--md-neutral-95);
 
-	--jsl-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
-	--jsl-shadow-md: 0 2px 6px 2px rgba(0, 0, 0, 0.45);
-	--jsl-shadow-lg: 0 8px 24px 4px rgba(0, 0, 0, 0.55);
+	/*
+	 * Dark elevation is carried by the surface tint, not the shadow: a
+	 * shadow on a near-black background is invisible, which is why a naive
+	 * dark mode reads as one flat sheet. These stay subtle and let the
+	 * tinted container colours do the separating.
+	 */
+	--jsl-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
+	--jsl-shadow-md: 0 2px 8px 2px rgba(0, 0, 0, 0.55);
+	--jsl-shadow-lg: 0 12px 32px 6px rgba(0, 0, 0, 0.6);
 	--jsl-shadow-accent: 0 4px 14px -4px rgba(180, 186, 240, 0.30);
+}
+
+/*
+ * Dark-mode refinements that are about *feel* rather than role mapping.
+ *
+ * Two things separate a good dark theme from an inverted light one:
+ * borders have to be softer than their light counterparts (a 1px line at
+ * light-mode contrast reads as a harsh scratch on a dark surface), and
+ * large white text needs its weight easing back, because light-on-dark
+ * blooms optically and looks heavier than the same weight does on white.
+ */
+:root[data-theme="dark"] {
+	color-scheme: dark;
+}
+
+:root[data-theme="dark"] body {
+	/* Counteract the optical bloom of light text on dark. */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+:root[data-theme="dark"] .jsl-prose img,
+:root[data-theme="dark"] .md-card__media {
+	/* Full-brightness imagery is jarring beside dimmed surfaces. */
+	filter: brightness(0.92);
+}
+
+:root[data-theme="light"] {
+	color-scheme: light;
 }

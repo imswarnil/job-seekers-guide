@@ -1,24 +1,62 @@
 /**
- * Light/dark mode toggle.
+ * Theme mode toggle: auto → light → dark → auto.
  *
- * The initial theme is applied by an inline script in inc/dark-mode.php
- * before paint, so there is no flash; this only handles the toggle.
- * (Navigation, ripple, drawers and snackbars live in md3.js.)
+ * The resolution logic (and the OS listener) lives in the inline bootstrap
+ * from inc/dark-mode.php, which exposes window.jslSetThemeMode. This file
+ * only cycles the value and keeps the button's label honest.
  */
 ( function () {
 	'use strict';
 
-	var STORAGE_KEY = 'jsl-theme';
+	var ORDER = [ 'auto', 'light', 'dark' ];
 
 	document.addEventListener( 'DOMContentLoaded', function () {
-		document.querySelectorAll( '[data-theme-toggle]' ).forEach( function ( toggle ) {
+		var toggles = document.querySelectorAll( '[data-theme-toggle]' );
+
+		if ( ! toggles.length ) {
+			return;
+		}
+
+		function currentMode() {
+			return document.documentElement.getAttribute( 'data-theme-mode' ) || 'auto';
+		}
+
+		function paint() {
+			var mode = currentMode();
+
+			toggles.forEach( function ( toggle ) {
+				var label = toggle.getAttribute( 'data-label-' + mode );
+				if ( label ) {
+					toggle.setAttribute( 'aria-label', label );
+					toggle.setAttribute( 'title', label );
+				}
+
+				// Show only the icon for the active mode.
+				toggle.querySelectorAll( '[data-mode-icon]' ).forEach( function ( icon ) {
+					icon.hidden = icon.getAttribute( 'data-mode-icon' ) !== mode;
+				} );
+			} );
+		}
+
+		toggles.forEach( function ( toggle ) {
 			toggle.addEventListener( 'click', function () {
-				var next = document.documentElement.getAttribute( 'data-theme' ) === 'dark' ? 'light' : 'dark';
-				document.documentElement.setAttribute( 'data-theme', next );
-				try {
-					localStorage.setItem( STORAGE_KEY, next );
-				} catch ( e ) {}
+				var next = ORDER[ ( ORDER.indexOf( currentMode() ) + 1 ) % ORDER.length ];
+
+				if ( window.jslSetThemeMode ) {
+					window.jslSetThemeMode( next );
+				}
+
+				paint();
+
+				if ( window.jslSnackbar ) {
+					var said = toggle.getAttribute( 'data-label-' + next );
+					if ( said ) {
+						window.jslSnackbar( said, { duration: 1800 } );
+					}
+				}
 			} );
 		} );
+
+		paint();
 	} );
 } )();

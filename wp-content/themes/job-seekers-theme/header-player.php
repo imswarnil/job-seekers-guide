@@ -88,10 +88,15 @@ $jsl_p_percent = $jsl_p_total > 0 ? (int) round( $jsl_p_done / $jsl_p_total * 10
 			</div>
 		<?php endif; ?>
 
-		<button type="button" class="md-icon-btn" data-theme-toggle aria-label="<?php esc_attr_e( 'Toggle dark mode', 'job-seekers-theme' ); ?>">
-			<span class="hidden dark:block"><?php echo jsl_icon( 'sun', 'w-5 h-5' ); ?></span>
-			<span class="block dark:hidden"><?php echo jsl_icon( 'moon', 'w-5 h-5' ); ?></span>
-		</button>
+		<button type="button" class="md-icon-btn" data-theme-toggle
+				data-label-auto="<?php esc_attr_e( 'Theme: follow system', 'job-seekers-theme' ); ?>"
+				data-label-light="<?php esc_attr_e( 'Theme: light', 'job-seekers-theme' ); ?>"
+				data-label-dark="<?php esc_attr_e( 'Theme: dark', 'job-seekers-theme' ); ?>"
+				aria-label="<?php esc_attr_e( 'Change theme', 'job-seekers-theme' ); ?>">
+				<span data-mode-icon="auto"><?php echo jsl_icon( 'circle-half', 'w-5 h-5' ); ?></span>
+				<span data-mode-icon="light" hidden><?php echo jsl_icon( 'sun-fill', 'w-5 h-5' ); ?></span>
+				<span data-mode-icon="dark" hidden><?php echo jsl_icon( 'moon-fill', 'w-5 h-5' ); ?></span>
+			</button>
 
 		<a class="md-icon-btn" href="<?php echo esc_url( is_user_logged_in() ? home_url( '/my-learning/' ) : wp_login_url( get_permalink() ) ); ?>"
 			aria-label="<?php echo is_user_logged_in() ? esc_attr__( 'My Learning', 'job-seekers-theme' ) : esc_attr__( 'Sign in', 'job-seekers-theme' ); ?>">

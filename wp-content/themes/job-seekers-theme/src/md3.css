@@ -992,4 +992,166 @@
 		font-size: var(--md-label-small);
 		font-weight: 700;
 	}
+
+	/* ==========================================================
+	 * Stat tile
+	 * A number with a label. Used on dashboards and hero rows.
+	 * ========================================================== */
+
+	.md-stat {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		padding: 20px;
+		border-radius: var(--md-shape-md);
+		background: var(--md-sys-surface-container-lowest);
+		border: 1px solid var(--md-sys-outline-variant);
+	}
+
+	.md-stat__label {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		font-size: var(--md-label-medium);
+		font-weight: 700;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--md-sys-on-surface-variant);
+	}
+
+	.md-stat__value {
+		font-family: var(--jsl-font-display);
+		font-size: 1.75rem;
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		font-variant-numeric: tabular-nums;
+		color: var(--md-sys-on-surface);
+	}
+
+	.md-stat__hint { font-size: var(--md-body-small); color: var(--md-sys-on-surface-variant); }
+
+	/* ==========================================================
+	 * Banner — a full-width inline message
+	 * ========================================================== */
+
+	.md-banner {
+		display: flex;
+		align-items: flex-start;
+		gap: 16px;
+		padding: 16px 20px;
+		border-radius: var(--md-shape-md);
+		background: var(--md-sys-secondary-container);
+		color: var(--md-sys-on-secondary-container);
+	}
+
+	.md-banner--info { background: var(--md-sys-primary-container); color: var(--md-sys-on-primary-container); }
+	.md-banner--success { background: var(--md-sys-tertiary-container); color: var(--md-sys-on-tertiary-container); }
+	.md-banner--error { background: var(--md-sys-error-container); color: var(--md-sys-on-error-container); }
+	.md-banner__icon { flex-shrink: 0; margin-top: 1px; }
+	.md-banner__body { flex: 1; min-width: 0; font-size: var(--md-body-medium); line-height: 1.5; }
+
+	/* ==========================================================
+	 * Empty state
+	 * ========================================================== */
+
+	.md-empty {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 6px;
+		padding: 48px 24px;
+		border-radius: var(--md-shape-md);
+		background: var(--md-sys-surface-container);
+		text-align: center;
+	}
+
+	.md-empty__icon {
+		display: grid;
+		place-items: center;
+		width: 56px;
+		height: 56px;
+		margin-bottom: 10px;
+		border-radius: var(--md-shape-full);
+		background: var(--md-sys-surface-container-highest);
+		color: var(--md-sys-on-surface-variant);
+	}
+
+	.md-empty__title { font-family: var(--jsl-font-display); font-size: var(--md-title-medium); font-weight: 700; }
+	.md-empty__body { max-width: 42ch; font-size: var(--md-body-medium); color: var(--md-sys-on-surface-variant); }
+
+	/* ==========================================================
+	 * Skeleton — loading placeholder
+	 * ========================================================== */
+
+	.md-skeleton {
+		border-radius: var(--md-shape-xs);
+		background: linear-gradient(
+			90deg,
+			var(--md-sys-surface-container) 25%,
+			var(--md-sys-surface-container-high) 37%,
+			var(--md-sys-surface-container) 63%
+		);
+		background-size: 400% 100%;
+		animation: md-skeleton 1.4s ease infinite;
+	}
+
+	@keyframes md-skeleton {
+		from { background-position: 100% 50%; }
+		to { background-position: 0 50%; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.md-skeleton { animation: none; }
+	}
+
+	/* ==========================================================
+	 * Tooltip (plain, CSS-only)
+	 * ========================================================== */
+
+	.md-tooltip { position: relative; }
+
+	.md-tooltip::after {
+		content: attr(data-tooltip);
+		position: absolute;
+		bottom: calc(100% + 8px);
+		left: 50%;
+		z-index: 50;
+		padding: 6px 10px;
+		border-radius: var(--md-shape-xs);
+		background: var(--md-sys-inverse-surface);
+		color: var(--md-sys-inverse-on-surface);
+		font-size: var(--md-body-small);
+		white-space: nowrap;
+		opacity: 0;
+		transform: translateX(-50%) translateY(4px);
+		pointer-events: none;
+		transition: opacity var(--md-duration-short) var(--md-easing-standard),
+			transform var(--md-duration-short) var(--md-easing-standard);
+	}
+
+	.md-tooltip:hover::after,
+	.md-tooltip:focus-visible::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+	/* ==========================================================
+	 * Section header — eyebrow + title + optional action
+	 * ========================================================== */
+
+	.md-section-head {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 16px;
+		margin-bottom: 24px;
+	}
+
+	.md-section-head__title {
+		font-family: var(--jsl-font-display);
+		font-size: var(--md-headline-small);
+		font-weight: 800;
+		letter-spacing: -0.02em;
+		margin: 0;
+	}
+
+	.md-section-head__sub { margin: 6px 0 0; color: var(--md-sys-on-surface-variant); }
 }

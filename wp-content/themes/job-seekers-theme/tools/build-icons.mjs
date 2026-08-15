@@ -36,6 +36,7 @@ const ICONS = {
 	"arrow-left": ["regular"],
 	"dots-three-vertical": ["regular"],
 	moon: ["regular", "fill"],
+	"circle-half": ["regular"],
 	sun: ["regular", "fill"],
 	gear: ["regular", "fill"],
 	bell: ["regular"],

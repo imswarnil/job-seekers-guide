@@ -75,7 +75,24 @@ In the course editor:
 4. Click a lesson title to open the **writing drawer**: rich text, images from
    the media library, and the lesson's settings.
 
-### 2.3 Lesson settings (in the drawer)
+### 2.3 Course details
+
+**LMS → Courses → open a course → Edit details & description.** One drawer
+covers everything the classic editor used to be for:
+
+| Field | Where it shows |
+| --- | --- |
+| Title / short description | cards, search results, social previews |
+| Course image | card art (leave empty for generated placeholder art) |
+| Level | a chip in the course hero |
+| Full description | the course page's **About** tab |
+| What you'll learn | a checklist above the tabs — the first thing buyers read |
+| Requirements | under About |
+| Pricing | free/paid, Dodo product ID, price label |
+
+Press Enter in a "what you'll learn" row to start the next one.
+
+### 2.4 Lesson settings (in the drawer)
 
 | Setting | Effect |
 | --- | --- |
@@ -88,7 +105,7 @@ In the course editor:
 Mark one or two lessons per paid course as **free preview** — that is the
 sample chapter, and it is the only content a non-buyer can read.
 
-### 2.4 Build a learning path
+### 2.5 Build a learning path
 
 **LMS → Learning Paths → Create path**, then open it. A path is an ordered
 list of steps, and a step is either:
@@ -154,6 +171,38 @@ lesson content. In order:
 3. A free course is open to everyone.
 4. A paid course opens for someone who bought **that course**.
 5. An active subscription opens **every** course.
+
+---
+
+## 3A. Community: stories and the leaderboard
+
+Both live under **LMS → Settings → Community**.
+
+### Success stories (the Wall of Success)
+
+Turn on "Let learners submit success stories". A signed-in learner then gets a
+form at `/success/` to write up the job they landed.
+
+**Every submission is pending.** Nothing appears publicly until you approve it
+in **LMS → Stories**, where pending items sort to the top. That is deliberate:
+these are claims about named employers attached to real people. Each learner
+can have only one pending story at a time.
+
+A published story gets its own reading page with the prose in a measured
+column and the facts — from, to, company, time searching — pulled out beside
+it.
+
+### Leaderboard
+
+Off by default, because it publishes real people's activity under their names.
+When you enable it, `/leaderboard/` ranks learners by lessons completed.
+
+- Only display name and aggregate totals are shown — never an email, never
+  which courses someone is taking.
+- Every learner has a "Show me on the leaderboard" switch on that page.
+  Turning it off removes them immediately.
+- Rankings are cached for ten minutes and recomputed when a lesson is
+  completed.
 
 ---
 
@@ -266,6 +315,21 @@ After editing CSS:
 cd wp-content/themes/job-seekers-theme
 npm run build        # compiles src/app.css -> assets/css/app.css (committed)
 ```
+
+### Theme mode
+
+The toggle in the app bar cycles **auto → light → dark**. "Auto" follows the
+operating system and keeps following it if the OS flips while the page is open.
+The choice is stored in `localStorage` and applied inline before first paint,
+so there is no flash of the wrong theme.
+
+### Components
+
+`src/md3.css` is the component library — app bars, navigation bar/rail/drawer,
+cards, chips, lists, tabs, text fields, switch, dialog, menu, snackbar, FAB,
+segmented buttons, stat tiles, banners, empty states, skeletons and tooltips.
+Behaviour (ripple, scroll-aware app bar, drawer focus trap, tabs, menus,
+snackbars) is in `assets/js/md3.js`.
 
 Icons are Phosphor, baked into `inc/icons.php`:
 
