@@ -1,42 +1,45 @@
 /*
- * Job Seekers Guide — design tokens.
+ * Job Seekers Guide — design tokens v2 "Night Iris".
  *
- * Visual language: "the path" — a journey from application to offer.
- * Motifs: route/dotted lines, milestone markers, step numbers.
- * Palette: deep ink slate for text, warm paper surfaces, emerald "signal"
- * for actions/progress, amber "spark" for pricing/highlights.
+ * Visual language: a precise, app-grade product — deep night-indigo ink,
+ * cool frost surfaces, an iris-violet primary, and a sharp lime signal
+ * for progress/success. Display type is Space Grotesk (geometric, techy),
+ * body/UI is Manrope, numbers/code are JetBrains Mono.
+ *
+ * The semantic layer keeps the same variable names across versions, so
+ * theme, console, and admin skin all retheme from this file.
  */
 
 :root {
 	/* ---- Primitive palette ---- */
-	--jsl-ink-950: #0b1220;
-	--jsl-ink-900: #111a2c;
-	--jsl-ink-800: #1c2940;
-	--jsl-ink-700: #2e3d57;
-	--jsl-ink-500: #5a6b85;
-	--jsl-ink-300: #9aa8bd;
-	--jsl-ink-200: #c2ccda;
-	--jsl-ink-100: #dfe5ed;
+	--jsl-ink-950: #0e0f1f;
+	--jsl-ink-900: #16182e;
+	--jsl-ink-800: #232649;
+	--jsl-ink-700: #363a63;
+	--jsl-ink-500: #6a6f94;
+	--jsl-ink-300: #a9adc7;
+	--jsl-ink-200: #c9ccdd;
+	--jsl-ink-100: #e4e6ef;
 
 	--jsl-paper-0: #ffffff;
-	--jsl-paper-50: #fbfaf8;
-	--jsl-paper-100: #f4f2ee;
-	--jsl-paper-200: #e9e6df;
-	--jsl-paper-300: #d6d2c8;
+	--jsl-paper-50: #f7f8fc;
+	--jsl-paper-100: #eef0f7;
+	--jsl-paper-200: #e1e4ef;
+	--jsl-paper-300: #cdd1e0;
 
-	--jsl-signal-800: #0a5c50;
-	--jsl-signal-700: #0d7263;
-	--jsl-signal-600: #108a77;
-	--jsl-signal-500: #16a189;
-	--jsl-signal-300: #6fd0ba;
-	--jsl-signal-100: #ddf3ec;
-	--jsl-signal-50: #f0faf7;
+	--jsl-signal-800: #3d3dab;
+	--jsl-signal-700: #4c4ccc;
+	--jsl-signal-600: #5a5ae6;
+	--jsl-signal-500: #6a68f2;
+	--jsl-signal-300: #a5a4f8;
+	--jsl-signal-100: #e5e5fd;
+	--jsl-signal-50: #f2f2fe;
 
-	--jsl-spark-700: #b45f14;
-	--jsl-spark-600: #d0771f;
-	--jsl-spark-500: #e88f2e;
-	--jsl-spark-300: #f4bc73;
-	--jsl-spark-100: #fcecd6;
+	--jsl-spark-700: #55731a;
+	--jsl-spark-600: #6e9414;
+	--jsl-spark-500: #8fc514;
+	--jsl-spark-300: #c0e46b;
+	--jsl-spark-100: #edf7d2;
 
 	/* ---- Semantic layer (dark mode overrides only this) ---- */
 	--jsl-color-bg: var(--jsl-paper-50);
@@ -72,7 +75,8 @@
 	--jsl-space-9: 6rem;
 
 	/* ---- Typography ---- */
-	--jsl-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	--jsl-font-sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	--jsl-font-display: "Space Grotesk", "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
 	--jsl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
 	--jsl-text-xs: 0.75rem;
@@ -84,11 +88,11 @@
 	--jsl-text-2xl: clamp(1.9rem, 1.4rem + 2vw, 2.5rem);
 	--jsl-text-3xl: clamp(2.3rem, 1.6rem + 3.2vw, 3.4rem);
 
-	--jsl-leading-tight: 1.15;
-	--jsl-leading-snug: 1.35;
-	--jsl-leading-normal: 1.65;
+	--jsl-leading-tight: 1.12;
+	--jsl-leading-snug: 1.3;
+	--jsl-leading-normal: 1.62;
 
-	--jsl-tracking-tight: -0.02em;
+	--jsl-tracking-tight: -0.015em;
 	--jsl-tracking-wide: 0.08em;
 
 	/* ---- Radius ---- */
@@ -99,10 +103,10 @@
 	--jsl-radius-full: 999px;
 
 	/* ---- Shadow ---- */
-	--jsl-shadow-sm: 0 1px 2px rgba(11, 18, 32, 0.06), 0 1px 1px rgba(11, 18, 32, 0.04);
-	--jsl-shadow-md: 0 10px 30px -10px rgba(11, 18, 32, 0.18);
-	--jsl-shadow-lg: 0 30px 60px -20px rgba(11, 18, 32, 0.28);
-	--jsl-shadow-accent: 0 8px 24px -8px rgba(13, 114, 99, 0.45);
+	--jsl-shadow-sm: 0 1px 2px rgba(14, 15, 31, 0.06), 0 1px 1px rgba(14, 15, 31, 0.04);
+	--jsl-shadow-md: 0 10px 30px -10px rgba(14, 15, 31, 0.18);
+	--jsl-shadow-lg: 0 30px 60px -20px rgba(14, 15, 31, 0.28);
+	--jsl-shadow-accent: 0 8px 24px -8px rgba(90, 90, 230, 0.5);
 
 	/* ---- Motion ---- */
 	--jsl-duration-fast: 140ms;
@@ -110,7 +114,7 @@
 	--jsl-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
 	/* ---- Layout ---- */
-	--jsl-content-max: 72rem;
+	--jsl-content-max: 74rem;
 	--jsl-content-narrow: 44rem;
 	--jsl-gutter: clamp(1rem, 4vw, 2rem);
 
@@ -133,11 +137,11 @@
 	--jsl-color-text-muted: var(--jsl-ink-300);
 	--jsl-color-accent: var(--jsl-signal-500);
 	--jsl-color-accent-strong: var(--jsl-signal-300);
-	--jsl-color-accent-soft: rgba(22, 161, 137, 0.16);
-	--jsl-color-accent-softer: rgba(22, 161, 137, 0.08);
-	--jsl-color-accent-contrast: var(--jsl-ink-950);
+	--jsl-color-accent-soft: rgba(106, 104, 242, 0.18);
+	--jsl-color-accent-softer: rgba(106, 104, 242, 0.09);
+	--jsl-color-accent-contrast: #ffffff;
 	--jsl-color-highlight: var(--jsl-spark-500);
-	--jsl-color-highlight-soft: rgba(232, 143, 46, 0.16);
+	--jsl-color-highlight-soft: rgba(143, 197, 20, 0.16);
 	--jsl-color-hero-bg: var(--jsl-ink-900);
 	--jsl-color-hero-text: var(--jsl-paper-50);
 	--jsl-color-hero-muted: var(--jsl-ink-300);
@@ -145,4 +149,5 @@
 	--jsl-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
 	--jsl-shadow-md: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
 	--jsl-shadow-lg: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
+	--jsl-shadow-accent: 0 8px 24px -8px rgba(106, 104, 242, 0.4);
 }

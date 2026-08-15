@@ -20,12 +20,16 @@ class Admin_Theme {
 		add_filter( 'admin_footer_text', array( __CLASS__, 'footer_text' ) );
 	}
 
+	const FONTS_URL = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap';
+
 	public static function enqueue() {
-		wp_enqueue_style( 'jsl-admin-theme', JSL_PLUGIN_URL . 'admin/assets/css/admin-theme.css', array(), JSL_VERSION );
+		wp_enqueue_style( 'jsl-admin-fonts', self::FONTS_URL, array(), null );
+		wp_enqueue_style( 'jsl-admin-theme', JSL_PLUGIN_URL . 'admin/assets/css/admin-theme.css', array( 'jsl-admin-fonts' ), JSL_VERSION );
 	}
 
 	public static function enqueue_login() {
-		wp_enqueue_style( 'jsl-login-theme', JSL_PLUGIN_URL . 'admin/assets/css/login-theme.css', array(), JSL_VERSION );
+		wp_enqueue_style( 'jsl-login-fonts', self::FONTS_URL, array(), null );
+		wp_enqueue_style( 'jsl-login-theme', JSL_PLUGIN_URL . 'admin/assets/css/login-theme.css', array( 'jsl-login-fonts' ), JSL_VERSION );
 	}
 
 	public static function login_url() {

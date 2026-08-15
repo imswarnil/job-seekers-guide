@@ -3,7 +3,7 @@
  * Plugin Name: Job Seekers LMS
  * Plugin URI: https://github.com/imswarnil/job-seekers-guide
  * Description: Open-source, structured-learning-path LMS for job seekers. Courses, lessons, learning paths, a visual course builder, enrollment/progress tracking, and Dodo Payments checkout.
- * Version: 0.4.1
+ * Version: 0.5.0
  * Requires at least: 6.4
  * Requires PHP: 8.0
  * Author: Job Seekers Guide
@@ -14,13 +14,17 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'JSL_VERSION', '0.4.1' );
+define( 'JSL_VERSION', '0.5.0' );
 define( 'JSL_PLUGIN_FILE', __FILE__ );
 define( 'JSL_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JSL_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 require_once JSL_PLUGIN_DIR . 'includes/post-types/class-post-types.php';
 require_once JSL_PLUGIN_DIR . 'includes/post-types/class-lesson-meta.php';
+require_once JSL_PLUGIN_DIR . 'includes/post-types/class-course-meta.php';
+require_once JSL_PLUGIN_DIR . 'includes/quiz/class-quiz.php';
+require_once JSL_PLUGIN_DIR . 'includes/media/class-placeholder.php';
+require_once JSL_PLUGIN_DIR . 'includes/schema/class-json-ld.php';
 require_once JSL_PLUGIN_DIR . 'includes/progress/class-progress.php';
 require_once JSL_PLUGIN_DIR . 'includes/enrollment/class-tables.php';
 require_once JSL_PLUGIN_DIR . 'includes/enrollment/class-enrollment.php';
@@ -32,6 +36,9 @@ require_once JSL_PLUGIN_DIR . 'includes/payments/class-course-pricing.php';
 require_once JSL_PLUGIN_DIR . 'includes/payments/class-checkout.php';
 require_once JSL_PLUGIN_DIR . 'includes/payments/class-webhook.php';
 require_once JSL_PLUGIN_DIR . 'includes/analytics/class-analytics.php';
+require_once JSL_PLUGIN_DIR . 'includes/security/class-hardening.php';
+require_once JSL_PLUGIN_DIR . 'includes/security/class-comments-off.php';
+require_once JSL_PLUGIN_DIR . 'admin/class-lms-admin.php';
 require_once JSL_PLUGIN_DIR . 'admin/class-console.php';
 require_once JSL_PLUGIN_DIR . 'admin/class-admin-theme.php';
 require_once JSL_PLUGIN_DIR . 'includes/cli/class-seed-command.php';
@@ -42,6 +49,9 @@ require_once JSL_PLUGIN_DIR . 'includes/cli/class-seed-command.php';
 function jsl_boot() {
 	JSL\Post_Types::init();
 	JSL\Lesson_Meta::init();
+	JSL\Course_Meta::init();
+	JSL\Quiz\Quiz::init();
+	JSL\Schema\Json_Ld::init();
 	JSL\Progress\Progress::init();
 	JSL\Builder\Rest::init();
 	JSL\Payments\Settings::init();
@@ -49,6 +59,9 @@ function jsl_boot() {
 	JSL\Payments\Checkout::init();
 	JSL\Payments\Webhook::init();
 	JSL\Analytics\Analytics::init();
+	JSL\Security\Hardening::init();
+	JSL\Security\Comments_Off::init();
+	JSL\Admin\Lms_Admin::init();
 	JSL\Admin\Console::init();
 	JSL\Admin\Admin_Theme::init();
 	JSL\Cli\Seed_Command::register();

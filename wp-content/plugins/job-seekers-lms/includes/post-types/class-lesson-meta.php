@@ -11,7 +11,10 @@ defined( 'ABSPATH' ) || exit;
 class Lesson_Meta {
 
 	const FIELDS = array(
+		'jsl_lesson_type'      => 'string',  // article | video | quiz
 		'jsl_video_url'        => 'string',
+		'jsl_video_start'      => 'integer', // seconds; 0 = from beginning
+		'jsl_video_end'        => 'integer', // seconds; 0 = to the end
 		'jsl_duration_minutes' => 'integer',
 		'jsl_is_preview'       => 'boolean',
 	);
@@ -28,10 +31,11 @@ class Lesson_Meta {
 				'lesson',
 				$key,
 				array(
-					'type'         => $type,
-					'single'       => true,
-					'show_in_rest' => true,
-					'auth_callback'=> function () {
+					'type'              => $type,
+					'single'            => true,
+					'show_in_rest'      => true,
+					'sanitize_callback' => 'jsl_video_url' === $key ? 'esc_url_raw' : ( 'string' === $type ? 'sanitize_text_field' : null ),
+					'auth_callback'     => function () {
 						return current_user_can( 'edit_posts' );
 					},
 				)
@@ -90,27 +94,53 @@ class Lesson_Meta {
 	}
 
 	/**
-	 * Turn a video URL into an embeddable iframe/video src.
+	 * Turn a video URL into an embeddable iframe/video src, honoring the
+	 * lesson's start/end clip range. YouTube goes through the privacy
+	 * domain with minimal branding; the theme wraps everything in its own
+	 * click-to-play facade player.
 	 *
-	 * @return array{type:string, src:string}|null
+	 * @return array{type:string, src:string, poster:?string, start:int, end:int}|null
 	 */
-	public static function embed_info( string $url ): ?array {
+	public static function embed_info( string $url, int $start = 0, int $end = 0 ): ?array {
 		if ( ! $url ) {
 			return null;
 		}
 
 		if ( preg_match( '~(?:youtube\.com/(?:watch\?v=|embed/|shorts/)|youtu\.be/)([\w-]{6,})~', $url, $m ) ) {
-			return array( 'type' => 'iframe', 'src' => 'https://www.youtube-nocookie.com/embed/' . $m[1] );
+			$args = array(
+				'rel'            => 0,
+				'modestbranding' => 1,
+				'iv_load_policy' => 3,
+				'playsinline'    => 1,
+				'autoplay'       => 1,
+			);
+			if ( $start > 0 ) {
+				$args['start'] = $start;
+			}
+			if ( $end > $start ) {
+				$args['end'] = $end;
+			}
+			return array(
+				'type'   => 'iframe',
+				'src'    => add_query_arg( $args, 'https://www.youtube-nocookie.com/embed/' . $m[1] ),
+				'poster' => 'https://i.ytimg.com/vi/' . $m[1] . '/maxresdefault.jpg',
+				'start'  => $start,
+				'end'    => $end,
+			);
 		}
 
 		if ( preg_match( '~vimeo\.com/(?:video/)?(\d+)~', $url, $m ) ) {
-			return array( 'type' => 'iframe', 'src' => 'https://player.vimeo.com/video/' . $m[1] );
+			$src = add_query_arg( array( 'autoplay' => 1, 'dnt' => 1 ), 'https://player.vimeo.com/video/' . $m[1] );
+			if ( $start > 0 ) {
+				$src .= '#t=' . $start . 's';
+			}
+			return array( 'type' => 'iframe', 'src' => $src, 'poster' => null, 'start' => $start, 'end' => $end );
 		}
 
 		if ( preg_match( '~\.(mp4|webm|ogv)(\?|$)~', $url ) ) {
-			return array( 'type' => 'video', 'src' => $url );
+			return array( 'type' => 'video', 'src' => $url, 'poster' => null, 'start' => $start, 'end' => $end );
 		}
 
-		return array( 'type' => 'iframe', 'src' => $url );
+		return array( 'type' => 'iframe', 'src' => $url, 'poster' => null, 'start' => $start, 'end' => $end );
 	}
 }

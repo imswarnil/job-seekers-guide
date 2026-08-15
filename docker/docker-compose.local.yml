@@ -13,6 +13,7 @@ services:
     volumes:
       - wordpress_core:/var/www/html
       - ../wp-content:/var/www/html/wp-content
+      - ./apache-header-limit.conf:/etc/apache2/conf-enabled/zz-header-limit.conf:ro
     depends_on:
       - db
 

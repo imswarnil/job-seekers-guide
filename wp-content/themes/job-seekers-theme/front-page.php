@@ -143,10 +143,17 @@ $jsl_my = array_slice( $jsl_my, 0, 3 );
 						$jsl_is_paid = class_exists( 'JSL\\Payments\\Course_Pricing' ) && \JSL\Payments\Course_Pricing::is_paid( $jsl_course->ID );
 						$jsl_stats   = $jsl_has_api ? \JSL\Course_Api::get_stats( $jsl_course->ID ) : array( 'modules' => 0, 'lessons' => 0, 'minutes' => 0 );
 						$jsl_peek    = $jsl_has_api ? array_slice( \JSL\Course_Api::get_lessons_flat( $jsl_course->ID ), 0, 3 ) : array();
+						$jsl_img     = get_the_post_thumbnail_url( $jsl_course->ID, 'medium_large' )
+							?: ( class_exists( 'JSL\\Media\\Placeholder' ) ? \JSL\Media\Placeholder::course( $jsl_course->ID ) : '' );
+						$jsl_code    = class_exists( 'JSL\\Course_Meta' ) ? \JSL\Course_Meta::get_code( $jsl_course->ID ) : '';
 						?>
-						<a class="group relative flex flex-col rounded-xl border border-line bg-raised p-6 no-underline shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:border-line-strong" href="<?php echo esc_url( get_permalink( $jsl_course ) ); ?>">
+						<a class="group relative flex flex-col overflow-hidden rounded-xl border border-line bg-raised no-underline shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:border-line-strong" href="<?php echo esc_url( get_permalink( $jsl_course ) ); ?>">
+							<?php if ( $jsl_img ) : ?>
+								<img class="aspect-video w-full object-cover" src="<?php echo jsl_img_src( $jsl_img ); ?>" alt="" loading="lazy">
+							<?php endif; ?>
+							<div class="flex flex-1 flex-col p-6">
 							<div class="flex items-center justify-between gap-3">
-								<span class="font-mono text-xs font-semibold text-ink-muted"><?php printf( esc_html__( 'Step %s', 'job-seekers-theme' ), esc_html( $jsl_step + 1 ) ); ?></span>
+								<span class="font-mono text-xs font-semibold text-ink-muted"><?php echo $jsl_code ? esc_html( $jsl_code ) : sprintf( esc_html__( 'Step %s', 'job-seekers-theme' ), esc_html( $jsl_step + 1 ) ); ?></span>
 								<span class="jsl-badge <?php echo $jsl_is_paid ? 'jsl-badge--paid' : 'jsl-badge--free'; ?>">
 									<?php echo $jsl_is_paid ? esc_html__( 'Paid', 'job-seekers-theme' ) : esc_html__( 'Free', 'job-seekers-theme' ); ?>
 								</span>
@@ -178,6 +185,7 @@ $jsl_my = array_slice( $jsl_my, 0, 3 );
 									<span class="inline-flex items-center gap-1.5"><?php echo jsl_icon( 'clock', 'w-3.5 h-3.5' ); ?><?php printf( esc_html__( '%d min', 'job-seekers-theme' ), (int) $jsl_stats['minutes'] ); ?></span>
 								<?php endif; ?>
 								<span class="ml-auto text-accent opacity-0 transition group-hover:opacity-100"><?php echo jsl_icon( 'arrow-r', 'w-4 h-4' ); ?></span>
+							</div>
 							</div>
 						</a>
 					<?php endforeach; ?>

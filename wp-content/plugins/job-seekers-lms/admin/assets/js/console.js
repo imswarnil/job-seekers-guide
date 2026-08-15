@@ -311,9 +311,11 @@
 		Promise.all( [
 			req( 'wp/v2/courses/' + courseId + '?context=edit' ),
 			req( 'jsl/v1/courses/' + courseId + '/structure' ),
+			req( 'wp/v2/course-categories?per_page=100' ).catch( function () { return []; } ),
 		] ).then( function ( results ) {
-			var course    = results[ 0 ];
-			var structure = results[ 1 ];
+			var course     = results[ 0 ];
+			var structure  = results[ 1 ];
+			var categories = results[ 2 ];
 			var isPublish = course.status === 'publish';
 
 			view.innerHTML =
@@ -330,6 +332,13 @@
 				'<div class="jsl-editor-layout">' +
 					'<div id="jsl-builder-root"></div>' +
 					'<aside style="display:flex;flex-direction:column;gap:16px">' +
+						'<section class="jsl-card"><div class="jsl-card__head"><h2>Course settings</h2></div><div class="jsl-card__body">' +
+							'<div class="jsl-field"><label for="jsl-course-code">Course code</label>' +
+							'<input class="jsl-input" id="jsl-course-code" type="text" maxlength="12" placeholder="JSG-101" style="max-width:160px;font-family:ui-monospace,Menlo,monospace;text-transform:uppercase">' +
+							'<span class="jsl-help">Shown on cards, placeholder art, and JSON-LD.</span></div>' +
+							'<div class="jsl-field" style="margin-bottom:0"><label>Categories</label><div id="jsl-course-cats"></div>' +
+							'<form class="jsl-inline-form" id="jsl-new-cat" style="margin-top:6px"><input class="jsl-input" type="text" placeholder="New category…"><button class="jsl-btn jsl-btn--ghost jsl-btn--sm" type="submit">Add</button></form></div>' +
+						'</div></section>' +
 						'<section class="jsl-card"><div class="jsl-card__head"><h2>Course card text</h2></div><div class="jsl-card__body">' +
 							'<div class="jsl-field"><label for="jsl-course-excerpt">Short description</label>' +
 							'<textarea class="jsl-input" id="jsl-course-excerpt" rows="4" placeholder="One or two sentences shown on course cards…"></textarea>' +
@@ -362,6 +371,58 @@
 					document.getElementById( 'jsl-course-status' ).className = 'jsl-badge jsl-badge--' + next;
 					document.getElementById( 'jsl-toggle-status' ).textContent = next === 'publish' ? 'Unpublish' : 'Publish';
 					toast( next === 'publish' ? 'Course published' : 'Course set to draft' );
+				} );
+			} );
+
+			/* Course code */
+			var codeInput = document.getElementById( 'jsl-course-code' );
+			codeInput.value = ( course.meta && course.meta.jsl_course_code ) || '';
+			codeInput.addEventListener( 'blur', function () {
+				api( 'wp/v2/courses/' + courseId, { method: 'POST', body: { meta: { jsl_course_code: codeInput.value.trim().toUpperCase() } } } );
+			} );
+
+			/* Categories */
+			var catHost  = document.getElementById( 'jsl-course-cats' );
+			var selected = ( course[ 'course-categories' ] || [] ).slice();
+
+			function renderCats() {
+				catHost.innerHTML = '';
+				if ( ! categories.length ) {
+					catHost.appendChild( el( 'span', { class: 'jsl-help' }, 'No categories yet — add one below.' ) );
+				}
+				categories.forEach( function ( cat ) {
+					var label = el( 'label', { class: 'jsl-cat-check' } );
+					var box   = el( 'input', { type: 'checkbox' } );
+					box.checked = selected.indexOf( cat.id ) !== -1;
+					box.addEventListener( 'change', function () {
+						if ( box.checked ) {
+							selected.push( cat.id );
+						} else {
+							selected = selected.filter( function ( id ) { return id !== cat.id; } );
+						}
+						api( 'wp/v2/courses/' + courseId, { method: 'POST', body: { 'course-categories': selected } } );
+					} );
+					label.appendChild( box );
+					label.appendChild( document.createTextNode( ' ' + cat.name ) );
+					catHost.appendChild( label );
+				} );
+			}
+			renderCats();
+
+			var catForm = document.getElementById( 'jsl-new-cat' );
+			catForm.addEventListener( 'submit', function ( e ) {
+				e.preventDefault();
+				var input = catForm.querySelector( 'input' );
+				var name  = input.value.trim();
+				if ( ! name ) {
+					return;
+				}
+				api( 'wp/v2/course-categories', { method: 'POST', body: { name: name } } ).then( function ( cat ) {
+					categories.push( cat );
+					selected.push( cat.id );
+					renderCats();
+					input.value = '';
+					api( 'wp/v2/courses/' + courseId, { method: 'POST', body: { 'course-categories': selected } } );
 				} );
 			} );
 
@@ -651,21 +712,282 @@
 		return card;
 	}
 
+	/* ================= in-house rich text editor ================= */
+
+	function richEditor( host, initialHTML ) {
+		host.innerHTML = '';
+		host.className = 'jsl-rte';
+
+		var toolbar = el( 'div', { class: 'jsl-rte__toolbar', role: 'toolbar' } );
+		var area    = el( 'div', { class: 'jsl-rte__area', contenteditable: 'true', spellcheck: 'true' } );
+		area.innerHTML = initialHTML || '<p></p>';
+
+		var savedRange = null;
+		function saveSel() {
+			var sel = window.getSelection();
+			if ( sel.rangeCount && area.contains( sel.anchorNode ) ) {
+				savedRange = sel.getRangeAt( 0 ).cloneRange();
+			}
+		}
+		function restoreSel() {
+			if ( savedRange ) {
+				var sel = window.getSelection();
+				sel.removeAllRanges();
+				sel.addRange( savedRange );
+			}
+		}
+		function exec( cmd, value ) {
+			area.focus();
+			restoreSel();
+			document.execCommand( cmd, false, value || null );
+			saveSel();
+		}
+
+		var urlBar = el( 'div', { class: 'jsl-rte__urlbar', hidden: 'hidden' } );
+		var urlInput = el( 'input', { class: 'jsl-input', type: 'url', placeholder: 'https://…' } );
+		var urlOk = el( 'button', { type: 'button', class: 'jsl-btn jsl-btn--primary jsl-btn--sm' }, 'Apply' );
+		var urlCancel = el( 'button', { type: 'button', class: 'jsl-btn jsl-btn--ghost jsl-btn--sm' }, 'Cancel' );
+		var urlMode = 'link';
+		urlBar.appendChild( urlInput );
+		urlBar.appendChild( urlOk );
+		urlBar.appendChild( urlCancel );
+
+		function openUrlBar( mode ) {
+			urlMode = mode;
+			saveSel();
+			urlBar.hidden = false;
+			urlInput.value = '';
+			urlInput.placeholder = mode === 'img' ? 'Image URL…' : 'https://…';
+			urlInput.focus();
+		}
+		urlOk.addEventListener( 'click', function () {
+			var url = urlInput.value.trim();
+			urlBar.hidden = true;
+			if ( ! url ) {
+				return;
+			}
+			if ( urlMode === 'img' ) {
+				exec( 'insertImage', url );
+			} else {
+				exec( 'createLink', url );
+			}
+		} );
+		urlCancel.addEventListener( 'click', function () { urlBar.hidden = true; } );
+		urlInput.addEventListener( 'keydown', function ( e ) {
+			if ( e.key === 'Enter' ) { e.preventDefault(); urlOk.click(); }
+			if ( e.key === 'Escape' ) { urlBar.hidden = true; }
+		} );
+
+		var BTNS = [
+			{ label: 'P', title: 'Paragraph', fn: function () { exec( 'formatBlock', '<p>' ); } },
+			{ label: 'H2', title: 'Heading 2', fn: function () { exec( 'formatBlock', '<h2>' ); } },
+			{ label: 'H3', title: 'Heading 3', fn: function () { exec( 'formatBlock', '<h3>' ); } },
+			{ sep: true },
+			{ label: '<b>B</b>', title: 'Bold', fn: function () { exec( 'bold' ); } },
+			{ label: '<i>I</i>', title: 'Italic', fn: function () { exec( 'italic' ); } },
+			{ sep: true },
+			{ label: '&bull; List', title: 'Bullet list', fn: function () { exec( 'insertUnorderedList' ); } },
+			{ label: '1. List', title: 'Numbered list', fn: function () { exec( 'insertOrderedList' ); } },
+			{ label: '&ldquo;&nbsp;&rdquo;', title: 'Quote', fn: function () { exec( 'formatBlock', '<blockquote>' ); } },
+			{ label: '&lt;/&gt;', title: 'Code block', fn: function () { exec( 'formatBlock', '<pre>' ); } },
+			{ sep: true },
+			{ label: 'Link', title: 'Insert link', fn: function () { openUrlBar( 'link' ); } },
+			{ label: 'Image', title: 'Insert image', fn: function () {
+				if ( window.wp && wp.media ) {
+					saveSel();
+					var frame = wp.media( { title: 'Insert image', multiple: false, library: { type: 'image' } } );
+					frame.on( 'select', function () {
+						var att = frame.state().get( 'selection' ).first().toJSON();
+						exec( 'insertImage', ( att.sizes && att.sizes.large ? att.sizes.large.url : att.url ) );
+					} );
+					frame.open();
+				} else {
+					openUrlBar( 'img' );
+				}
+			} },
+			{ label: '&mdash;', title: 'Divider', fn: function () { exec( 'insertHorizontalRule' ); } },
+			{ sep: true },
+			{ label: 'Clear', title: 'Clear formatting', fn: function () { exec( 'removeFormat' ); } },
+		];
+
+		BTNS.forEach( function ( b ) {
+			if ( b.sep ) {
+				toolbar.appendChild( el( 'span', { class: 'jsl-rte__sep' } ) );
+				return;
+			}
+			var btn = el( 'button', { type: 'button', class: 'jsl-rte__btn', title: b.title } );
+			btn.innerHTML = b.label;
+			btn.addEventListener( 'mousedown', function ( e ) { e.preventDefault(); } );
+			btn.addEventListener( 'click', b.fn );
+			toolbar.appendChild( btn );
+		} );
+
+		area.addEventListener( 'keyup', saveSel );
+		area.addEventListener( 'mouseup', saveSel );
+		area.addEventListener( 'blur', saveSel );
+
+		host.appendChild( toolbar );
+		host.appendChild( urlBar );
+		host.appendChild( area );
+
+		return {
+			getHTML: function () {
+				return area.innerHTML.replace( /<p><\/p>/g, '' ).trim();
+			},
+		};
+	}
+
+	/* ================= quiz builder ================= */
+
+	function quizBuilder( host, quiz ) {
+		host.innerHTML = '';
+		host.className = 'jsl-quiz-builder';
+
+		var passRow = el( 'div', { class: 'jsl-field jsl-field--row' } );
+		passRow.appendChild( el( 'label', {}, 'Pass mark (%)' ) );
+		var passInput = el( 'input', { class: 'jsl-input', type: 'number', min: '1', max: '100', style: 'width:90px' } );
+		passInput.value = quiz.pass || 70;
+		passRow.appendChild( passInput );
+		host.appendChild( passRow );
+
+		var list = el( 'div', { class: 'jsl-quiz-builder__list' } );
+		host.appendChild( list );
+
+		function optionRow( card, text, isCorrect ) {
+			var row = el( 'div', { class: 'jsl-quiz-opt' } );
+			var radio = el( 'input', { type: 'radio', title: 'Correct answer' } );
+			radio.name = 'correct-' + Math.abs( ( card.dataset.qid || '0' ).split( '' ).reduce( function ( a, c ) { return a + c.charCodeAt( 0 ); }, 0 ) ) + '-' + card.dataset.qid;
+			radio.checked = !! isCorrect;
+			var input = el( 'input', { class: 'jsl-input', type: 'text', placeholder: 'Answer option…' } );
+			input.value = text || '';
+			var rm = el( 'button', { type: 'button', class: 'jsl-icon-btn jsl-icon-btn--danger', title: 'Remove option' } );
+			rm.innerHTML = ICONS.trash;
+			rm.addEventListener( 'click', function () { row.remove(); } );
+			row.appendChild( radio );
+			row.appendChild( input );
+			row.appendChild( rm );
+			return row;
+		}
+
+		var qCounter = 0;
+
+		function questionCard( q ) {
+			qCounter++;
+			var card = el( 'div', { class: 'jsl-quiz-q', 'data-qid': String( qCounter ) } );
+
+			var head = el( 'div', { class: 'jsl-quiz-q__head' } );
+			head.appendChild( el( 'span', { class: 'jsl-quiz-q__num' }, 'Q' ) );
+			var qInput = el( 'input', { class: 'jsl-input', type: 'text', placeholder: 'Question…' } );
+			qInput.value = q.q || '';
+			qInput.setAttribute( 'data-role', 'question' );
+			head.appendChild( qInput );
+			var rm = el( 'button', { type: 'button', class: 'jsl-icon-btn jsl-icon-btn--danger', title: 'Remove question' } );
+			rm.innerHTML = ICONS.trash;
+			rm.addEventListener( 'click', function () { card.remove(); } );
+			head.appendChild( rm );
+			card.appendChild( head );
+
+			var opts = el( 'div', { class: 'jsl-quiz-q__opts' } );
+			( q.options && q.options.length ? q.options : [ '', '' ] ).forEach( function ( opt, i ) {
+				opts.appendChild( optionRow( card, opt, i === ( q.correct || 0 ) ) );
+			} );
+			card.appendChild( opts );
+
+			var addOpt = el( 'button', { type: 'button', class: 'jsl-btn jsl-btn--ghost jsl-btn--sm' }, '+ Option' );
+			addOpt.addEventListener( 'click', function () {
+				if ( opts.children.length < 6 ) {
+					opts.appendChild( optionRow( card, '', false ) );
+				}
+			} );
+
+			var explain = el( 'input', { class: 'jsl-input', type: 'text', placeholder: 'Explanation shown after answering (optional)…' } );
+			explain.value = q.explain || '';
+			explain.setAttribute( 'data-role', 'explain' );
+
+			var foot = el( 'div', { class: 'jsl-quiz-q__foot' } );
+			foot.appendChild( explain );
+			foot.appendChild( addOpt );
+			card.appendChild( foot );
+
+			return card;
+		}
+
+		( quiz.questions && quiz.questions.length ? quiz.questions : [] ).forEach( function ( q ) {
+			list.appendChild( questionCard( q ) );
+		} );
+
+		var addQ = el( 'button', { type: 'button', class: 'jsl-btn jsl-btn--ghost' }, '+ Add question' );
+		addQ.addEventListener( 'click', function () {
+			list.appendChild( questionCard( { options: [ '', '' ] } ) );
+		} );
+		host.appendChild( addQ );
+
+		return {
+			getData: function () {
+				var questions = [];
+				list.querySelectorAll( '.jsl-quiz-q' ).forEach( function ( card ) {
+					var options = [];
+					var correct = 0;
+					card.querySelectorAll( '.jsl-quiz-opt' ).forEach( function ( row, i ) {
+						var text = row.querySelector( 'input[type="text"]' ).value.trim();
+						if ( ! text ) {
+							return;
+						}
+						if ( row.querySelector( 'input[type="radio"]' ).checked ) {
+							correct = options.length;
+						}
+						options.push( text );
+					} );
+					var qText = card.querySelector( '[data-role="question"]' ).value.trim();
+					if ( qText && options.length >= 2 ) {
+						questions.push( {
+							q: qText,
+							options: options,
+							correct: correct,
+							explain: card.querySelector( '[data-role="explain"]' ).value.trim(),
+						} );
+					}
+				} );
+				return {
+					pass: parseInt( passInput.value, 10 ) || 70,
+					questions: questions,
+				};
+			},
+		};
+	}
+
 	/* ================= lesson drawer (writing) ================= */
 
-	var EDITOR_ID = 'jsl-lesson-content';
+	function parseTime( value ) {
+		value = String( value || '' ).trim();
+		if ( ! value ) {
+			return 0;
+		}
+		if ( value.indexOf( ':' ) !== -1 ) {
+			var parts = value.split( ':' ).map( Number );
+			return parts.reduce( function ( acc, n ) { return acc * 60 + ( n || 0 ); }, 0 );
+		}
+		return parseInt( value, 10 ) || 0;
+	}
+
+	function fmtTime( seconds ) {
+		seconds = parseInt( seconds, 10 ) || 0;
+		if ( ! seconds ) {
+			return '';
+		}
+		var m = Math.floor( seconds / 60 );
+		var s = seconds % 60;
+		return m + ':' + String( s ).padStart( 2, '0' );
+	}
 
 	function closeDrawer() {
-		if ( window.wp && wp.editor && document.getElementById( EDITOR_ID ) ) {
-			wp.editor.remove( EDITOR_ID );
-		}
 		document.querySelectorAll( '.jsl-drawer, .jsl-drawer-scrim' ).forEach( function ( n ) { n.remove(); } );
 		document.querySelectorAll( '.jsl-lesson.is-editing' ).forEach( function ( n ) { n.classList.remove( 'is-editing' ); } );
 		document.removeEventListener( 'keydown', escClose );
 	}
 
 	function escClose( e ) {
-		if ( e.key === 'Escape' && ! ( window.tinymce && tinymce.activeEditor && tinymce.activeEditor.hasFocus() ) ) {
+		if ( e.key === 'Escape' && ! document.querySelector( '.jsl-rte__urlbar:not([hidden])' ) ) {
 			closeDrawer();
 		}
 	}
@@ -683,23 +1005,38 @@
 		document.body.appendChild( drawer );
 		document.addEventListener( 'keydown', escClose );
 
-		req( 'wp/v2/lessons/' + lessonId + '?context=edit' ).then( function ( lesson ) {
-			var meta = lesson.meta || {};
+		Promise.all( [
+			req( 'wp/v2/lessons/' + lessonId + '?context=edit' ),
+			req( 'jsl/v1/lessons/' + lessonId + '/quiz-admin' ),
+		] ).then( function ( results ) {
+			var lesson = results[ 0 ];
+			var quiz   = results[ 1 ];
+			var meta   = lesson.meta || {};
+			var type   = meta.jsl_lesson_type || ( meta.jsl_video_url ? 'video' : 'article' );
 
 			drawer.innerHTML =
 				'<header class="jsl-drawer__head">' +
 					'<div style="flex:1;min-width:0"><span class="jsl-eyebrow">Lesson</span>' +
 					'<input class="jsl-drawer__title" id="jsl-drawer-title" type="text" value="" placeholder="Lesson title"></div>' +
+					'<select class="jsl-input" id="jsl-drawer-type" style="width:auto" title="Lesson type">' +
+						'<option value="article">Article</option><option value="video">Video</option><option value="quiz">Quiz</option>' +
+					'</select>' +
 					'<a class="jsl-btn jsl-btn--ghost jsl-btn--sm" href="' + esc( lesson.link ) + '" target="_blank" rel="noopener">' + ICONS.external + 'View</a>' +
 					'<button class="jsl-icon-btn" id="jsl-drawer-close" title="Close (Esc)" style="width:32px;height:32px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button>' +
 				'</header>' +
 				'<div class="jsl-drawer__body">' +
-					'<div class="jsl-drawer__meta-grid">' +
+					'<div class="jsl-drawer__meta-grid" data-section="video">' +
 						'<div class="jsl-field"><label for="jsl-drawer-video">Video URL</label><input class="jsl-input" id="jsl-drawer-video" type="url" placeholder="YouTube, Vimeo, or .mp4…"></div>' +
+						'<div class="jsl-field"><label for="jsl-drawer-vstart">Start at</label><input class="jsl-input" id="jsl-drawer-vstart" type="text" placeholder="0:00"><span class="jsl-help">mm:ss — plays from here</span></div>' +
+						'<div class="jsl-field"><label for="jsl-drawer-vend">End at</label><input class="jsl-input" id="jsl-drawer-vend" type="text" placeholder="full"><span class="jsl-help">mm:ss — stops here</span></div>' +
+					'</div>' +
+					'<div class="jsl-drawer__meta-grid">' +
 						'<div class="jsl-field"><label for="jsl-drawer-duration">Duration (min)</label><input class="jsl-input" id="jsl-drawer-duration" type="number" min="0"></div>' +
 						'<div class="jsl-field"><label>&nbsp;</label><label class="jsl-field--row" style="margin:0"><input type="checkbox" id="jsl-drawer-preview"> Free preview</label></div>' +
+						'<div></div>' +
 					'</div>' +
-					'<div class="jsl-field"><label>Lesson content</label><textarea id="' + EDITOR_ID + '" rows="14" style="width:100%"></textarea></div>' +
+					'<div class="jsl-field" data-section="quiz"><label>Quiz</label><div id="jsl-drawer-quiz"></div></div>' +
+					'<div class="jsl-field"><label>Lesson content</label><div id="jsl-drawer-rte"></div></div>' +
 				'</div>' +
 				'<footer class="jsl-drawer__foot">' +
 					'<button class="jsl-btn jsl-btn--danger" id="jsl-drawer-delete">' + ICONS.trash + 'Delete lesson</button>' +
@@ -710,22 +1047,23 @@
 				'</footer>';
 
 			document.getElementById( 'jsl-drawer-title' ).value = lesson.title.raw || '';
+			document.getElementById( 'jsl-drawer-type' ).value = type;
 			document.getElementById( 'jsl-drawer-video' ).value = meta.jsl_video_url || '';
+			document.getElementById( 'jsl-drawer-vstart' ).value = fmtTime( meta.jsl_video_start );
+			document.getElementById( 'jsl-drawer-vend' ).value = fmtTime( meta.jsl_video_end );
 			document.getElementById( 'jsl-drawer-duration' ).value = meta.jsl_duration_minutes || '';
 			document.getElementById( 'jsl-drawer-preview' ).checked = !! meta.jsl_is_preview;
-			document.getElementById( EDITOR_ID ).value = lesson.content.raw || '';
 
-			if ( window.wp && wp.editor ) {
-				wp.editor.initialize( EDITOR_ID, {
-					tinymce: {
-						wpautop: true,
-						height: 340,
-						toolbar1: 'formatselect,bold,italic,bullist,numlist,blockquote,link,unlink,hr,undo,redo',
-					},
-					quicktags: true,
-					mediaButtons: true,
-				} );
+			var editor = richEditor( document.getElementById( 'jsl-drawer-rte' ), lesson.content.raw || '' );
+			var qb     = quizBuilder( document.getElementById( 'jsl-drawer-quiz' ), quiz );
+
+			function syncSections() {
+				var t = document.getElementById( 'jsl-drawer-type' ).value;
+				drawer.querySelector( '[data-section="video"]' ).style.display = t === 'video' ? '' : 'none';
+				drawer.querySelector( '[data-section="quiz"]' ).style.display = t === 'quiz' ? '' : 'none';
 			}
+			document.getElementById( 'jsl-drawer-type' ).addEventListener( 'change', syncSections );
+			syncSections();
 
 			document.getElementById( 'jsl-drawer-close' ).addEventListener( 'click', closeDrawer );
 			document.getElementById( 'jsl-drawer-cancel' ).addEventListener( 'click', closeDrawer );
@@ -746,21 +1084,32 @@
 			document.getElementById( 'jsl-drawer-save' ).addEventListener( 'click', function () {
 				var btn = document.getElementById( 'jsl-drawer-save' );
 				btn.disabled = true;
-				var content = ( window.wp && wp.editor && wp.editor.getContent( EDITOR_ID ) ) || document.getElementById( EDITOR_ID ).value;
-				var title   = document.getElementById( 'jsl-drawer-title' ).value.trim() || '(untitled)';
+				var lessonType = document.getElementById( 'jsl-drawer-type' ).value;
+				var title = document.getElementById( 'jsl-drawer-title' ).value.trim() || '(untitled)';
 
-				api( 'wp/v2/lessons/' + lessonId, {
-					method: 'POST',
-					body: {
-						title:   title,
-						content: content,
-						meta: {
-							jsl_video_url:        document.getElementById( 'jsl-drawer-video' ).value.trim(),
-							jsl_duration_minutes: parseInt( document.getElementById( 'jsl-drawer-duration' ).value, 10 ) || 0,
-							jsl_is_preview:       document.getElementById( 'jsl-drawer-preview' ).checked,
+				var saves = [
+					api( 'wp/v2/lessons/' + lessonId, {
+						method: 'POST',
+						body: {
+							title:   title,
+							content: editor.getHTML(),
+							meta: {
+								jsl_lesson_type:      lessonType,
+								jsl_video_url:        document.getElementById( 'jsl-drawer-video' ).value.trim(),
+								jsl_video_start:      parseTime( document.getElementById( 'jsl-drawer-vstart' ).value ),
+								jsl_video_end:        parseTime( document.getElementById( 'jsl-drawer-vend' ).value ),
+								jsl_duration_minutes: parseInt( document.getElementById( 'jsl-drawer-duration' ).value, 10 ) || 0,
+								jsl_is_preview:       document.getElementById( 'jsl-drawer-preview' ).checked,
+							},
 						},
-					},
-				} ).then( function () {
+					} ),
+				];
+
+				if ( lessonType === 'quiz' ) {
+					saves.push( api( 'jsl/v1/lessons/' + lessonId + '/quiz-admin', { method: 'POST', body: qb.getData() } ) );
+				}
+
+				Promise.all( saves ).then( function () {
 					row.querySelector( '.jsl-lesson__title' ).textContent = title;
 					toast( 'Lesson saved' );
 					btn.disabled = false;

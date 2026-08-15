@@ -14,6 +14,7 @@ class Post_Types {
 	}
 
 	public static function register() {
+		self::register_course_category();
 		self::register_course();
 		self::register_lesson();
 		self::register_learning_path();
@@ -80,6 +81,25 @@ class Post_Types {
 				'rewrite'      => array( 'slug' => 'learning-paths' ),
 				'menu_icon'    => 'dashicons-networking',
 				'supports'     => array( 'title', 'editor', 'excerpt', 'thumbnail', 'custom-fields' ),
+			)
+		);
+	}
+
+	private static function register_course_category() {
+		register_taxonomy(
+			'course_category',
+			array( 'course' ),
+			array(
+				'labels'       => array(
+					'name'          => __( 'Course Categories', 'job-seekers-lms' ),
+					'singular_name' => __( 'Course Category', 'job-seekers-lms' ),
+				),
+				'public'       => true,
+				'show_in_rest' => true,
+				'rest_base'    => 'course-categories',
+				'hierarchical' => true,
+				'show_admin_column' => true,
+				'rewrite'      => array( 'slug' => 'course-category' ),
 			)
 		);
 	}

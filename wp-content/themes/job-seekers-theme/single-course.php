@@ -43,7 +43,11 @@ while ( have_posts() ) :
 					<a class="text-hero-muted hover:text-on-hero" href="<?php echo esc_url( get_post_type_archive_link( 'course' ) ); ?>"><?php esc_html_e( 'Courses', 'job-seekers-theme' ); ?></a>
 				</nav>
 
+				<?php $course_code = class_exists( 'JSL\\Course_Meta' ) ? \JSL\Course_Meta::get_code( $course_id ) : ''; ?>
 				<div class="mt-4 flex items-center gap-3">
+					<?php if ( $course_code ) : ?>
+						<span class="rounded-md border border-white/15 bg-white/5 px-2.5 py-1 font-mono text-xs font-semibold tracking-wider text-signal-300"><?php echo esc_html( $course_code ); ?></span>
+					<?php endif; ?>
 					<span class="jsl-badge <?php echo $is_paid ? 'jsl-badge--paid' : 'jsl-badge--free'; ?>"><?php echo $is_paid ? esc_html__( 'Paid', 'job-seekers-theme' ) : esc_html__( 'Free', 'job-seekers-theme' ); ?></span>
 					<?php if ( $is_enrolled ) : ?>
 						<span class="jsl-badge jsl-badge--free"><?php echo jsl_icon( 'check', 'w-3 h-3' ); ?> <?php esc_html_e( 'Enrolled', 'job-seekers-theme' ); ?></span>

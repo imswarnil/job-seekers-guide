@@ -4,30 +4,30 @@
  */
 
 :root {
-	--jsl-ink-950: #0b1220;
-	--jsl-ink-900: #111a2c;
-	--jsl-ink-800: #1c2940;
-	--jsl-ink-700: #2e3d57;
-	--jsl-ink-500: #5a6b85;
-	--jsl-ink-300: #9aa8bd;
+	--jsl-ink-950: #0e0f1f;
+	--jsl-ink-900: #16182e;
+	--jsl-ink-800: #232649;
+	--jsl-ink-700: #363a63;
+	--jsl-ink-500: #6a6f94;
+	--jsl-ink-300: #a9adc7;
 	--jsl-paper-0: #ffffff;
-	--jsl-paper-50: #fbfaf8;
-	--jsl-paper-100: #f4f2ee;
-	--jsl-paper-200: #e9e6df;
-	--jsl-paper-300: #d6d2c8;
-	--jsl-signal-800: #0a5c50;
-	--jsl-signal-700: #0d7263;
-	--jsl-signal-500: #16a189;
-	--jsl-signal-300: #6fd0ba;
-	--jsl-signal-100: #ddf3ec;
-	--jsl-spark-500: #e88f2e;
+	--jsl-paper-50: #f7f8fc;
+	--jsl-paper-100: #eef0f7;
+	--jsl-paper-200: #e1e4ef;
+	--jsl-paper-300: #cdd1e0;
+	--jsl-signal-800: #3d3dab;
+	--jsl-signal-700: #4c4ccc;
+	--jsl-signal-500: #6a68f2;
+	--jsl-signal-300: #a5a4f8;
+	--jsl-signal-100: #e5e5fd;
+	--jsl-spark-500: #8fc514;
 }
 
 /* ---- Canvas + type ---- */
 
 body {
 	background: var(--jsl-paper-50);
-	font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+	font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 	color: var(--jsl-ink-900);
 }
 
@@ -171,7 +171,7 @@ input[type="checkbox"]:checked::before { filter: hue-rotate(300deg) saturate(1.4
 .wp-list-table, .postbox, .stuffbox {
 	border: 1px solid var(--jsl-paper-200);
 	border-radius: 10px;
-	box-shadow: 0 1px 2px rgba(11, 18, 32, 0.05);
+	box-shadow: 0 1px 2px rgba(14, 15, 31, 0.05);
 	overflow: hidden;
 }
 
@@ -197,7 +197,7 @@ input[type="checkbox"]:checked::before { filter: hue-rotate(300deg) saturate(1.4
 	border-radius: 8px;
 	border-width: 1px;
 	border-left-width: 4px;
-	box-shadow: 0 1px 2px rgba(11, 18, 32, 0.05);
+	box-shadow: 0 1px 2px rgba(14, 15, 31, 0.05);
 }
 
 .notice-success, div.updated { border-left-color: var(--jsl-signal-500); }

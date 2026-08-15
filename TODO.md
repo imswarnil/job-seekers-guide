@@ -34,6 +34,16 @@ hand-rolled design-token system (no block theme, no theme.json — see
 - [x] LMS Console (`wp-admin → LMS`): single-page admin app — Dashboard (analytics: learners/enrollments/completions, 14-day chart, course performance, activity feed), Courses (create/publish/excerpt), Course editor (builder + lesson writing in a TinyMCE drawer incl. video/duration/preview meta), Learners (list + per-user profile with course progress and activity)
 - [x] Analytics backend (`includes/analytics/class-analytics.php`) + admin REST routes under `jsl/v1/analytics/*`
 - [x] wp-admin reskin (`admin/class-admin-theme.php`): design-system colors across admin menu/bar/buttons/forms/tables + branded login screen
+- [x] Design tokens v2 "Night Iris": night-indigo / frost / iris-violet / lime palette, Space Grotesk display + Manrope body, applied across theme, console, admin skin, and login
+- [x] LMS-only WordPress: Posts + Comments removed everywhere, wp-admin Dashboard redirects to the LMS console, learners (subscribers) redirected to /my-learning, hardcoded LMS nav, classic-editor plugin removed
+- [x] Security hardening (`includes/security/`): XML-RPC dead (403), security headers, user-enumeration blocked (?author= + wp/v2/users), generic login errors, DISALLOW_FILE_EDIT, version/meta-tag leaks stripped, comments fully off
+- [x] In-house lesson editor in the console (no TinyMCE dependency): custom rich-text toolbar, media-library image insert, lesson type selector (article/video/quiz)
+- [x] Quiz engine (`includes/quiz/class-quiz.php`): builder UI in the drawer, answers stored server-side only, public questions route, server-graded submissions that auto-complete the lesson on pass
+- [x] Video clip ranges (start/end) + custom click-to-play facade player (youtube-nocookie, modestbranding, poster + brand play button)
+- [x] Course codes (`jsl_course_code`) + `course_category` taxonomy, editable in the console
+- [x] Dynamic JSON-LD (`includes/schema/class-json-ld.php`): Course with lesson ItemList/hasPart, LearningResource + VideoObject on lessons, ItemList on paths, WebSite/Organization on home
+- [x] Generated SVG placeholder card art (`includes/media/class-placeholder.php`) with course code, wrapped title, lesson count; brand SVGs (logo, favicon, empty-state) in theme assets
+- [x] Realistic seed curriculum (`wp jsl seed --fresh`): 2 paths, 4 coded courses, 24 lessons incl. video-with-clip and 4 quizzes
 - [ ] Certificates
 
 ## 4. Payments — Dodo Payments (`includes/payments`) — real implementation, untested against a live account

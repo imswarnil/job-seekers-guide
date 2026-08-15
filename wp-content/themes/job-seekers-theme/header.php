@@ -25,19 +25,12 @@ defined( 'ABSPATH' ) || exit;
 			<span class="text-[1.05rem] tracking-tight"><?php bloginfo( 'name' ); ?></span>
 		</a>
 
-		<nav class="hidden items-center gap-1 md:flex" data-nav aria-label="<?php esc_attr_e( 'Primary', 'job-seekers-theme' ); ?>">
-			<?php
-			wp_nav_menu(
-				array(
-					'theme_location' => 'primary',
-					'container'      => false,
-					'menu_class'     => 'flex items-center gap-1 list-none m-0 p-0 [&_a]:inline-block [&_a]:rounded-md [&_a]:px-3 [&_a]:py-2 [&_a]:text-sm [&_a]:font-medium [&_a]:text-ink-secondary [&_a:hover]:bg-subtle [&_a:hover]:text-ink',
-					'fallback_cb'    => false,
-				)
-			);
-			?>
-			<a class="ml-1 inline-block rounded-md px-3 py-2 text-sm font-medium text-ink-secondary hover:bg-subtle hover:text-ink" href="<?php echo esc_url( get_post_type_archive_link( 'course' ) ); ?>"><?php esc_html_e( 'Courses', 'job-seekers-theme' ); ?></a>
-			<a class="inline-block rounded-md px-3 py-2 text-sm font-medium text-ink-secondary hover:bg-subtle hover:text-ink" href="<?php echo esc_url( get_post_type_archive_link( 'learning_path' ) ); ?>"><?php esc_html_e( 'Paths', 'job-seekers-theme' ); ?></a>
+		<nav class="hidden items-center gap-1 md:flex" aria-label="<?php esc_attr_e( 'Primary', 'job-seekers-theme' ); ?>">
+			<a class="inline-block rounded-md px-3 py-2 text-sm font-medium text-ink-secondary hover:bg-subtle hover:text-ink" href="<?php echo esc_url( get_post_type_archive_link( 'learning_path' ) ); ?>"><?php esc_html_e( 'Learning Paths', 'job-seekers-theme' ); ?></a>
+			<a class="inline-block rounded-md px-3 py-2 text-sm font-medium text-ink-secondary hover:bg-subtle hover:text-ink" href="<?php echo esc_url( get_post_type_archive_link( 'course' ) ); ?>"><?php esc_html_e( 'Courses', 'job-seekers-theme' ); ?></a>
+			<?php if ( is_user_logged_in() ) : ?>
+				<a class="inline-block rounded-md px-3 py-2 text-sm font-medium text-ink-secondary hover:bg-subtle hover:text-ink" href="<?php echo esc_url( home_url( '/my-learning/' ) ); ?>"><?php esc_html_e( 'My Learning', 'job-seekers-theme' ); ?></a>
+			<?php endif; ?>
 		</nav>
 
 		<div class="flex items-center gap-2.5">

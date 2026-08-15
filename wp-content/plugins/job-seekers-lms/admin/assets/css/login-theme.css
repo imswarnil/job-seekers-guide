@@ -1,10 +1,10 @@
 /* Login screen — LMS design system. */
 
 body.login {
-	background: #0b1220;
-	background-image: radial-gradient(circle at 20% 20%, rgba(22, 161, 137, 0.12), transparent 45%),
-		radial-gradient(circle at 80% 80%, rgba(232, 143, 46, 0.08), transparent 45%);
-	font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+	background: #0e0f1f;
+	background-image: radial-gradient(circle at 20% 20%, rgba(106, 104, 242, 0.12), transparent 45%),
+		radial-gradient(circle at 80% 80%, rgba(143, 197, 20, 0.08), transparent 45%);
+	font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .login h1 a {
@@ -15,7 +15,7 @@ body.login {
 	font-size: 22px;
 	font-weight: 800;
 	letter-spacing: -0.01em;
-	color: #fbfaf8;
+	color: #f7f8fc;
 	line-height: 1.3;
 }
 
@@ -26,8 +26,8 @@ body.login {
 	height: 44px;
 	margin: 0 auto 12px;
 	border-radius: 12px;
-	background: #0d7263 url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/></svg>') center/24px no-repeat;
-	box-shadow: 0 8px 24px -8px rgba(13, 114, 99, 0.6);
+	background: #4c4ccc url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/></svg>') center/24px no-repeat;
+	box-shadow: 0 8px 24px -8px rgba(90, 90, 230, 0.6);
 }
 
 .login form {
@@ -38,10 +38,10 @@ body.login {
 	padding: 32px;
 }
 
-.login label { color: #2e3d57; font-weight: 600; font-size: 13px; }
+.login label { color: #363a63; font-weight: 600; font-size: 13px; }
 
 .login form .input, .login input[type="text"], .login input[type="password"] {
-	border: 1px solid #d6d2c8;
+	border: 1px solid #cdd1e0;
 	border-radius: 8px;
 	padding: 10px 12px;
 	font-size: 14px;
@@ -49,13 +49,13 @@ body.login {
 }
 
 .login form .input:focus, .login input[type="text"]:focus, .login input[type="password"]:focus {
-	border-color: #16a189;
-	box-shadow: 0 0 0 2px #ddf3ec;
+	border-color: #6a68f2;
+	box-shadow: 0 0 0 2px #e5e5fd;
 }
 
 .wp-core-ui .button-primary {
-	background: #0d7263;
-	border-color: #0d7263;
+	background: #4c4ccc;
+	border-color: #4c4ccc;
 	border-radius: 8px;
 	font-weight: 700;
 	text-shadow: none;
@@ -65,15 +65,15 @@ body.login {
 }
 
 .wp-core-ui .button-primary:hover, .wp-core-ui .button-primary:focus {
-	background: #0a5c50;
-	border-color: #0a5c50;
+	background: #3d3dab;
+	border-color: #3d3dab;
 }
 
-.login .button.wp-hide-pw { color: #5a6b85; }
+.login .button.wp-hide-pw { color: #6a6f94; }
 
 .login #nav, .login #backtoblog { text-align: center; }
-.login #nav a, .login #backtoblog a { color: #9aa8bd; }
-.login #nav a:hover, .login #backtoblog a:hover { color: #6fd0ba; }
+.login #nav a, .login #backtoblog a { color: #a9adc7; }
+.login #nav a:hover, .login #backtoblog a:hover { color: #a5a4f8; }
 
 .login .message, .login .success, .login #login_error {
 	border-radius: 10px;
@@ -81,6 +81,6 @@ body.login {
 	box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.4);
 }
 
-.login .message { border-left-color: #16a189; }
+.login .message { border-left-color: #6a68f2; }
 
 .language-switcher { display: none; }

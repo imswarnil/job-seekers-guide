@@ -49,9 +49,8 @@ class Console {
 		}
 
 		wp_enqueue_style( 'jsl-console', JSL_PLUGIN_URL . 'admin/assets/css/console.css', array(), JSL_VERSION );
-		wp_enqueue_editor();
 		wp_enqueue_media();
-		wp_enqueue_script( 'jsl-console', JSL_PLUGIN_URL . 'admin/assets/js/console.js', array( 'editor' ), JSL_VERSION, true );
+		wp_enqueue_script( 'jsl-console', JSL_PLUGIN_URL . 'admin/assets/js/console.js', array( 'media-editor' ), JSL_VERSION, true );
 
 		wp_localize_script(
 			'jsl-console',

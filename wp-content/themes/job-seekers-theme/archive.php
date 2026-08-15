@@ -21,8 +21,15 @@ get_header();
 				$jsl_is_course = 'course' === get_post_type();
 				$jsl_is_paid   = $jsl_is_course && class_exists( 'JSL\\Payments\\Course_Pricing' ) && \JSL\Payments\Course_Pricing::is_paid( get_the_ID() );
 				$jsl_stats     = $jsl_is_course && class_exists( 'JSL\\Course_Api' ) ? \JSL\Course_Api::get_stats( get_the_ID() ) : null;
+				$jsl_img = $jsl_is_course
+					? ( get_the_post_thumbnail_url( get_the_ID(), 'medium_large' ) ?: ( class_exists( 'JSL\\Media\\Placeholder' ) ? \JSL\Media\Placeholder::course( get_the_ID() ) : '' ) )
+					: get_the_post_thumbnail_url( get_the_ID(), 'medium_large' );
 				?>
-				<a class="group flex flex-col rounded-xl border border-line bg-raised p-6 no-underline shadow-sm transition hover:-translate-y-0.5 hover:border-line-strong hover:shadow-md" href="<?php the_permalink(); ?>">
+				<a class="group flex flex-col overflow-hidden rounded-xl border border-line bg-raised no-underline shadow-sm transition hover:-translate-y-0.5 hover:border-line-strong hover:shadow-md" href="<?php the_permalink(); ?>">
+					<?php if ( $jsl_img ) : ?>
+						<img class="aspect-video w-full object-cover" src="<?php echo jsl_img_src( $jsl_img ); ?>" alt="" loading="lazy">
+					<?php endif; ?>
+					<div class="flex flex-1 flex-col p-6">
 					<?php if ( $jsl_is_course ) : ?>
 						<span class="jsl-badge self-start <?php echo $jsl_is_paid ? 'jsl-badge--paid' : 'jsl-badge--free'; ?>"><?php echo $jsl_is_paid ? esc_html__( 'Paid', 'job-seekers-theme' ) : esc_html__( 'Free', 'job-seekers-theme' ); ?></span>
 					<?php endif; ?>
@@ -39,6 +46,7 @@ get_header();
 							<?php endif; ?>
 						</div>
 					<?php endif; ?>
+					</div>
 				</a>
 				<?php
 			endwhile;
