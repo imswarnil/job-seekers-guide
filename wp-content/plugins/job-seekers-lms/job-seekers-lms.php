@@ -39,10 +39,14 @@ require_once JSL_PLUGIN_DIR . 'includes/payments/class-checkout.php';
 require_once JSL_PLUGIN_DIR . 'includes/payments/class-subscription.php';
 require_once JSL_PLUGIN_DIR . 'includes/payments/class-webhook.php';
 require_once JSL_PLUGIN_DIR . 'includes/analytics/class-analytics.php';
+require_once JSL_PLUGIN_DIR . 'includes/auth/class-google-auth.php';
+require_once JSL_PLUGIN_DIR . 'includes/seo/class-seo.php';
+require_once JSL_PLUGIN_DIR . 'includes/pwa/class-pwa.php';
 require_once JSL_PLUGIN_DIR . 'includes/security/class-hardening.php';
 require_once JSL_PLUGIN_DIR . 'includes/security/class-comments-off.php';
 require_once JSL_PLUGIN_DIR . 'admin/class-lms-admin.php';
 require_once JSL_PLUGIN_DIR . 'admin/class-console.php';
+require_once JSL_PLUGIN_DIR . 'admin/class-settings-page.php';
 require_once JSL_PLUGIN_DIR . 'admin/class-admin-theme.php';
 require_once JSL_PLUGIN_DIR . 'includes/cli/class-seed-command.php';
 
@@ -64,11 +68,15 @@ function jsl_boot() {
 	JSL\Payments\Subscription::init();
 	JSL\Payments\Webhook::init();
 	JSL\Access\Access::init();
+	JSL\Auth\Google_Auth::init();
+	JSL\Seo\Seo::init();
+	JSL\Pwa\Pwa::init();
 	JSL\Analytics\Analytics::init();
 	JSL\Security\Hardening::init();
 	JSL\Security\Comments_Off::init();
 	JSL\Admin\Lms_Admin::init();
 	JSL\Admin\Console::init();
+	JSL\Admin\Settings_Page::init();
 	JSL\Admin\Admin_Theme::init();
 	JSL\Cli\Seed_Command::register();
 }

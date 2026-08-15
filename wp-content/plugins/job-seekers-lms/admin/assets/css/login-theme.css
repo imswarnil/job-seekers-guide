@@ -84,3 +84,51 @@ body.login {
 .login .message { border-left-color: #6a68f2; }
 
 .language-switcher { display: none; }
+
+/* ---- Continue with Google ---- */
+
+.jsl-google-signin { margin-top: 18px; }
+
+.jsl-google-signin__divider {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 14px;
+	color: var(--md-neutral-60);
+	font-size: 12px;
+}
+
+.jsl-google-signin__divider::before,
+.jsl-google-signin__divider::after {
+	content: "";
+	flex: 1;
+	height: 1px;
+	background: rgba(255, 255, 255, 0.14);
+}
+
+.jsl-google-signin__btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	width: 100%;
+	min-height: 44px;
+	padding: 0 18px;
+	border-radius: var(--md-shape-full);
+	border: 1px solid rgba(255, 255, 255, 0.22);
+	background: rgba(255, 255, 255, 0.04);
+	color: #f3f0fa;
+	font-size: 14px;
+	font-weight: 600;
+	text-decoration: none;
+	box-sizing: border-box;
+	transition: background var(--md-duration-short) var(--md-easing-emphasized),
+		border-color var(--md-duration-short) var(--md-easing-emphasized);
+}
+
+.jsl-google-signin__btn:hover,
+.jsl-google-signin__btn:focus {
+	background: rgba(255, 255, 255, 0.10);
+	border-color: rgba(255, 255, 255, 0.38);
+	color: #fff;
+}

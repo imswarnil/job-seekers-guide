@@ -88,9 +88,9 @@ class Console {
 				</nav>
 
 				<div class="jsl-console__nav-foot">
-					<a href="<?php echo esc_url( admin_url( 'options-general.php?page=jsl-dodo-payments' ) ); ?>">
+					<a href="<?php echo esc_url( Settings_Page::url( 'payments' ) ); ?>">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.14-1.4l2-1.55-2-3.46-2.37.95A7 7 0 0 0 14 5.1L13.6 2.6h-4L9.2 5.1a7 7 0 0 0-2.49 1.44l-2.37-.95-2 3.46 2 1.55A7 7 0 0 0 4.2 12c0 .48.05.94.14 1.4l-2 1.55 2 3.46 2.37-.95c.73.62 1.57 1.11 2.49 1.44l.4 2.5h4l.4-2.5a7 7 0 0 0 2.49-1.44l2.37.95 2-3.46-2-1.55c.09-.46.14-.92.14-1.4Z"/></svg>
-						<?php esc_html_e( 'Payments', 'job-seekers-lms' ); ?>
+						<?php esc_html_e( 'Settings', 'job-seekers-lms' ); ?>
 					</a>
 					<a href="<?php echo esc_url( home_url( '/' ) ); ?>">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/></svg>
