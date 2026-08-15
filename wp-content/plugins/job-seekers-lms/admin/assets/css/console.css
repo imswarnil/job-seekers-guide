@@ -927,3 +927,12 @@
 	color: var(--ink-500);
 	margin-bottom: 2px;
 }
+
+/* =============== Success-story moderation =============== */
+
+.jsl-story-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 16px; }
+.jsl-story__top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.jsl-story h3 { font-size: 15px; font-weight: 700; line-height: 1.35; margin-bottom: 4px; }
+.jsl-story__excerpt { margin-top: 10px; font-size: 13px; line-height: 1.6; color: var(--ink-700); }
+.jsl-story__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.jsl-badge--pending { background: var(--spark-100); color: var(--md-sys-on-tertiary-container); }

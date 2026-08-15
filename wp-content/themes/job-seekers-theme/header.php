@@ -74,6 +74,12 @@ $jsl_nav = jsl_primary_destinations();
 							<?php echo jsl_icon( 'stack', 'w-5 h-5' ); ?>
 							<?php esc_html_e( 'My Learning', 'job-seekers-theme' ); ?>
 						</a>
+						<?php foreach ( jsl_secondary_destinations() as $jsl_extra ) : ?>
+							<a class="md-menu__item" role="menuitem" href="<?php echo esc_url( $jsl_extra['url'] ); ?>">
+								<?php echo jsl_icon( $jsl_extra['icon'], 'w-5 h-5' ); ?>
+								<?php echo esc_html( $jsl_extra['label'] ); ?>
+							</a>
+						<?php endforeach; ?>
 						<?php if ( current_user_can( 'edit_posts' ) ) : ?>
 							<a class="md-menu__item" role="menuitem" href="<?php echo esc_url( admin_url( 'admin.php?page=jsl-lms' ) ); ?>">
 								<?php echo jsl_icon( 'gear', 'w-5 h-5' ); ?>

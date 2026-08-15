@@ -15,6 +15,8 @@ use JSL\Payments\Settings as Payment_Settings;
 use JSL\Payments\Subscription;
 use JSL\Seo\Seo;
 use JSL\Pwa\Pwa;
+use JSL\Success\Success_Stories;
+use JSL\Leaderboard\Leaderboard;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,6 +29,7 @@ class Settings_Page {
 		'payments'     => array( 'Payments', 'jsl_settings_payments' ),
 		'subscription' => array( 'Subscription', 'jsl_settings_subscription' ),
 		'google'       => array( 'Google Sign-In', 'jsl_settings_google' ),
+		'community'    => array( 'Community', 'jsl_settings_community' ),
 		'seo'          => array( 'SEO', 'jsl_settings_seo' ),
 		'pwa'          => array( 'App / PWA', 'jsl_settings_pwa' ),
 	);
@@ -76,6 +79,10 @@ class Settings_Page {
 		register_setting( 'jsl_settings_google', Google_Auth::OPTION_CLIENT_ID, $text );
 		register_setting( 'jsl_settings_google', Google_Auth::OPTION_CLIENT_SECRET, $text );
 		register_setting( 'jsl_settings_google', Google_Auth::OPTION_ALLOW_SIGNUP, $bool );
+
+		// Community (stories + leaderboard).
+		register_setting( 'jsl_settings_community', Success_Stories::OPTION_ENABLED, $bool );
+		register_setting( 'jsl_settings_community', Leaderboard::OPTION_ENABLED, $bool );
 
 		// SEO.
 		register_setting( 'jsl_settings_seo', Seo::OPTION_DESCRIPTION, array( 'sanitize_callback' => 'sanitize_textarea_field' ) );
@@ -259,6 +266,30 @@ class Settings_Page {
 			__( 'New accounts', 'job-seekers-lms' ),
 			self::checkbox( Google_Auth::OPTION_ALLOW_SIGNUP, __( 'Create an account the first time someone signs in with Google', 'job-seekers-lms' ) ),
 			__( 'Turn this off to allow Google sign-in only for people who already have an account.', 'job-seekers-lms' )
+		);
+	}
+
+	/* ---- Tab: Community ---- */
+
+	private static function fields_community() {
+		self::row(
+			__( 'Success stories', 'job-seekers-lms' ),
+			self::checkbox( Success_Stories::OPTION_ENABLED, __( 'Let learners submit success stories', 'job-seekers-lms' ) ),
+			sprintf(
+				/* translators: %s: the Wall of Success URL. */
+				__( 'Stories are always submitted as <strong>pending</strong> and never appear until you approve them in LMS → Stories. Public wall: %s', 'job-seekers-lms' ),
+				'<code>' . esc_html( Success_Stories::archive_url() ) . '</code>'
+			)
+		);
+
+		self::row(
+			__( 'Public leaderboard', 'job-seekers-lms' ),
+			self::checkbox( Leaderboard::OPTION_ENABLED, __( 'Publish a leaderboard of learners', 'job-seekers-lms' ) ),
+			sprintf(
+				/* translators: %s: the leaderboard URL. */
+				__( 'This publishes learners’ display names and lesson counts at %s. Only aggregate totals are shown — never an email or which courses someone is taking — and every learner can remove themselves from the board. Off by default.', 'job-seekers-lms' ),
+				'<code>' . esc_html( Leaderboard::url() ) . '</code>'
+			)
 		);
 	}
 

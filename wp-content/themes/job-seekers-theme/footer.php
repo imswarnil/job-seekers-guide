@@ -26,6 +26,9 @@ $jsl_bottom_nav = jsl_primary_destinations( true );
 			<ul class="m-0 mt-4 flex list-none flex-col gap-2.5 p-0 text-sm">
 				<li><a class="text-on-surface-variant hover:text-primary" href="<?php echo esc_url( get_post_type_archive_link( 'learning_path' ) ); ?>"><?php esc_html_e( 'Learning Paths', 'job-seekers-theme' ); ?></a></li>
 				<li><a class="text-on-surface-variant hover:text-primary" href="<?php echo esc_url( get_post_type_archive_link( 'course' ) ); ?>"><?php esc_html_e( 'All Courses', 'job-seekers-theme' ); ?></a></li>
+				<?php foreach ( jsl_secondary_destinations() as $jsl_extra ) : ?>
+					<li><a class="text-on-surface-variant hover:text-primary" href="<?php echo esc_url( $jsl_extra['url'] ); ?>"><?php echo esc_html( $jsl_extra['label'] ); ?></a></li>
+				<?php endforeach; ?>
 			</ul>
 		</nav>
 

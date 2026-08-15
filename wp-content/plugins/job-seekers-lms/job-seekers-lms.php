@@ -42,6 +42,8 @@ require_once JSL_PLUGIN_DIR . 'includes/payments/class-subscription.php';
 require_once JSL_PLUGIN_DIR . 'includes/payments/class-webhook.php';
 require_once JSL_PLUGIN_DIR . 'includes/analytics/class-analytics.php';
 require_once JSL_PLUGIN_DIR . 'includes/auth/class-google-auth.php';
+require_once JSL_PLUGIN_DIR . 'includes/success/class-success-stories.php';
+require_once JSL_PLUGIN_DIR . 'includes/leaderboard/class-leaderboard.php';
 require_once JSL_PLUGIN_DIR . 'includes/seo/class-seo.php';
 require_once JSL_PLUGIN_DIR . 'includes/pwa/class-pwa.php';
 require_once JSL_PLUGIN_DIR . 'includes/security/class-hardening.php';
@@ -87,6 +89,8 @@ function jsl_boot() {
 	JSL\Payments\Webhook::init();
 	JSL\Access\Access::init();
 	JSL\Auth\Google_Auth::init();
+	JSL\Success\Success_Stories::init();
+	JSL\Leaderboard\Leaderboard::init();
 	JSL\Seo\Seo::init();
 	JSL\Pwa\Pwa::init();
 	JSL\Analytics\Analytics::init();

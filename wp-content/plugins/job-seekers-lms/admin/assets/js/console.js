@@ -163,6 +163,9 @@
 		if ( hash.indexOf( '/courses' ) === 0 ) {
 			return renderCourses();
 		}
+		if ( hash.indexOf( '/stories' ) === 0 ) {
+			return renderStories();
+		}
 		if ( ( m = hash.match( /^\/paths\/(\d+)/ ) ) ) {
 			return renderPathEditor( parseInt( m[ 1 ], 10 ) );
 		}
@@ -1691,6 +1694,77 @@
 					toast( 'Step added' );
 					renderPathEditor( pathId );
 				} ).catch( function () {} );
+			} );
+		} ).catch( fail );
+	}
+
+	/* ================= success stories ================= */
+
+	/**
+	 * Moderation queue. Stories arrive pending; nothing a learner writes is
+	 * public until it is approved here, so pending sorts to the top.
+	 */
+	function renderStories() {
+		setNav( 'stories' );
+		loading();
+
+		req( 'jsl/v1/stories' ).then( function ( data ) {
+			var pending = data.stories.filter( function ( s ) { return s.status === 'pending'; } ).length;
+
+			function card( s ) {
+				var actions = s.status === 'publish'
+					? '<button class="jsl-btn jsl-btn--ghost jsl-btn--sm" data-act="pending" data-id="' + s.id + '">Unpublish</button>'
+					: '<button class="jsl-btn jsl-btn--primary jsl-btn--sm" data-act="publish" data-id="' + s.id + '">' + ICONS.check + 'Approve</button>';
+
+				return '<article class="jsl-card jsl-story" data-story="' + s.id + '">' +
+					'<div class="jsl-card__body">' +
+						'<div class="jsl-story__top">' +
+							'<span class="jsl-badge jsl-badge--' + esc( s.status ) + '">' + esc( s.status ) + '</span>' +
+							'<span class="jsl-sub">' + esc( s.author ) + ' · ' + esc( s.date ) + '</span>' +
+						'</div>' +
+						'<h3>' + esc( s.title || '(untitled)' ) + '</h3>' +
+						( s.role || s.company
+							? '<p class="jsl-sub">' + esc( [ s.role, s.company ].filter( Boolean ).join( ' · ' ) ) + '</p>'
+							: '' ) +
+						'<p class="jsl-story__excerpt">' + esc( s.excerpt ) + '</p>' +
+						'<div class="jsl-story__actions">' +
+							actions +
+							'<a class="jsl-btn jsl-btn--ghost jsl-btn--sm" href="' + esc( s.permalink ) + '" target="_blank" rel="noopener">' + ICONS.external + 'Preview</a>' +
+							'<button class="jsl-btn jsl-btn--danger jsl-btn--sm" data-act="trash" data-id="' + s.id + '">' + ICONS.trash + 'Delete</button>' +
+						'</div>' +
+					'</div>' +
+				'</article>';
+			}
+
+			view.innerHTML =
+				'<header class="jsl-page-head"><div><h1>Success stories</h1>' +
+				'<p class="jsl-sub">' + ( pending
+					? pending + ( pending === 1 ? ' story waiting for review' : ' stories waiting for review' )
+					: 'Nothing waiting for review.' ) + '</p></div></header>' +
+				( data.stories.length
+					? '<div class="jsl-story-grid">' + data.stories.map( card ).join( '' ) + '</div>'
+					: '<div class="jsl-empty-state"><h3>No stories yet</h3><p>When a learner submits one it lands here for approval.</p></div>' );
+
+			view.querySelectorAll( '[data-act]' ).forEach( function ( btn ) {
+				btn.addEventListener( 'click', function () {
+					var id  = btn.getAttribute( 'data-id' );
+					var act = btn.getAttribute( 'data-act' );
+
+					function run() {
+						api( 'jsl/v1/stories/' + id + '/status', { method: 'POST', body: { status: act } } )
+							.then( function () {
+								toast( act === 'publish' ? 'Story published' : act === 'trash' ? 'Story deleted' : 'Story unpublished' );
+								renderStories();
+							} )
+							.catch( function () {} );
+					}
+
+					if ( act === 'trash' ) {
+						confirmInline( btn.closest( '.jsl-card__body' ), 'Delete this story?', run );
+					} else {
+						run();
+					}
+				} );
 			} );
 		} ).catch( fail );
 	}

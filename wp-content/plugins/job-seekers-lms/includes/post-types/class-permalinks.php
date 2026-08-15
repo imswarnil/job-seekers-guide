@@ -30,7 +30,7 @@ class Permalinks {
 	const ORPHAN_BASE = 'library';
 
 	/** Bumped whenever the rules below change, to trigger a one-time flush. */
-	const RULES_VERSION = '3';
+	const RULES_VERSION = '4';
 
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'add_rewrite_rules' ), 20 );

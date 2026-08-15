@@ -82,6 +82,10 @@ const ICONS = {
 	"shield-check": ["regular"],
 	"credit-card": ["regular", "fill"],
 	"envelope-simple": ["regular"],
+	"paper-plane-tilt": ["regular"],
+	"seal-check": ["regular", "fill"],
+	"hourglass": ["regular"],
+	"buildings": ["regular"],
 
 	// Console / authoring
 	"chart-line": ["regular"],

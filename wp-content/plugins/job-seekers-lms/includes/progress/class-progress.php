@@ -104,6 +104,15 @@ class Progress {
 			),
 			array( '%d', '%d', '%d', '%s' )
 		);
+
+		/**
+		 * Fires once, the first time a learner completes a lesson.
+		 *
+		 * @param int $user_id
+		 * @param int $lesson_id
+		 * @param int $course_id
+		 */
+		do_action( 'jsl_lesson_completed', $user_id, $lesson_id, $course_id );
 	}
 
 	public static function is_complete( int $user_id, int $lesson_id ): bool {

@@ -109,6 +109,15 @@ function jsl_primary_destinations( $with_home = false ) {
 		'here'  => is_post_type_archive( 'course' ) || is_singular( 'course' ),
 	);
 
+	if ( class_exists( 'JSL\\Success\\Success_Stories' ) && \JSL\Success\Success_Stories::is_enabled() ) {
+		$items[] = array(
+			'url'   => (string) get_post_type_archive_link( 'success_story' ),
+			'label' => __( 'Stories', 'job-seekers-theme' ),
+			'icon'  => 'trophy',
+			'here'  => is_post_type_archive( 'success_story' ) || is_singular( 'success_story' ),
+		);
+	}
+
 	$items[] = is_user_logged_in()
 		? array(
 			'url'   => home_url( '/my-learning/' ),
@@ -122,6 +131,34 @@ function jsl_primary_destinations( $with_home = false ) {
 			'icon'  => 'user-circle',
 			'here'  => false,
 		);
+
+	return $items;
+}
+
+/**
+ * Secondary destinations — real pages, but not frequent enough to earn a
+ * slot in the navigation bar. They live in the account menu and footer.
+ *
+ * @return array<int, array{url:string, label:string, icon:string}>
+ */
+function jsl_secondary_destinations() {
+	$items = array();
+
+	if ( class_exists( 'JSL\\Leaderboard\\Leaderboard' ) && \JSL\Leaderboard\Leaderboard::is_enabled() ) {
+		$items[] = array(
+			'url'   => \JSL\Leaderboard\Leaderboard::url(),
+			'label' => __( 'Leaderboard', 'job-seekers-theme' ),
+			'icon'  => 'medal',
+		);
+	}
+
+	if ( class_exists( 'JSL\\Success\\Success_Stories' ) && \JSL\Success\Success_Stories::is_enabled() ) {
+		$items[] = array(
+			'url'   => \JSL\Success\Success_Stories::archive_url(),
+			'label' => __( 'Wall of Success', 'job-seekers-theme' ),
+			'icon'  => 'trophy',
+		);
+	}
 
 	return $items;
 }
@@ -169,6 +206,37 @@ function jsl_icon( $name, $class = 'w-5 h-5', $title = '' ) {
 		: 'aria-hidden="true" focusable="false"';
 
 	return '<svg class="' . esc_attr( $class ) . '" viewBox="0 0 256 256" fill="currentColor" ' . $a11y . '>' . $paths[ $key ] . '</svg>';
+}
+
+/**
+ * Learner avatar: an initial on a colour derived from the user ID.
+ *
+ * Deliberately not Gravatar. A leaderboard or story wall is mostly people
+ * without one, so it would render as rows of identical mystery-person
+ * icons; it also sends every visitor's page to a third party and fails in
+ * the offline PWA. A stable letter mark reads better and costs nothing.
+ *
+ * @param int    $user_id
+ * @param int    $size    Pixel size.
+ * @param string $class   Extra classes on the element.
+ */
+function jsl_avatar( $user_id, $size = 40, $class = '' ) {
+	$user    = get_userdata( (int) $user_id );
+	$name    = $user ? $user->display_name : '';
+	$initial = $name ? mb_strtoupper( mb_substr( $name, 0, 1 ) ) : '?';
+	$px      = (int) $size;
+
+	// Deterministic hue, so a person's avatar colour never changes.
+	$hue = ( (int) $user_id * 47 ) % 360;
+
+	return sprintf(
+		'<span class="grid shrink-0 place-items-center rounded-full font-display font-bold %1$s" style="width:%2$dpx;height:%2$dpx;font-size:%3$dpx;background:hsl(%4$d 62%% 88%%);color:hsl(%4$d 65%% 26%%)" aria-hidden="true">%5$s</span>',
+		esc_attr( $class ),
+		$px,
+		max( 11, (int) round( $px * 0.42 ) ),
+		(int) $hue,
+		esc_html( $initial )
+	);
 }
 
 /**
