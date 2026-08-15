@@ -80,6 +80,66 @@ class Course_Api {
 	}
 
 	/**
+	 * All lessons of a course flattened in learner order: modules in
+	 * builder order, lessons in order within each module.
+	 *
+	 * @return \WP_Post[]
+	 */
+	public static function get_lessons_flat( int $course_id ): array {
+		$flat = array();
+		foreach ( self::get_modules( $course_id ) as $module ) {
+			foreach ( $module['lessons'] as $lesson ) {
+				$flat[] = $lesson;
+			}
+		}
+		return $flat;
+	}
+
+	/**
+	 * Previous/next lesson around the given lesson, in learner order.
+	 *
+	 * @return array{prev: ?\WP_Post, next: ?\WP_Post}
+	 */
+	public static function adjacent_lessons( int $course_id, int $lesson_id ): array {
+		$flat = self::get_lessons_flat( $course_id );
+
+		foreach ( $flat as $i => $lesson ) {
+			if ( (int) $lesson->ID === $lesson_id ) {
+				return array(
+					'prev' => $flat[ $i - 1 ] ?? null,
+					'next' => $flat[ $i + 1 ] ?? null,
+				);
+			}
+		}
+
+		return array( 'prev' => null, 'next' => null );
+	}
+
+	/**
+	 * Aggregate stats for a course card / hero.
+	 *
+	 * @return array{modules:int, lessons:int, minutes:int}
+	 */
+	public static function get_stats( int $course_id ): array {
+		$modules = self::get_modules( $course_id );
+		$lessons = 0;
+		$minutes = 0;
+
+		foreach ( $modules as $module ) {
+			foreach ( $module['lessons'] as $lesson ) {
+				$lessons++;
+				$minutes += (int) get_post_meta( $lesson->ID, 'jsl_duration_minutes', true );
+			}
+		}
+
+		return array(
+			'modules' => count( $modules ),
+			'lessons' => $lessons,
+			'minutes' => $minutes,
+		);
+	}
+
+	/**
 	 * Courses belonging to a learning path, in author-defined order.
 	 *
 	 * @param int $path_id Learning path post ID.

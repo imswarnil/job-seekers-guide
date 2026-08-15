@@ -1,50 +1,66 @@
 /*
- * Design tokens — the single source of truth for the visual system.
- * Structure follows openclaw/carapace's approach (neutral scale + one
- * accent + one highlight, systematic spacing/type/radius/shadow/motion
- * scales) with an original palette for Job Seekers Guide.
+ * Job Seekers Guide — design tokens.
+ *
+ * Visual language: "the path" — a journey from application to offer.
+ * Motifs: route/dotted lines, milestone markers, step numbers.
+ * Palette: deep ink slate for text, warm paper surfaces, emerald "signal"
+ * for actions/progress, amber "spark" for pricing/highlights.
  */
 
 :root {
-	/* Neutrals */
-	--jsl-ink-950: #0c1116;
-	--jsl-ink-900: #141b22;
-	--jsl-ink-700: #32404c;
-	--jsl-ink-500: #5b6b78;
-	--jsl-ink-300: #a3b0ba;
-	--jsl-ink-100: #dde3e7;
+	/* ---- Primitive palette ---- */
+	--jsl-ink-950: #0b1220;
+	--jsl-ink-900: #111a2c;
+	--jsl-ink-800: #1c2940;
+	--jsl-ink-700: #2e3d57;
+	--jsl-ink-500: #5a6b85;
+	--jsl-ink-300: #9aa8bd;
+	--jsl-ink-200: #c2ccda;
+	--jsl-ink-100: #dfe5ed;
 
-	--jsl-paper-50: #ffffff;
-	--jsl-paper-100: #f5f7f8;
-	--jsl-paper-200: #e7ebed;
-	--jsl-paper-300: #d3dadd;
+	--jsl-paper-0: #ffffff;
+	--jsl-paper-50: #fbfaf8;
+	--jsl-paper-100: #f4f2ee;
+	--jsl-paper-200: #e9e6df;
+	--jsl-paper-300: #d6d2c8;
 
-	/* Accent — "signal" (primary actions, links) */
-	--jsl-signal-700: #0b6d63;
-	--jsl-signal-600: #0e8577;
-	--jsl-signal-500: #12977f;
-	--jsl-signal-300: #5cc9ac;
-	--jsl-signal-100: #e3f5ef;
+	--jsl-signal-800: #0a5c50;
+	--jsl-signal-700: #0d7263;
+	--jsl-signal-600: #108a77;
+	--jsl-signal-500: #16a189;
+	--jsl-signal-300: #6fd0ba;
+	--jsl-signal-100: #ddf3ec;
+	--jsl-signal-50: #f0faf7;
 
-	/* Highlight — "spark" (CTAs, price/badges) */
+	--jsl-spark-700: #b45f14;
 	--jsl-spark-600: #d0771f;
-	--jsl-spark-500: #e2892b;
-	--jsl-spark-300: #f2b366;
-	--jsl-spark-100: #fbead4;
+	--jsl-spark-500: #e88f2e;
+	--jsl-spark-300: #f4bc73;
+	--jsl-spark-100: #fcecd6;
 
-	/* Semantic (theme-independent name -> current theme's neutrals/accent) */
+	/* ---- Semantic layer (dark mode overrides only this) ---- */
 	--jsl-color-bg: var(--jsl-paper-50);
+	--jsl-color-bg-raised: var(--jsl-paper-0);
 	--jsl-color-bg-subtle: var(--jsl-paper-100);
-	--jsl-color-border: var(--jsl-paper-300);
+	--jsl-color-bg-inset: var(--jsl-paper-200);
+	--jsl-color-border: var(--jsl-paper-200);
+	--jsl-color-border-strong: var(--jsl-paper-300);
 	--jsl-color-text: var(--jsl-ink-900);
+	--jsl-color-text-secondary: var(--jsl-ink-700);
 	--jsl-color-text-muted: var(--jsl-ink-500);
 	--jsl-color-accent: var(--jsl-signal-700);
-	--jsl-color-accent-hover: var(--jsl-signal-600);
-	--jsl-color-accent-contrast: var(--jsl-paper-50);
-	--jsl-color-highlight: var(--jsl-spark-500);
-	--jsl-color-highlight-contrast: var(--jsl-ink-950);
+	--jsl-color-accent-strong: var(--jsl-signal-800);
+	--jsl-color-accent-soft: var(--jsl-signal-100);
+	--jsl-color-accent-softer: var(--jsl-signal-50);
+	--jsl-color-accent-contrast: #ffffff;
+	--jsl-color-highlight: var(--jsl-spark-600);
+	--jsl-color-highlight-soft: var(--jsl-spark-100);
+	--jsl-color-hero-bg: var(--jsl-ink-950);
+	--jsl-color-hero-text: var(--jsl-paper-50);
+	--jsl-color-hero-muted: var(--jsl-ink-300);
+	--jsl-color-focus: var(--jsl-signal-500);
 
-	/* Spacing — 0.25rem steps */
+	/* ---- Spacing (0.25rem steps) ---- */
 	--jsl-space-1: 0.25rem;
 	--jsl-space-2: 0.5rem;
 	--jsl-space-3: 0.75rem;
@@ -55,8 +71,8 @@
 	--jsl-space-8: 4rem;
 	--jsl-space-9: 6rem;
 
-	/* Typography */
-	--jsl-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	/* ---- Typography ---- */
+	--jsl-font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 	--jsl-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
 	--jsl-text-xs: 0.75rem;
@@ -65,50 +81,68 @@
 	--jsl-text-md: 1.125rem;
 	--jsl-text-lg: 1.375rem;
 	--jsl-text-xl: 1.75rem;
-	--jsl-text-2xl: 2.25rem;
-	--jsl-text-3xl: 3rem;
+	--jsl-text-2xl: clamp(1.9rem, 1.4rem + 2vw, 2.5rem);
+	--jsl-text-3xl: clamp(2.3rem, 1.6rem + 3.2vw, 3.4rem);
 
-	--jsl-leading-tight: 1.25;
-	--jsl-leading-normal: 1.6;
+	--jsl-leading-tight: 1.15;
+	--jsl-leading-snug: 1.35;
+	--jsl-leading-normal: 1.65;
 
-	/* Radius */
-	--jsl-radius-sm: 0.25rem;
-	--jsl-radius-md: 0.5rem;
-	--jsl-radius-lg: 0.75rem;
+	--jsl-tracking-tight: -0.02em;
+	--jsl-tracking-wide: 0.08em;
+
+	/* ---- Radius ---- */
+	--jsl-radius-sm: 0.375rem;
+	--jsl-radius-md: 0.625rem;
+	--jsl-radius-lg: 1rem;
+	--jsl-radius-xl: 1.5rem;
 	--jsl-radius-full: 999px;
 
-	/* Shadow */
-	--jsl-shadow-sm: 0 1px 2px rgba(12, 17, 22, 0.08);
-	--jsl-shadow-md: 0 8px 24px -6px rgba(12, 17, 22, 0.18);
-	--jsl-shadow-lg: 0 24px 48px -12px rgba(12, 17, 22, 0.28);
+	/* ---- Shadow ---- */
+	--jsl-shadow-sm: 0 1px 2px rgba(11, 18, 32, 0.06), 0 1px 1px rgba(11, 18, 32, 0.04);
+	--jsl-shadow-md: 0 10px 30px -10px rgba(11, 18, 32, 0.18);
+	--jsl-shadow-lg: 0 30px 60px -20px rgba(11, 18, 32, 0.28);
+	--jsl-shadow-accent: 0 8px 24px -8px rgba(13, 114, 99, 0.45);
 
-	/* Motion */
-	--jsl-duration-fast: 150ms;
-	--jsl-duration-ui: 200ms;
-	--jsl-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+	/* ---- Motion ---- */
+	--jsl-duration-fast: 140ms;
+	--jsl-duration-ui: 220ms;
+	--jsl-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
-	/* Layout */
-	--jsl-content-max: 75rem;
-	--jsl-content-narrow: 42rem;
+	/* ---- Layout ---- */
+	--jsl-content-max: 72rem;
+	--jsl-content-narrow: 44rem;
+	--jsl-gutter: clamp(1rem, 4vw, 2rem);
 
-	/* Layers */
-	--jsl-layer-nav: 20;
+	/* ---- Layers ---- */
+	--jsl-layer-nav: 30;
 	--jsl-layer-popover: 40;
 	--jsl-layer-notification: 100;
 }
 
-/* Dark mode — override the semantic layer only, so every component built
-   on --jsl-color-* automatically follows. Applied via [data-theme="dark"]
-   on <html>, set by an FOUC-safe inline script (see inc/dark-mode.php). */
+/* Dark mode: override the semantic layer only. */
 :root[data-theme="dark"] {
 	--jsl-color-bg: var(--jsl-ink-950);
+	--jsl-color-bg-raised: var(--jsl-ink-900);
 	--jsl-color-bg-subtle: var(--jsl-ink-900);
-	--jsl-color-border: var(--jsl-ink-700);
+	--jsl-color-bg-inset: var(--jsl-ink-800);
+	--jsl-color-border: var(--jsl-ink-800);
+	--jsl-color-border-strong: var(--jsl-ink-700);
 	--jsl-color-text: var(--jsl-paper-100);
+	--jsl-color-text-secondary: var(--jsl-ink-200);
 	--jsl-color-text-muted: var(--jsl-ink-300);
-	--jsl-color-accent: var(--jsl-signal-300);
-	--jsl-color-accent-hover: var(--jsl-signal-500);
+	--jsl-color-accent: var(--jsl-signal-500);
+	--jsl-color-accent-strong: var(--jsl-signal-300);
+	--jsl-color-accent-soft: rgba(22, 161, 137, 0.16);
+	--jsl-color-accent-softer: rgba(22, 161, 137, 0.08);
 	--jsl-color-accent-contrast: var(--jsl-ink-950);
 	--jsl-color-highlight: var(--jsl-spark-500);
-	--jsl-color-highlight-contrast: var(--jsl-ink-950);
+	--jsl-color-highlight-soft: rgba(232, 143, 46, 0.16);
+	--jsl-color-hero-bg: var(--jsl-ink-900);
+	--jsl-color-hero-text: var(--jsl-paper-50);
+	--jsl-color-hero-muted: var(--jsl-ink-300);
+
+	--jsl-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+	--jsl-shadow-md: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+	--jsl-shadow-lg: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
 }

@@ -13,10 +13,13 @@ hand-rolled design-token system (no block theme, no theme.json — see
 - [ ] `wp db export`/`import` scripts for staging↔prod DB parity when needed
 
 ## 2. Design System & Theme (`wp-content/themes/job-seekers-theme`) — done
-- [x] Hand-rolled token system: `tokens.css` → `base.css` → `typography.css` → `components.css`
+- [x] Hand-rolled token system (`tokens.css`) now compiled through Tailwind CSS v4 (`src/app.css` → committed `assets/css/app.css`, rebuild with `npm run build`)
 - [x] Dark mode: FOUC-safe inline bootstrap + toggle, overrides the semantic token layer only
 - [x] Classic PHP templates: `front-page`, `single`, `page`, `archive`, `404`, `index`
-- [x] LMS templates: `single-course` (hero + pricing box + enroll button + module/lesson list), `single-lesson` (content + sidebar nav), `single-learning_path` (ordered course grid)
+- [x] LMS templates: `single-course` (dark hero, sticky enroll card, accordion curriculum with duration/preview/completion state), `single-lesson` (full lesson player: video embed, progress sidebar, mark-complete, prev/next), `single-learning_path` (milestone steps)
+- [x] Homepage redesign: hero + stats, numbered learning-path sections with course cards + lesson peeks, CTA band, logged-in "Jump back in" resume strip
+- [x] Lesson player v2: full-width app shell (fixed course sidebar w/ progress + durations, mobile slide-over drawer, sticky toolbar with Lesson N of M + mark-complete, prev/next bar)
+- [x] "My Learning" learner dashboard (`page-templates/my-learning.php` + `/my-learning/` page): stats, streak, resume cards, 14-day activity chart
 - [ ] Accessible keyboard-nav pass (current nav/focus states are baseline, not audited)
 
 ## 3. Core LMS Plugin (`wp-content/plugins/job-seekers-lms`)
@@ -25,8 +28,12 @@ hand-rolled design-token system (no block theme, no theme.json — see
 - [x] Custom DB tables: `wp_jsl_enrollments`, `wp_jsl_progress`, `wp_jsl_modules`
 - [x] `Course_Api::get_modules()`/`get_path_courses()` — theme's read API
 - [x] `Enrollment::enroll()`/`is_enrolled()` — free-course enrollment writes, verified end-to-end locally
-- [x] Visual course builder (`wp-admin → Courses → Course Builder`): drag-and-drop reorder, add/rename module + lesson, REST-backed (`jsl/v1/modules`, `jsl/v1/lessons`), verified persists across reload
-- [ ] Progress tracking (mark lesson complete) — tables exist, no write path yet
+- [x] Visual course builder v2 (`wp-admin → Courses → Course Builder`): course picker cards, module drag-reorder, lesson drag within/between modules with drop indicator, inline rename (contenteditable), inline delete confirm, live save-state + toasts — verified persists across reload
+- [x] Progress tracking: `Progress` class + `POST/DELETE jsl/v1/lessons/{id}/complete`, lesson player updates sidebar/progress bar in place — verified end-to-end locally
+- [x] Lesson meta (video URL, duration, free-preview flag) + metabox and YouTube/Vimeo/mp4 embed helper
+- [x] LMS Console (`wp-admin → LMS`): single-page admin app — Dashboard (analytics: learners/enrollments/completions, 14-day chart, course performance, activity feed), Courses (create/publish/excerpt), Course editor (builder + lesson writing in a TinyMCE drawer incl. video/duration/preview meta), Learners (list + per-user profile with course progress and activity)
+- [x] Analytics backend (`includes/analytics/class-analytics.php`) + admin REST routes under `jsl/v1/analytics/*`
+- [x] wp-admin reskin (`admin/class-admin-theme.php`): design-system colors across admin menu/bar/buttons/forms/tables + branded login screen
 - [ ] Certificates
 
 ## 4. Payments — Dodo Payments (`includes/payments`) — real implementation, untested against a live account

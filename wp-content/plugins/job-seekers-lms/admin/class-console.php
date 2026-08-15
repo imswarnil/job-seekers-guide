@@ -1,0 +1,119 @@
+<?php
+/**
+ * The LMS Console: a single-page admin app (Dashboard / Courses / Course
+ * editor with drag-drop builder + inline lesson writing / Learners).
+ * Rendered into one full-bleed admin screen; all data over REST
+ * (jsl/v1 for LMS data + wp/v2 for post content).
+ */
+
+namespace JSL\Admin;
+
+defined( 'ABSPATH' ) || exit;
+
+class Console {
+
+	const SLUG = 'jsl-lms';
+
+	public static function init() {
+		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue' ) );
+	}
+
+	public static function register_menu() {
+		add_menu_page(
+			__( 'LMS', 'job-seekers-lms' ),
+			__( 'LMS', 'job-seekers-lms' ),
+			'edit_posts',
+			self::SLUG,
+			array( __CLASS__, 'render' ),
+			'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#a7aaad" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/></svg>' ),
+			3
+		);
+
+		// Muscle-memory redirect: old Course Builder submenu points into the console.
+		add_submenu_page(
+			'edit.php?post_type=course',
+			__( 'Course Builder', 'job-seekers-lms' ),
+			__( 'Course Builder', 'job-seekers-lms' ),
+			'edit_posts',
+			'jsl-course-builder',
+			function () {
+				echo '<script>window.location = ' . wp_json_encode( admin_url( 'admin.php?page=' . self::SLUG . '#/courses' ) ) . ';</script>';
+			}
+		);
+	}
+
+	public static function enqueue( $hook ) {
+		if ( 'toplevel_page_' . self::SLUG !== $hook ) {
+			return;
+		}
+
+		wp_enqueue_style( 'jsl-console', JSL_PLUGIN_URL . 'admin/assets/css/console.css', array(), JSL_VERSION );
+		wp_enqueue_editor();
+		wp_enqueue_media();
+		wp_enqueue_script( 'jsl-console', JSL_PLUGIN_URL . 'admin/assets/js/console.js', array( 'editor' ), JSL_VERSION, true );
+
+		wp_localize_script(
+			'jsl-console',
+			'jslConsole',
+			array(
+				'root'     => esc_url_raw( rest_url() ),
+				'nonce'    => wp_create_nonce( 'wp_rest' ),
+				'adminUrl' => esc_url_raw( admin_url() ),
+				'siteUrl'  => esc_url_raw( home_url( '/' ) ),
+				'userName' => wp_get_current_user()->display_name,
+			)
+		);
+	}
+
+	public static function render() {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_die( esc_html__( 'You do not have permission to access the LMS console.', 'job-seekers-lms' ) );
+		}
+		?>
+		<div class="jsl-console" id="jsl-console">
+			<aside class="jsl-console__nav">
+				<div class="jsl-console__brand">
+					<span class="jsl-console__brand-mark">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z"/></svg>
+					</span>
+					<span>
+						<strong><?php esc_html_e( 'LMS Console', 'job-seekers-lms' ); ?></strong>
+						<small><?php echo esc_html( get_bloginfo( 'name' ) ); ?></small>
+					</span>
+				</div>
+
+				<nav class="jsl-console__links" aria-label="<?php esc_attr_e( 'LMS sections', 'job-seekers-lms' ); ?>">
+					<a href="#/" data-nav="dashboard">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></svg>
+						<?php esc_html_e( 'Dashboard', 'job-seekers-lms' ); ?>
+					</a>
+					<a href="#/courses" data-nav="courses">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></svg>
+						<?php esc_html_e( 'Courses', 'job-seekers-lms' ); ?>
+					</a>
+					<a href="#/learners" data-nav="learners">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16.5 14.5c2.8.3 4.5 2.3 4.5 5.5"/></svg>
+						<?php esc_html_e( 'Learners', 'job-seekers-lms' ); ?>
+					</a>
+				</nav>
+
+				<div class="jsl-console__nav-foot">
+					<a href="<?php echo esc_url( admin_url( 'options-general.php?page=jsl-dodo-payments' ) ); ?>">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.14-1.4l2-1.55-2-3.46-2.37.95A7 7 0 0 0 14 5.1L13.6 2.6h-4L9.2 5.1a7 7 0 0 0-2.49 1.44l-2.37-.95-2 3.46 2 1.55A7 7 0 0 0 4.2 12c0 .48.05.94.14 1.4l-2 1.55 2 3.46 2.37-.95c.73.62 1.57 1.11 2.49 1.44l.4 2.5h4l.4-2.5a7 7 0 0 0 2.49-1.44l2.37.95 2-3.46-2-1.55c.09-.46.14-.92.14-1.4Z"/></svg>
+						<?php esc_html_e( 'Payments', 'job-seekers-lms' ); ?>
+					</a>
+					<a href="<?php echo esc_url( home_url( '/' ) ); ?>">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/></svg>
+						<?php esc_html_e( 'View site', 'job-seekers-lms' ); ?>
+					</a>
+				</div>
+			</aside>
+
+			<main class="jsl-console__main" id="jsl-view" tabindex="-1">
+				<div class="jsl-skeleton-page"><span class="jsl-spinner" aria-hidden="true"></span><?php esc_html_e( 'Loading console…', 'job-seekers-lms' ); ?></div>
+			</main>
+		</div>
+		<?php
+	}
+}

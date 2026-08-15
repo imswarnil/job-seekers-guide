@@ -1,0 +1,244 @@
+/*
+ * Tailwind v4 entry point. Design tokens stay in assets/css/tokens.css
+ * (the single source of truth, incl. dark-mode overrides via
+ * [data-theme="dark"]); this file maps them into Tailwind's theme so
+ * templates use utilities like bg-surface / text-ink / border-line.
+ *
+ * Build: npm run build (compiled output is committed at assets/css/app.css
+ * so the server needs no Node).
+ */
+
+@import "tailwindcss";
+@import "../assets/css/tokens.css";
+
+@source "../**/*.php";
+@source "../assets/js/**/*.js";
+
+/* Dark mode follows the data-theme attribute set by inc/dark-mode.php. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+	--color-*: initial;
+
+	/* Semantic colors -> tokens */
+	--color-surface: var(--jsl-color-bg);
+	--color-raised: var(--jsl-color-bg-raised);
+	--color-subtle: var(--jsl-color-bg-subtle);
+	--color-inset: var(--jsl-color-bg-inset);
+	--color-line: var(--jsl-color-border);
+	--color-line-strong: var(--jsl-color-border-strong);
+	--color-ink: var(--jsl-color-text);
+	--color-ink-secondary: var(--jsl-color-text-secondary);
+	--color-ink-muted: var(--jsl-color-text-muted);
+	--color-accent: var(--jsl-color-accent);
+	--color-accent-strong: var(--jsl-color-accent-strong);
+	--color-accent-soft: var(--jsl-color-accent-soft);
+	--color-accent-softer: var(--jsl-color-accent-softer);
+	--color-on-accent: var(--jsl-color-accent-contrast);
+	--color-spark: var(--jsl-color-highlight);
+	--color-spark-soft: var(--jsl-color-highlight-soft);
+	--color-hero: var(--jsl-color-hero-bg);
+	--color-on-hero: var(--jsl-color-hero-text);
+	--color-hero-muted: var(--jsl-color-hero-muted);
+	--color-focus: var(--jsl-color-focus);
+	--color-white: #ffffff;
+	--color-transparent: transparent;
+	--color-current: currentColor;
+
+	/* Primitive ramps still handy in templates */
+	--color-ink-950: var(--jsl-ink-950);
+	--color-ink-900: var(--jsl-ink-900);
+	--color-ink-800: var(--jsl-ink-800);
+	--color-ink-700: var(--jsl-ink-700);
+	--color-ink-500: var(--jsl-ink-500);
+	--color-ink-300: var(--jsl-ink-300);
+	--color-signal-500: var(--jsl-signal-500);
+	--color-signal-300: var(--jsl-signal-300);
+	--color-spark-500: var(--jsl-spark-500);
+	--color-spark-300: var(--jsl-spark-300);
+
+	--font-sans: var(--jsl-font-sans);
+	--font-mono: var(--jsl-font-mono);
+
+	--radius-sm: var(--jsl-radius-sm);
+	--radius-md: var(--jsl-radius-md);
+	--radius-lg: var(--jsl-radius-lg);
+	--radius-xl: var(--jsl-radius-xl);
+
+	--shadow-sm: var(--jsl-shadow-sm);
+	--shadow-md: var(--jsl-shadow-md);
+	--shadow-lg: var(--jsl-shadow-lg);
+	--shadow-accent: var(--jsl-shadow-accent);
+
+	--ease-out: var(--jsl-ease-out);
+}
+
+@layer base {
+	html {
+		-webkit-text-size-adjust: 100%;
+		scroll-behavior: smooth;
+	}
+
+	body {
+		background: var(--jsl-color-bg);
+		color: var(--jsl-color-text);
+		font-family: var(--jsl-font-sans);
+		line-height: var(--jsl-leading-normal);
+		transition: background-color var(--jsl-duration-ui) var(--jsl-ease-out), color var(--jsl-duration-ui) var(--jsl-ease-out);
+	}
+
+	:focus-visible {
+		outline: 2px solid var(--jsl-color-focus);
+		outline-offset: 2px;
+		border-radius: var(--jsl-radius-sm);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		*, *::before, *::after {
+			animation-duration: 0.01ms !important;
+			transition-duration: 0.01ms !important;
+		}
+		html { scroll-behavior: auto; }
+	}
+}
+
+@layer components {
+	.jsl-container {
+		max-width: var(--jsl-content-max);
+		margin-inline: auto;
+		padding-inline: var(--jsl-gutter);
+	}
+
+	.skip-link {
+		position: absolute;
+		left: -9999px;
+		top: 0;
+		z-index: 100;
+		background: var(--jsl-ink-900);
+		color: var(--jsl-paper-0);
+		padding: var(--jsl-space-3) var(--jsl-space-4);
+		border-radius: var(--jsl-radius-sm);
+	}
+
+	.skip-link:focus { left: var(--jsl-space-4); top: var(--jsl-space-4); }
+
+	/* Buttons */
+	.jsl-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		padding: 0.75rem 1.5rem;
+		border-radius: var(--jsl-radius-md);
+		border: 1px solid transparent;
+		font-size: var(--jsl-text-base);
+		font-weight: 600;
+		line-height: 1.2;
+		cursor: pointer;
+		text-decoration: none;
+		transition: background-color var(--jsl-duration-ui) var(--jsl-ease-out),
+			border-color var(--jsl-duration-ui) var(--jsl-ease-out),
+			transform var(--jsl-duration-fast) var(--jsl-ease-out),
+			box-shadow var(--jsl-duration-ui) var(--jsl-ease-out);
+	}
+
+	.jsl-btn:hover { transform: translateY(-1px); text-decoration: none; }
+	.jsl-btn:active { transform: translateY(0); }
+
+	.jsl-btn--primary {
+		background: var(--jsl-color-accent);
+		color: var(--jsl-color-accent-contrast);
+		box-shadow: var(--jsl-shadow-accent);
+	}
+	.jsl-btn--primary:hover { background: var(--jsl-color-accent-strong); color: var(--jsl-color-accent-contrast); }
+
+	.jsl-btn--ghost {
+		background: transparent;
+		border-color: var(--jsl-color-border-strong);
+		color: var(--jsl-color-text);
+	}
+	.jsl-btn--ghost:hover { border-color: var(--jsl-color-accent); color: var(--jsl-color-accent); }
+
+	.jsl-btn--hero-ghost {
+		background: rgba(255, 255, 255, 0.06);
+		border-color: rgba(255, 255, 255, 0.2);
+		color: var(--jsl-color-hero-text);
+	}
+	.jsl-btn--hero-ghost:hover { border-color: var(--jsl-signal-300); color: var(--jsl-signal-300); }
+
+	.jsl-btn--sm { padding: 0.5rem 0.875rem; font-size: var(--jsl-text-sm); }
+
+	/* Badges */
+	.jsl-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+		padding: 0.25rem 0.75rem;
+		border-radius: var(--jsl-radius-full);
+		font-size: var(--jsl-text-xs);
+		font-weight: 600;
+		letter-spacing: 0.02em;
+		background: var(--jsl-color-bg-subtle);
+		color: var(--jsl-color-text-muted);
+	}
+	.jsl-badge--free { background: var(--jsl-color-accent-soft); color: var(--jsl-color-accent); }
+	.jsl-badge--paid { background: var(--jsl-color-highlight-soft); color: var(--jsl-color-highlight); }
+
+	.jsl-eyebrow {
+		display: inline-block;
+		font-size: var(--jsl-text-xs);
+		font-weight: 700;
+		letter-spacing: var(--jsl-tracking-wide);
+		text-transform: uppercase;
+		color: var(--jsl-color-accent);
+	}
+
+	/* Long-form content (lesson/course body) */
+	.jsl-prose {
+		font-size: var(--jsl-text-md);
+		line-height: var(--jsl-leading-normal);
+		color: var(--jsl-color-text-secondary);
+	}
+	.jsl-prose h2, .jsl-prose h3, .jsl-prose h4 {
+		color: var(--jsl-color-text);
+		line-height: var(--jsl-leading-snug);
+		letter-spacing: var(--jsl-tracking-tight);
+		margin: 2em 0 0.6em;
+		font-weight: 700;
+	}
+	.jsl-prose h2 { font-size: var(--jsl-text-xl); }
+	.jsl-prose h3 { font-size: var(--jsl-text-lg); }
+	.jsl-prose p, .jsl-prose ul, .jsl-prose ol { margin-block: 1em; }
+	.jsl-prose li { margin-block: 0.35em; }
+	.jsl-prose a { color: var(--jsl-color-accent); text-decoration: underline; text-underline-offset: 3px; }
+	.jsl-prose img { border-radius: var(--jsl-radius-lg); }
+	.jsl-prose code {
+		font-family: var(--jsl-font-mono);
+		font-size: 0.9em;
+		background: var(--jsl-color-bg-subtle);
+		padding: 0.15em 0.4em;
+		border-radius: var(--jsl-radius-sm);
+	}
+	.jsl-prose pre {
+		background: var(--jsl-ink-950);
+		color: var(--jsl-paper-100);
+		padding: var(--jsl-space-5);
+		border-radius: var(--jsl-radius-lg);
+		overflow-x: auto;
+	}
+	.jsl-prose pre code { background: transparent; padding: 0; }
+	.jsl-prose blockquote {
+		border-left: 3px solid var(--jsl-color-accent);
+		margin-inline: 0;
+		padding-left: var(--jsl-space-5);
+		color: var(--jsl-color-text-muted);
+	}
+
+	/* The dotted "path" motif used down lesson lists */
+	.jsl-path-line {
+		background-image: linear-gradient(to bottom, var(--jsl-color-border-strong) 55%, transparent 45%);
+		background-size: 2px 8px;
+		background-repeat: repeat-y;
+		background-position: left center;
+	}
+}
