@@ -42,7 +42,8 @@ function jsl_theme_assets() {
 		null
 	);
 	wp_enqueue_style( 'jsl-app', JSL_THEME_URI . '/assets/css/app.css', array( 'jsl-fonts' ), jsl_asset_version( '/assets/css/app.css' ) );
-	wp_enqueue_script( 'jsl-theme', JSL_THEME_URI . '/assets/js/theme.js', array(), jsl_asset_version( '/assets/js/theme.js' ), true );
+	wp_enqueue_script( 'jsl-md3', JSL_THEME_URI . '/assets/js/md3.js', array(), jsl_asset_version( '/assets/js/md3.js' ), true );
+	wp_enqueue_script( 'jsl-theme', JSL_THEME_URI . '/assets/js/theme.js', array( 'jsl-md3' ), jsl_asset_version( '/assets/js/theme.js' ), true );
 }
 
 /**
@@ -59,6 +60,70 @@ function jsl_asset_version( $relative_path ) {
 	$time = file_exists( $file ) ? filemtime( $file ) : 0;
 
 	return $time ? JSL_THEME_VERSION . '.' . $time : JSL_THEME_VERSION;
+}
+
+/**
+ * Drop the "Archives:" / "Category:" prefix from archive headings.
+ *
+ * The prefix reads like a database listing rather than a page title, and
+ * the surrounding template already says what kind of page this is.
+ */
+add_filter( 'get_the_archive_title_prefix', '__return_empty_string' );
+
+/**
+ * The app's primary destinations.
+ *
+ * One definition drives all three M3 navigation components — the inline
+ * destinations in the top app bar, the bottom navigation bar, and the
+ * player's drawer — so they can never disagree about what exists or which
+ * one is current.
+ *
+ * @param bool $with_home Include Home. The bottom navigation bar needs it
+ *                        (there is no logo to tap); the top app bar does not,
+ *                        because the logo is the home affordance.
+ * @return array<int, array{url:string, label:string, icon:string, here:bool}>
+ */
+function jsl_primary_destinations( $with_home = false ) {
+	$items = array();
+
+	if ( $with_home ) {
+		$items[] = array(
+			'url'   => home_url( '/' ),
+			'label' => __( 'Home', 'job-seekers-theme' ),
+			'icon'  => 'house',
+			'here'  => is_front_page(),
+		);
+	}
+
+	$items[] = array(
+		'url'   => (string) get_post_type_archive_link( 'learning_path' ),
+		'label' => __( 'Paths', 'job-seekers-theme' ),
+		'icon'  => 'path',
+		'here'  => is_post_type_archive( 'learning_path' ) || is_singular( 'learning_path' ),
+	);
+
+	$items[] = array(
+		'url'   => (string) get_post_type_archive_link( 'course' ),
+		'label' => __( 'Courses', 'job-seekers-theme' ),
+		'icon'  => 'graduation-cap',
+		'here'  => is_post_type_archive( 'course' ) || is_singular( 'course' ),
+	);
+
+	$items[] = is_user_logged_in()
+		? array(
+			'url'   => home_url( '/my-learning/' ),
+			'label' => __( 'Learning', 'job-seekers-theme' ),
+			'icon'  => 'stack',
+			'here'  => is_page( 'my-learning' ),
+		)
+		: array(
+			'url'   => wp_login_url(),
+			'label' => __( 'Sign in', 'job-seekers-theme' ),
+			'icon'  => 'user-circle',
+			'here'  => false,
+		);
+
+	return $items;
 }
 
 /**

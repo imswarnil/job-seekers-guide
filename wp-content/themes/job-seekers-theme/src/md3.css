@@ -1,0 +1,991 @@
+/*
+ * Material 3 component library.
+ *
+ * The tokens in assets/css/tokens.css describe the *system*; this file is
+ * the set of components built on it — the things M3 actually specifies:
+ * app bars, navigation bar/rail/drawer, cards, chips, lists, text fields,
+ * tabs, dialogs, snackbars, FABs, switches, menus, progress indicators.
+ *
+ * Conventions used throughout, all straight from the M3 spec:
+ *
+ * - Sizes are the spec's dp values read as px (48px minimum touch target).
+ * - Interaction is a *state layer*: currentColor at 8% hover / 10% focus /
+ *   10% pressed, painted by a ::before, plus a ripple drawn by md3.js.
+ *   Components do not change their base colour or lift on hover.
+ * - Elevation is a shadow *and* a primary-tinted surface overlay, because
+ *   in M3 a raised surface is tinted, not just shadowed.
+ * - Selection is shown with a container colour (usually secondary-container),
+ *   never with a colour-only text change.
+ */
+
+@layer components {
+
+	/* ==========================================================
+	 * State layer + ripple
+	 * ==========================================================
+	 * Any element with .md-state gets the hover/focus/press layer.
+	 * md3.js appends .md-ripple spans on pointer-down.
+	 */
+
+	.md-state {
+		position: relative;
+		isolation: isolate;
+		overflow: hidden;
+	}
+
+	.md-state::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: currentColor;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity var(--md-duration-short) var(--md-easing-standard);
+	}
+
+	.md-state:hover::before { opacity: var(--md-state-hover); }
+	.md-state:focus-visible::before { opacity: var(--md-state-focus); }
+	.md-state:active::before { opacity: var(--md-state-pressed); }
+
+	.md-ripple {
+		position: absolute;
+		z-index: -1;
+		border-radius: 50%;
+		background: currentColor;
+		opacity: 0.12;
+		transform: scale(0);
+		pointer-events: none;
+		animation: md-ripple-in 450ms var(--md-easing-emphasized-decelerate) forwards;
+	}
+
+	@keyframes md-ripple-in {
+		to { transform: scale(1); opacity: 0; }
+	}
+
+	/* Surface tint: M3 tints a raised surface with the primary hue, at an
+	   opacity that grows with elevation. */
+	.md-elev-1 { background: color-mix(in srgb, var(--md-sys-surface-tint) 5%, var(--md-sys-surface-container-low)); box-shadow: var(--jsl-shadow-sm); }
+	.md-elev-2 { background: color-mix(in srgb, var(--md-sys-surface-tint) 8%, var(--md-sys-surface-container)); box-shadow: var(--jsl-shadow-md); }
+	.md-elev-3 { background: color-mix(in srgb, var(--md-sys-surface-tint) 11%, var(--md-sys-surface-container-high)); box-shadow: var(--jsl-shadow-lg); }
+
+	/* ==========================================================
+	 * Top app bar
+	 * ==========================================================
+	 * Small variant: 64dp. It starts transparent over the page and picks up
+	 * surface-container + elevation once the page scrolls, which is the M3
+	 * "on-scroll" behaviour (md3.js toggles .is-scrolled).
+	 */
+
+	.md-top-app-bar {
+		position: sticky;
+		top: 0;
+		z-index: 30;
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		min-height: 64px;
+		padding-inline: 8px;
+		background: var(--md-sys-surface);
+		color: var(--md-sys-on-surface);
+		transition: background-color var(--md-duration-medium) var(--md-easing-standard),
+			box-shadow var(--md-duration-medium) var(--md-easing-standard);
+	}
+
+	.md-top-app-bar.is-scrolled {
+		background: color-mix(in srgb, var(--md-sys-surface-tint) 8%, var(--md-sys-surface-container));
+		box-shadow: var(--jsl-shadow-sm);
+	}
+
+	.md-top-app-bar__headline {
+		font-family: var(--jsl-font-display);
+		font-size: var(--md-title-large);
+		font-weight: 700;
+		letter-spacing: 0;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	/* ==========================================================
+	 * Icon buttons — standard / filled / tonal / outlined
+	 * 40dp visual, 48dp touch target.
+	 * ========================================================== */
+
+	.md-icon-btn {
+		position: relative;
+		isolation: isolate;
+		display: inline-grid;
+		place-items: center;
+		width: 40px;
+		height: 40px;
+		flex-shrink: 0;
+		padding: 0;
+		border: none;
+		border-radius: var(--md-shape-full);
+		background: transparent;
+		color: var(--md-sys-on-surface-variant);
+		cursor: pointer;
+		overflow: hidden;
+	}
+
+	/* Expand the hit area to 48dp without changing the drawn size. */
+	.md-icon-btn::after {
+		content: "";
+		position: absolute;
+		inset: -4px;
+	}
+
+	.md-icon-btn::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: currentColor;
+		opacity: 0;
+		transition: opacity var(--md-duration-short) var(--md-easing-standard);
+	}
+
+	.md-icon-btn:hover::before { opacity: var(--md-state-hover); }
+	.md-icon-btn:focus-visible::before { opacity: var(--md-state-focus); }
+	.md-icon-btn:active::before { opacity: var(--md-state-pressed); }
+
+	.md-icon-btn--filled { background: var(--md-sys-primary); color: var(--md-sys-on-primary); }
+	.md-icon-btn--tonal { background: var(--md-sys-secondary-container); color: var(--md-sys-on-secondary-container); }
+	.md-icon-btn--outlined { border: 1px solid var(--md-sys-outline); }
+
+	.md-icon-btn[aria-pressed="true"] {
+		background: var(--md-sys-secondary-container);
+		color: var(--md-sys-on-secondary-container);
+	}
+
+	/* ==========================================================
+	 * FAB / Extended FAB
+	 * ========================================================== */
+
+	.md-fab {
+		position: relative;
+		isolation: isolate;
+		display: inline-grid;
+		place-items: center;
+		width: 56px;
+		height: 56px;
+		border: none;
+		border-radius: var(--md-shape-lg);
+		background: color-mix(in srgb, var(--md-sys-surface-tint) 11%, var(--md-sys-primary-container));
+		color: var(--md-sys-on-primary-container);
+		box-shadow: var(--jsl-shadow-md);
+		cursor: pointer;
+		overflow: hidden;
+		text-decoration: none;
+		transition: box-shadow var(--md-duration-medium) var(--md-easing-emphasized);
+	}
+
+	.md-fab:hover { box-shadow: var(--jsl-shadow-lg); }
+
+	.md-fab--extended {
+		width: auto;
+		min-width: 80px;
+		padding-inline: 16px 20px;
+		gap: 12px;
+		grid-auto-flow: column;
+		font-family: var(--jsl-font-sans);
+		font-size: var(--md-label-large);
+		font-weight: 600;
+	}
+
+	.md-fab--small { width: 40px; height: 40px; border-radius: var(--md-shape-md); }
+
+	/* ==========================================================
+	 * Navigation bar (mobile, bottom)
+	 * 80dp tall. Selected item gets a 32×64 pill indicator.
+	 * ========================================================== */
+
+	.md-nav-bar {
+		position: fixed;
+		inset-inline: 0;
+		bottom: 0;
+		z-index: 35;
+		display: flex;
+		justify-content: space-around;
+		align-items: flex-start;
+		gap: 8px;
+		height: calc(80px + env(safe-area-inset-bottom));
+		padding: 12px 8px calc(16px + env(safe-area-inset-bottom));
+		background: color-mix(in srgb, var(--md-sys-surface-tint) 8%, var(--md-sys-surface-container));
+		border-top: 1px solid var(--md-sys-outline-variant);
+	}
+
+	.md-nav-bar__item {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
+		min-width: 0;
+		padding: 0;
+		border: none;
+		background: none;
+		color: var(--md-sys-on-surface-variant);
+		text-decoration: none;
+		cursor: pointer;
+	}
+
+	.md-nav-bar__indicator {
+		position: relative;
+		isolation: isolate;
+		display: grid;
+		place-items: center;
+		width: 64px;
+		height: 32px;
+		border-radius: var(--md-shape-full);
+		overflow: hidden;
+		transition: background-color var(--md-duration-medium) var(--md-easing-emphasized);
+	}
+
+	.md-nav-bar__indicator::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: currentColor;
+		opacity: 0;
+		transition: opacity var(--md-duration-short) var(--md-easing-standard);
+	}
+
+	.md-nav-bar__item:hover .md-nav-bar__indicator::before { opacity: var(--md-state-hover); }
+	.md-nav-bar__item:active .md-nav-bar__indicator::before { opacity: var(--md-state-pressed); }
+
+	.md-nav-bar__item[aria-current="page"] { color: var(--md-sys-on-secondary-container); }
+	.md-nav-bar__item[aria-current="page"] .md-nav-bar__indicator { background: var(--md-sys-secondary-container); }
+
+	.md-nav-bar__label {
+		font-size: var(--md-label-medium);
+		font-weight: 600;
+		letter-spacing: 0.03em;
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	/* Keeps page content clear of the fixed bar. */
+	.md-nav-bar-offset { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
+
+	/* ==========================================================
+	 * Navigation rail (tablet/desktop, vertical)
+	 * ========================================================== */
+
+	.md-nav-rail {
+		position: sticky;
+		top: 0;
+		display: none;
+		flex-direction: column;
+		align-items: center;
+		gap: 12px;
+		width: 88px;
+		height: 100vh;
+		padding: 12px 0 20px;
+		background: var(--md-sys-surface);
+		border-inline-end: 1px solid var(--md-sys-outline-variant);
+	}
+
+	.md-nav-rail__item {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 4px;
+		width: 100%;
+		color: var(--md-sys-on-surface-variant);
+		text-decoration: none;
+	}
+
+	.md-nav-rail__indicator {
+		position: relative;
+		isolation: isolate;
+		display: grid;
+		place-items: center;
+		width: 56px;
+		height: 32px;
+		border-radius: var(--md-shape-full);
+		overflow: hidden;
+		transition: background-color var(--md-duration-medium) var(--md-easing-emphasized);
+	}
+
+	.md-nav-rail__indicator::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: currentColor;
+		opacity: 0;
+		transition: opacity var(--md-duration-short) var(--md-easing-standard);
+	}
+
+	.md-nav-rail__item:hover .md-nav-rail__indicator::before { opacity: var(--md-state-hover); }
+
+	.md-nav-rail__item[aria-current="page"] { color: var(--md-sys-on-secondary-container); }
+	.md-nav-rail__item[aria-current="page"] .md-nav-rail__indicator { background: var(--md-sys-secondary-container); }
+
+	.md-nav-rail__label { font-size: var(--md-label-medium); font-weight: 600; }
+
+	/* ==========================================================
+	 * Navigation drawer (modal)
+	 * ========================================================== */
+
+	.md-scrim {
+		position: fixed;
+		inset: 0;
+		z-index: 39;
+		background: color-mix(in srgb, var(--md-sys-scrim) 32%, transparent);
+		opacity: 0;
+		visibility: hidden;
+		transition: opacity var(--md-duration-medium) var(--md-easing-standard), visibility var(--md-duration-medium);
+	}
+
+	.md-scrim.is-open { opacity: 1; visibility: visible; }
+
+	.md-drawer {
+		position: fixed;
+		inset-block: 0;
+		inset-inline-start: 0;
+		z-index: 40;
+		display: flex;
+		flex-direction: column;
+		width: min(360px, 85vw);
+		background: var(--md-sys-surface-container-low);
+		border-start-end-radius: var(--md-shape-lg);
+		border-end-end-radius: var(--md-shape-lg);
+		transform: translateX(-102%);
+		transition: transform var(--md-duration-long) var(--md-easing-emphasized);
+	}
+
+	.md-drawer.is-open { transform: translateX(0); }
+
+	/*
+	 * M3 switches from a modal drawer to a *standard* (permanently visible,
+	 * non-modal) one once there is room. Same markup, same list — the
+	 * container just stops being an overlay.
+	 */
+	@media (min-width: 1024px) {
+		.md-drawer--standard {
+			position: sticky;
+			top: 64px;
+			inset-inline-start: auto;
+			height: calc(100vh - 64px);
+			width: 320px;
+			flex-shrink: 0;
+			border-radius: 0;
+			border-inline-end: 1px solid var(--md-sys-outline-variant);
+			background: var(--md-sys-surface);
+			transform: none;
+		}
+
+		.md-drawer--standard .md-drawer__modal-only { display: none; }
+	}
+
+	.md-drawer__headline {
+		padding: 18px 28px 12px;
+		font-family: var(--jsl-font-display);
+		font-size: var(--md-title-small);
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--md-sys-on-surface-variant);
+	}
+
+	/* Drawer destinations are 56dp pills inset by 12dp. */
+	.md-drawer__item {
+		position: relative;
+		isolation: isolate;
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		min-height: 56px;
+		margin-inline: 12px;
+		padding-inline: 16px;
+		border-radius: var(--md-shape-full);
+		color: var(--md-sys-on-surface-variant);
+		font-size: var(--md-label-large);
+		font-weight: 600;
+		text-decoration: none;
+		overflow: hidden;
+	}
+
+	.md-drawer__item::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: currentColor;
+		opacity: 0;
+		transition: opacity var(--md-duration-short) var(--md-easing-standard);
+	}
+
+	.md-drawer__item:hover::before { opacity: var(--md-state-hover); }
+
+	.md-drawer__item[aria-current="page"] {
+		background: var(--md-sys-secondary-container);
+		color: var(--md-sys-on-secondary-container);
+	}
+
+	/* ==========================================================
+	 * Cards
+	 * ========================================================== */
+
+	.md-card {
+		display: flex;
+		flex-direction: column;
+		border-radius: var(--md-shape-md);
+		background: var(--md-sys-surface-container-lowest);
+		color: var(--md-sys-on-surface);
+		border: 1px solid var(--md-sys-outline-variant);
+		overflow: hidden;
+		text-decoration: none;
+		transition: box-shadow var(--md-duration-medium) var(--md-easing-emphasized),
+			border-color var(--md-duration-medium) var(--md-easing-emphasized),
+			background-color var(--md-duration-medium) var(--md-easing-emphasized);
+	}
+
+	.md-card--elevated {
+		border-color: transparent;
+		background: color-mix(in srgb, var(--md-sys-surface-tint) 5%, var(--md-sys-surface-container-low));
+		box-shadow: var(--jsl-shadow-sm);
+	}
+
+	.md-card--filled {
+		border-color: transparent;
+		background: var(--md-sys-surface-container-high);
+	}
+
+	/* Clickable cards take a state layer and lift one elevation step. */
+	a.md-card:hover,
+	.md-card--interactive:hover { box-shadow: var(--jsl-shadow-md); border-color: var(--md-sys-outline); }
+
+	.md-card__body { padding: 16px; }
+	.md-card__media { aspect-ratio: 16 / 9; width: 100%; object-fit: cover; }
+
+	/* ==========================================================
+	 * Chips — assist / filter / input
+	 * 32dp tall, 8dp corner.
+	 * ========================================================== */
+
+	.md-chip {
+		position: relative;
+		isolation: isolate;
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		height: 32px;
+		padding-inline: 16px;
+		border: 1px solid var(--md-sys-outline);
+		border-radius: var(--md-shape-sm);
+		background: transparent;
+		color: var(--md-sys-on-surface-variant);
+		font-family: var(--jsl-font-sans);
+		font-size: var(--md-label-large);
+		font-weight: 600;
+		white-space: nowrap;
+		cursor: pointer;
+		text-decoration: none;
+		overflow: hidden;
+	}
+
+	.md-chip::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: currentColor;
+		opacity: 0;
+		transition: opacity var(--md-duration-short) var(--md-easing-standard);
+	}
+
+	.md-chip:hover::before { opacity: var(--md-state-hover); }
+
+	.md-chip--selected,
+	.md-chip[aria-selected="true"] {
+		background: var(--md-sys-secondary-container);
+		color: var(--md-sys-on-secondary-container);
+		border-color: transparent;
+		padding-inline-start: 8px;
+	}
+
+	/*
+	 * Tertiary container. Used where two chips sit side by side and must stay
+	 * told apart in both schemes — secondary-container and the plain outlined
+	 * chip converge in dark mode, so a second container colour does the work
+	 * instead of relying on fill-vs-outline.
+	 */
+	.md-chip--tertiary {
+		background: var(--md-sys-tertiary-container);
+		color: var(--md-sys-on-tertiary-container);
+		border-color: transparent;
+	}
+
+	/* A chip that only labels something, rather than being pressable. */
+	.md-chip--static { cursor: default; pointer-events: none; }
+
+	/* ==========================================================
+	 * Lists
+	 * 56dp one-line, 72dp two-line.
+	 * ========================================================== */
+
+	.md-list { list-style: none; margin: 0; padding: 8px 0; }
+
+	.md-list-item {
+		position: relative;
+		isolation: isolate;
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		min-height: 56px;
+		padding: 8px 16px;
+		color: var(--md-sys-on-surface);
+		text-decoration: none;
+		overflow: hidden;
+	}
+
+	.md-list-item--two-line { min-height: 72px; }
+
+	.md-list-item::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: currentColor;
+		opacity: 0;
+		transition: opacity var(--md-duration-short) var(--md-easing-standard);
+	}
+
+	a.md-list-item:hover::before,
+	button.md-list-item:hover::before { opacity: var(--md-state-hover); }
+
+	.md-list-item__leading { flex-shrink: 0; display: grid; place-items: center; color: var(--md-sys-on-surface-variant); }
+	.md-list-item__content { flex: 1; min-width: 0; }
+	.md-list-item__headline { font-size: var(--md-body-large); font-weight: 600; line-height: 1.4; }
+	.md-list-item__supporting { font-size: var(--md-body-medium); color: var(--md-sys-on-surface-variant); line-height: 1.4; }
+	.md-list-item__trailing { flex-shrink: 0; font-size: var(--md-label-medium); color: var(--md-sys-on-surface-variant); }
+
+	.md-list-item[aria-current="page"] {
+		background: var(--md-sys-secondary-container);
+		color: var(--md-sys-on-secondary-container);
+	}
+
+	.md-divider { height: 1px; border: 0; background: var(--md-sys-outline-variant); }
+
+	/* ==========================================================
+	 * Tabs (primary)
+	 * 48dp tall, 3dp active indicator with a rounded top.
+	 * ========================================================== */
+
+	.md-tabs {
+		display: flex;
+		gap: 0;
+		border-bottom: 1px solid var(--md-sys-outline-variant);
+		overflow-x: auto;
+		scrollbar-width: none;
+	}
+
+	.md-tabs::-webkit-scrollbar { display: none; }
+
+	.md-tab {
+		position: relative;
+		isolation: isolate;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		flex: 1 0 auto;
+		min-width: 90px;
+		height: 48px;
+		padding-inline: 16px;
+		border: none;
+		background: none;
+		color: var(--md-sys-on-surface-variant);
+		font-family: var(--jsl-font-sans);
+		font-size: var(--md-title-small);
+		font-weight: 600;
+		cursor: pointer;
+		text-decoration: none;
+		overflow: hidden;
+	}
+
+	.md-tab::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: currentColor;
+		opacity: 0;
+		transition: opacity var(--md-duration-short) var(--md-easing-standard);
+	}
+
+	.md-tab:hover::before { opacity: var(--md-state-hover); }
+
+	.md-tab::after {
+		content: "";
+		position: absolute;
+		inset-inline: 20%;
+		bottom: 0;
+		height: 3px;
+		border-radius: 3px 3px 0 0;
+		background: var(--md-sys-primary);
+		transform: scaleX(0);
+		transition: transform var(--md-duration-medium) var(--md-easing-emphasized);
+	}
+
+	.md-tab[aria-selected="true"] { color: var(--md-sys-primary); }
+	.md-tab[aria-selected="true"]::after { transform: scaleX(1); }
+
+	/* ==========================================================
+	 * Text fields (outlined)
+	 * 56dp tall with a floating label notched into the border.
+	 * ========================================================== */
+
+	.md-field { position: relative; display: block; }
+
+	.md-field__input {
+		width: 100%;
+		height: 56px;
+		padding: 20px 16px 6px;
+		border: 1px solid var(--md-sys-outline);
+		border-radius: var(--md-shape-xs);
+		background: transparent;
+		color: var(--md-sys-on-surface);
+		font-family: var(--jsl-font-sans);
+		font-size: var(--md-body-large);
+		transition: border-color var(--md-duration-short) var(--md-easing-standard);
+	}
+
+	textarea.md-field__input { height: auto; min-height: 112px; padding-top: 24px; resize: vertical; }
+
+	.md-field__input:focus {
+		outline: none;
+		border-color: var(--md-sys-primary);
+		border-width: 2px;
+		padding-inline: 15px;
+	}
+
+	.md-field__label {
+		position: absolute;
+		inset-inline-start: 16px;
+		top: 17px;
+		padding-inline: 4px;
+		background: var(--md-sys-surface);
+		color: var(--md-sys-on-surface-variant);
+		font-size: var(--md-body-large);
+		pointer-events: none;
+		transition: top var(--md-duration-short) var(--md-easing-emphasized),
+			font-size var(--md-duration-short) var(--md-easing-emphasized),
+			color var(--md-duration-short) var(--md-easing-standard);
+	}
+
+	/* Float the label out of the field and into the notch. */
+	.md-field__input:focus + .md-field__label,
+	.md-field__input:not(:placeholder-shown) + .md-field__label {
+		top: -8px;
+		font-size: var(--md-body-small);
+	}
+
+	.md-field__input:focus + .md-field__label { color: var(--md-sys-primary); }
+
+	.md-field__supporting { padding: 4px 16px 0; font-size: var(--md-body-small); color: var(--md-sys-on-surface-variant); }
+
+	/* ==========================================================
+	 * Switch
+	 * 52×32 track, thumb grows when on.
+	 * ========================================================== */
+
+	.md-switch { display: inline-flex; align-items: center; gap: 12px; cursor: pointer; }
+	.md-switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+	.md-switch__track {
+		position: relative;
+		width: 52px;
+		height: 32px;
+		flex-shrink: 0;
+		border: 2px solid var(--md-sys-outline);
+		border-radius: var(--md-shape-full);
+		background: var(--md-sys-surface-container-highest);
+		transition: background-color var(--md-duration-medium) var(--md-easing-emphasized),
+			border-color var(--md-duration-medium) var(--md-easing-emphasized);
+	}
+
+	.md-switch__track::after {
+		content: "";
+		position: absolute;
+		top: 50%;
+		inset-inline-start: 6px;
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: var(--md-sys-outline);
+		transform: translateY(-50%);
+		transition: all var(--md-duration-medium) var(--md-easing-emphasized);
+	}
+
+	.md-switch input:checked + .md-switch__track {
+		background: var(--md-sys-primary);
+		border-color: var(--md-sys-primary);
+	}
+
+	.md-switch input:checked + .md-switch__track::after {
+		inset-inline-start: 26px;
+		width: 24px;
+		height: 24px;
+		background: var(--md-sys-on-primary);
+	}
+
+	.md-switch input:focus-visible + .md-switch__track {
+		outline: 2px solid var(--md-sys-primary);
+		outline-offset: 2px;
+	}
+
+	/* ==========================================================
+	 * Progress indicators
+	 * ========================================================== */
+
+	.md-linear-progress {
+		height: 4px;
+		border-radius: var(--md-shape-full);
+		background: var(--md-sys-secondary-container);
+		overflow: hidden;
+	}
+
+	.md-linear-progress__bar {
+		height: 100%;
+		border-radius: var(--md-shape-full);
+		background: var(--md-sys-primary);
+		transition: width var(--md-duration-long) var(--md-easing-emphasized);
+	}
+
+	.md-circular-progress {
+		width: 40px;
+		height: 40px;
+		border: 4px solid var(--md-sys-secondary-container);
+		border-top-color: var(--md-sys-primary);
+		border-radius: 50%;
+		animation: md-spin 900ms linear infinite;
+	}
+
+	@keyframes md-spin { to { transform: rotate(360deg); } }
+
+	/* ==========================================================
+	 * Snackbar
+	 * Inverse surface, 48dp min, bottom-centre.
+	 * ========================================================== */
+
+	.md-snackbar-host {
+		position: fixed;
+		inset-inline: 0;
+		bottom: 0;
+		z-index: 100;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		padding: 16px;
+		padding-bottom: calc(16px + env(safe-area-inset-bottom));
+		pointer-events: none;
+	}
+
+	.md-snackbar {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		min-height: 48px;
+		max-width: min(560px, 100%);
+		padding: 12px 16px;
+		border-radius: var(--md-shape-xs);
+		background: var(--md-sys-inverse-surface);
+		color: var(--md-sys-inverse-on-surface);
+		box-shadow: var(--jsl-shadow-lg);
+		font-size: var(--md-body-medium);
+		pointer-events: auto;
+		animation: md-snackbar-in var(--md-duration-long) var(--md-easing-emphasized-decelerate);
+	}
+
+	.md-snackbar__action {
+		border: none;
+		background: none;
+		color: var(--md-sys-inverse-primary);
+		font-family: var(--jsl-font-sans);
+		font-size: var(--md-label-large);
+		font-weight: 700;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+
+	.md-snackbar.is-leaving { animation: md-snackbar-out var(--md-duration-medium) var(--md-easing-emphasized-accelerate) forwards; }
+
+	@keyframes md-snackbar-in {
+		from { opacity: 0; transform: translateY(16px) scale(0.96); }
+	}
+
+	@keyframes md-snackbar-out {
+		to { opacity: 0; transform: translateY(8px) scale(0.98); }
+	}
+
+	/* ==========================================================
+	 * Dialog
+	 * 28dp corner, surface-container-high.
+	 * ========================================================== */
+
+	.md-dialog {
+		width: min(560px, calc(100vw - 48px));
+		padding: 24px;
+		border: none;
+		border-radius: var(--md-shape-xl);
+		background: color-mix(in srgb, var(--md-sys-surface-tint) 11%, var(--md-sys-surface-container-high));
+		color: var(--md-sys-on-surface);
+		box-shadow: var(--jsl-shadow-lg);
+	}
+
+	.md-dialog::backdrop { background: color-mix(in srgb, #000 32%, transparent); }
+	.md-dialog__headline { font-family: var(--jsl-font-display); font-size: var(--md-headline-small); font-weight: 700; margin: 0 0 16px; }
+	.md-dialog__actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; }
+
+	/* ==========================================================
+	 * Menu
+	 * ========================================================== */
+
+	.md-menu {
+		position: absolute;
+		z-index: 45;
+		min-width: 200px;
+		padding: 8px 0;
+		border-radius: var(--md-shape-xs);
+		background: color-mix(in srgb, var(--md-sys-surface-tint) 8%, var(--md-sys-surface-container));
+		box-shadow: var(--jsl-shadow-lg);
+		opacity: 0;
+		visibility: hidden;
+		transform: scaleY(0.8);
+		transform-origin: top;
+		transition: opacity var(--md-duration-short) var(--md-easing-standard),
+			transform var(--md-duration-medium) var(--md-easing-emphasized),
+			visibility var(--md-duration-medium);
+	}
+
+	.md-menu.is-open { opacity: 1; visibility: visible; transform: scaleY(1); }
+
+	.md-menu__item {
+		position: relative;
+		isolation: isolate;
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		width: 100%;
+		min-height: 48px;
+		padding-inline: 12px;
+		border: none;
+		background: none;
+		color: var(--md-sys-on-surface);
+		font-family: var(--jsl-font-sans);
+		font-size: var(--md-label-large);
+		text-align: start;
+		text-decoration: none;
+		cursor: pointer;
+		overflow: hidden;
+	}
+
+	.md-menu__item::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: currentColor;
+		opacity: 0;
+		transition: opacity var(--md-duration-short) var(--md-easing-standard);
+	}
+
+	.md-menu__item:hover::before { opacity: var(--md-state-hover); }
+
+	/* ==========================================================
+	 * Segmented button
+	 * ========================================================== */
+
+	.md-segmented { display: inline-flex; border-radius: var(--md-shape-full); overflow: hidden; }
+
+	.md-segmented__item {
+		position: relative;
+		isolation: isolate;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 8px;
+		min-height: 40px;
+		padding-inline: 16px;
+		border: 1px solid var(--md-sys-outline);
+		border-inline-start-width: 0;
+		background: transparent;
+		color: var(--md-sys-on-surface);
+		font-family: var(--jsl-font-sans);
+		font-size: var(--md-label-large);
+		font-weight: 600;
+		cursor: pointer;
+		text-decoration: none;
+		overflow: hidden;
+	}
+
+	.md-segmented__item:first-child { border-inline-start-width: 1px; border-start-start-radius: var(--md-shape-full); border-end-start-radius: var(--md-shape-full); }
+	.md-segmented__item:last-child { border-start-end-radius: var(--md-shape-full); border-end-end-radius: var(--md-shape-full); }
+
+	.md-segmented__item::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: currentColor;
+		opacity: 0;
+		transition: opacity var(--md-duration-short) var(--md-easing-standard);
+	}
+
+	.md-segmented__item:hover::before { opacity: var(--md-state-hover); }
+	.md-segmented__item[aria-selected="true"] { background: var(--md-sys-secondary-container); color: var(--md-sys-on-secondary-container); }
+
+	/* ==========================================================
+	 * Search bar
+	 * ========================================================== */
+
+	.md-search-bar {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		height: 56px;
+		padding-inline: 16px;
+		border-radius: var(--md-shape-full);
+		background: var(--md-sys-surface-container-high);
+		color: var(--md-sys-on-surface);
+	}
+
+	.md-search-bar input {
+		flex: 1;
+		min-width: 0;
+		border: none;
+		background: none;
+		color: inherit;
+		font-family: var(--jsl-font-sans);
+		font-size: var(--md-body-large);
+	}
+
+	.md-search-bar input:focus { outline: none; }
+	.md-search-bar input::placeholder { color: var(--md-sys-on-surface-variant); }
+
+	/* ==========================================================
+	 * Badge
+	 * ========================================================== */
+
+	.md-badge {
+		display: inline-grid;
+		place-items: center;
+		min-width: 16px;
+		height: 16px;
+		padding-inline: 4px;
+		border-radius: var(--md-shape-full);
+		background: var(--md-sys-error);
+		color: var(--md-sys-on-error);
+		font-size: var(--md-label-small);
+		font-weight: 700;
+	}
+}

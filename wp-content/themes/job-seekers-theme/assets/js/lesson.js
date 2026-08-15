@@ -1,40 +1,14 @@
 /**
- * Lesson player: mark complete/incomplete (updates the sidebar progress
- * bar and lesson dots in place) + mobile course-nav toggle.
+ * Lesson player: quiz, click-to-play video, and completion.
+ *
+ * The curriculum drawer is a standard M3 navigation drawer, so opening,
+ * closing, the scrim and focus trapping all come from md3.js — this file
+ * is only about the lesson itself.
  */
 ( function () {
 	'use strict';
 
 	document.addEventListener( 'DOMContentLoaded', function () {
-		var navToggle = document.querySelector( '[data-player-nav-toggle]' );
-		var navClose  = document.querySelector( '[data-player-nav-close]' );
-		var scrim     = document.querySelector( '[data-player-scrim]' );
-		var nav       = document.querySelector( '[data-player-nav]' );
-
-		function setDrawer( open ) {
-			if ( ! nav ) {
-				return;
-			}
-			nav.classList.toggle( '-translate-x-full', ! open );
-			if ( scrim ) {
-				scrim.classList.toggle( 'hidden', ! open );
-			}
-			if ( navToggle ) {
-				navToggle.setAttribute( 'aria-expanded', open ? 'true' : 'false' );
-			}
-		}
-
-		if ( navToggle && nav ) {
-			navToggle.addEventListener( 'click', function () {
-				setDrawer( nav.classList.contains( '-translate-x-full' ) );
-			} );
-		}
-		if ( navClose ) {
-			navClose.addEventListener( 'click', function () { setDrawer( false ); } );
-		}
-		if ( scrim ) {
-			scrim.addEventListener( 'click', function () { setDrawer( false ); } );
-		}
 
 		/* ---- Click-to-play video facade (custom player shell) ---- */
 		var player = document.querySelector( '.jsl-player' );
@@ -200,12 +174,17 @@
 				return;
 			}
 			if ( done ) {
-				dot.className = 'grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary text-on-primary';
+				dot.className = 'md-list-item__leading grid h-5 w-5 shrink-0 place-items-center rounded-full bg-primary text-on-primary';
 				dot.innerHTML = checkIcon;
 			} else {
-				dot.className = 'grid h-5 w-5 shrink-0 place-items-center rounded-full border border-outline text-on-surface-variant';
+				dot.className = 'md-list-item__leading grid h-5 w-5 shrink-0 place-items-center rounded-full border border-outline text-on-surface-variant';
 				dot.innerHTML = '';
 			}
+		}
+
+		/** Copy supplied by PHP so it stays translatable. */
+		function t( key ) {
+			return ( window.jslLesson.i18n && window.jslLesson.i18n[ key ] ) || '';
 		}
 
 		/**
@@ -268,7 +247,24 @@
 				btn.disabled = true;
 
 				setCompletion( lessonId, done ? 'DELETE' : 'POST' )
-					.catch( function () {} )
+					.then( function ( nowDone ) {
+						if ( ! window.jslSnackbar ) {
+							return;
+						}
+						// Confirm the change and offer a way back — toggling
+						// completion by accident should cost one tap to undo.
+						window.jslSnackbar( nowDone ? t( 'completed' ) : t( 'uncompleted' ), {
+							actionLabel: t( 'undo' ),
+							onAction: function () {
+								setCompletion( lessonId, nowDone ? 'DELETE' : 'POST' ).catch( function () {} );
+							},
+						} );
+					} )
+					.catch( function () {
+						if ( window.jslSnackbar ) {
+							window.jslSnackbar( t( 'failed' ) );
+						}
+					} )
 					.then( function () {
 						btn.disabled = false;
 					} );

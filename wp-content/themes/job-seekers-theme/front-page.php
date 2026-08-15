@@ -88,20 +88,20 @@ $jsl_my = is_user_logged_in() && class_exists( 'JSL\\Progress\\Progress' )
 $jsl_my = array_slice( $jsl_my, 0, 3 );
 ?>
 <?php if ( ! empty( $jsl_my ) ) : ?>
-	<section class="border-b border-line bg-subtle/50" aria-labelledby="jsl-resume-head">
+	<section class="border-b border-outline-variant bg-surface-container-low" aria-labelledby="jsl-resume-head">
 		<div class="jsl-container py-8">
 			<div class="flex items-center justify-between gap-4">
 				<h2 id="jsl-resume-head" class="m-0 text-lg font-bold tracking-tight"><?php esc_html_e( 'Jump back in', 'job-seekers-theme' ); ?></h2>
-				<a class="text-sm font-semibold text-accent no-underline hover:text-accent-strong" href="<?php echo esc_url( home_url( '/my-learning/' ) ); ?>"><?php esc_html_e( 'My Learning →', 'job-seekers-theme' ); ?></a>
+				<a class="md-chip !h-9" href="<?php echo esc_url( home_url( '/my-learning/' ) ); ?>"><?php esc_html_e( 'My Learning →', 'job-seekers-theme' ); ?></a>
 			</div>
 			<div class="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 				<?php foreach ( $jsl_my as $jsl_entry ) : ?>
-					<a class="group flex items-center gap-4 rounded-xl border border-line bg-raised p-4 no-underline shadow-sm transition hover:border-line-strong hover:shadow-md" href="<?php echo esc_url( get_permalink( $jsl_entry['resume'] ) ); ?>">
-						<span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-accent text-on-accent shadow-accent"><?php echo jsl_icon( 'play', 'w-4 h-4' ); ?></span>
+					<a class="md-card md-card--elevated group !flex-row items-center gap-4 p-4" href="<?php echo esc_url( get_permalink( $jsl_entry['resume'] ) ); ?>">
+						<span class="md-fab md-fab--small !shadow-none"><?php echo jsl_icon( 'play-fill', 'w-4 h-4' ); ?></span>
 						<span class="min-w-0 flex-1">
-							<span class="block truncate text-sm font-bold text-ink group-hover:text-accent"><?php echo esc_html( get_the_title( $jsl_entry['course'] ) ); ?></span>
-							<span class="mt-1.5 block h-1.5 overflow-hidden rounded-full bg-inset"><span class="block h-full rounded-full bg-accent" style="width:<?php echo esc_attr( $jsl_entry['percent'] ); ?>%"></span></span>
-							<span class="mt-1 block truncate text-xs text-ink-muted"><?php esc_html_e( 'Next:', 'job-seekers-theme' ); ?> <?php echo esc_html( get_the_title( $jsl_entry['resume'] ) ); ?></span>
+							<span class="block truncate text-sm font-bold text-on-surface group-hover:text-primary"><?php echo esc_html( get_the_title( $jsl_entry['course'] ) ); ?></span>
+							<span class="md-linear-progress mt-2 block"><span class="md-linear-progress__bar block" style="width:<?php echo esc_attr( $jsl_entry['percent'] ); ?>%"></span></span>
+							<span class="mt-1 block truncate text-xs text-on-surface-variant"><?php esc_html_e( 'Next:', 'job-seekers-theme' ); ?> <?php echo esc_html( get_the_title( $jsl_entry['resume'] ) ); ?></span>
 						</span>
 					</a>
 				<?php endforeach; ?>
@@ -113,22 +113,22 @@ $jsl_my = array_slice( $jsl_my, 0, 3 );
 <!-- Learning paths -->
 <div id="paths" class="jsl-container">
 	<?php if ( empty( $jsl_paths ) ) : ?>
-		<p class="py-16 text-center text-ink-muted"><?php esc_html_e( 'No learning paths yet — check back soon.', 'job-seekers-theme' ); ?></p>
+		<p class="py-16 text-center text-on-surface-variant"><?php esc_html_e( 'No learning paths yet — check back soon.', 'job-seekers-theme' ); ?></p>
 	<?php endif; ?>
 
 	<?php foreach ( $jsl_paths as $jsl_i => $jsl_path ) : ?>
 		<section class="pt-16 md:pt-24" aria-labelledby="path-<?php echo esc_attr( $jsl_path->ID ); ?>">
 			<div class="flex items-start gap-5">
-				<span class="mt-1 grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-accent-soft font-mono text-lg font-bold text-accent">
+				<span class="mt-1 grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary-container font-mono text-lg font-bold text-accent">
 					<?php echo esc_html( str_pad( (string) ( $jsl_i + 1 ), 2, '0', STR_PAD_LEFT ) ); ?>
 				</span>
 				<div>
 					<span class="jsl-eyebrow"><?php esc_html_e( 'Learning path', 'job-seekers-theme' ); ?></span>
-					<h2 id="path-<?php echo esc_attr( $jsl_path->ID ); ?>" class="m-0 mt-1 text-2xl font-bold tracking-tight md:text-3xl">
+					<h2 id="path-<?php echo esc_attr( $jsl_path->ID ); ?>" class="m-0 mt-1 font-display text-2xl font-bold tracking-tight md:text-3xl">
 						<a class="text-ink no-underline hover:text-accent" href="<?php echo esc_url( get_permalink( $jsl_path ) ); ?>"><?php echo esc_html( get_the_title( $jsl_path ) ); ?></a>
 					</h2>
 					<?php if ( $jsl_path->post_excerpt ) : ?>
-						<p class="mt-2 max-w-2xl text-ink-muted"><?php echo esc_html( $jsl_path->post_excerpt ); ?></p>
+						<p class="mt-2 max-w-2xl text-on-surface-variant"><?php echo esc_html( $jsl_path->post_excerpt ); ?></p>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -147,38 +147,38 @@ $jsl_my = array_slice( $jsl_my, 0, 3 );
 							?: ( class_exists( 'JSL\\Media\\Placeholder' ) ? \JSL\Media\Placeholder::course( $jsl_course->ID ) : '' );
 						$jsl_code    = class_exists( 'JSL\\Course_Meta' ) ? \JSL\Course_Meta::get_code( $jsl_course->ID ) : '';
 						?>
-						<a class="group relative flex flex-col overflow-hidden rounded-xl border border-line bg-raised no-underline shadow-sm transition hover:-translate-y-0.5 hover:shadow-md hover:border-line-strong" href="<?php echo esc_url( get_permalink( $jsl_course ) ); ?>">
+						<a class="md-card md-card--elevated group relative" href="<?php echo esc_url( get_permalink( $jsl_course ) ); ?>">
 							<?php if ( $jsl_img ) : ?>
-								<img class="aspect-video w-full object-cover" src="<?php echo jsl_img_src( $jsl_img ); ?>" alt="" loading="lazy">
+								<img class="md-card__media" src="<?php echo jsl_img_src( $jsl_img ); ?>" alt="" loading="lazy">
 							<?php endif; ?>
-							<div class="flex flex-1 flex-col p-6">
+							<div class="md-card__body flex flex-1 flex-col !p-6">
 							<div class="flex items-center justify-between gap-3">
-								<span class="font-mono text-xs font-semibold text-ink-muted"><?php echo $jsl_code ? esc_html( $jsl_code ) : sprintf( esc_html__( 'Step %s', 'job-seekers-theme' ), esc_html( $jsl_step + 1 ) ); ?></span>
+								<span class="font-mono text-xs font-semibold text-on-surface-variant"><?php echo $jsl_code ? esc_html( $jsl_code ) : sprintf( esc_html__( 'Step %s', 'job-seekers-theme' ), esc_html( $jsl_step + 1 ) ); ?></span>
 								<span class="jsl-badge <?php echo $jsl_is_paid ? 'jsl-badge--paid' : 'jsl-badge--free'; ?>">
 									<?php echo $jsl_is_paid ? esc_html__( 'Paid', 'job-seekers-theme' ) : esc_html__( 'Free', 'job-seekers-theme' ); ?>
 								</span>
 							</div>
 
-							<h3 class="m-0 mt-3 text-lg font-bold leading-snug text-ink group-hover:text-accent"><?php echo esc_html( get_the_title( $jsl_course ) ); ?></h3>
+							<h3 class="m-0 mt-3 font-display text-lg font-bold leading-snug text-on-surface group-hover:text-primary"><?php echo esc_html( get_the_title( $jsl_course ) ); ?></h3>
 							<?php if ( $jsl_course->post_excerpt ) : ?>
-								<p class="mt-2 line-clamp-2 text-sm text-ink-muted"><?php echo esc_html( $jsl_course->post_excerpt ); ?></p>
+								<p class="mt-2 line-clamp-2 text-sm text-on-surface-variant"><?php echo esc_html( $jsl_course->post_excerpt ); ?></p>
 							<?php endif; ?>
 
 							<?php if ( ! empty( $jsl_peek ) ) : ?>
-								<ul class="jsl-path-line m-0 mt-4 flex list-none flex-col gap-2 border-t border-line p-0 pl-3 pt-4">
+								<ul class="jsl-path-line m-0 mt-4 flex list-none flex-col gap-2 border-t border-outline-variant p-0 pl-3 pt-4">
 									<?php foreach ( $jsl_peek as $jsl_lesson ) : ?>
 										<li class="flex items-center gap-2.5 text-sm text-ink-secondary">
-											<span class="grid h-5 w-5 shrink-0 -ml-[1.35rem] place-items-center rounded-full border border-line-strong bg-raised text-accent"><?php echo jsl_icon( 'play', 'w-2.5 h-2.5' ); ?></span>
+											<span class="grid h-5 w-5 shrink-0 -ml-[1.35rem] place-items-center rounded-full border border-outline-variant-strong bg-raised text-accent"><?php echo jsl_icon( 'play', 'w-2.5 h-2.5' ); ?></span>
 											<span class="truncate"><?php echo esc_html( get_the_title( $jsl_lesson ) ); ?></span>
 										</li>
 									<?php endforeach; ?>
 									<?php if ( $jsl_stats['lessons'] > 3 ) : ?>
-										<li class="-ml-3 pl-3 text-xs font-medium text-ink-muted"><?php printf( esc_html__( '+ %d more lessons', 'job-seekers-theme' ), (int) $jsl_stats['lessons'] - 3 ); ?></li>
+										<li class="-ml-3 pl-3 text-xs font-medium text-on-surface-variant"><?php printf( esc_html__( '+ %d more lessons', 'job-seekers-theme' ), (int) $jsl_stats['lessons'] - 3 ); ?></li>
 									<?php endif; ?>
 								</ul>
 							<?php endif; ?>
 
-							<div class="mt-auto flex items-center gap-4 pt-5 text-xs font-medium text-ink-muted">
+							<div class="mt-auto flex items-center gap-4 pt-5 text-xs font-medium text-on-surface-variant">
 								<span class="inline-flex items-center gap-1.5"><?php echo jsl_icon( 'layers', 'w-3.5 h-3.5' ); ?><?php printf( esc_html( _n( '%d module', '%d modules', $jsl_stats['modules'], 'job-seekers-theme' ) ), (int) $jsl_stats['modules'] ); ?></span>
 								<span class="inline-flex items-center gap-1.5"><?php echo jsl_icon( 'doc', 'w-3.5 h-3.5' ); ?><?php printf( esc_html( _n( '%d lesson', '%d lessons', $jsl_stats['lessons'], 'job-seekers-theme' ) ), (int) $jsl_stats['lessons'] ); ?></span>
 								<?php if ( $jsl_stats['minutes'] ) : ?>
@@ -191,7 +191,7 @@ $jsl_my = array_slice( $jsl_my, 0, 3 );
 					<?php endforeach; ?>
 				</div>
 			<?php else : ?>
-				<p class="mt-6 text-sm text-ink-muted"><?php esc_html_e( 'Courses for this path are coming soon.', 'job-seekers-theme' ); ?></p>
+				<p class="mt-6 text-sm text-on-surface-variant"><?php esc_html_e( 'Courses for this path are coming soon.', 'job-seekers-theme' ); ?></p>
 			<?php endif; ?>
 		</section>
 	<?php endforeach; ?>

@@ -10,6 +10,9 @@
 
 @import "tailwindcss";
 @import "../assets/css/tokens.css";
+/* The Material 3 component library (app bars, nav bar/rail/drawer, cards,
+   chips, lists, tabs, fields, dialogs, snackbars, FABs …). */
+@import "./md3.css";
 
 @source "../**/*.php";
 @source "../assets/js/**/*.js";

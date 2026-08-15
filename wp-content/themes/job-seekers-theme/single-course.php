@@ -148,51 +148,77 @@ while ( have_posts() ) :
 		</div>
 	</section>
 
-	<div class="jsl-container grid items-start gap-12 py-14 lg:grid-cols-[1fr_22rem]">
-		<div>
-			<?php if ( get_the_content() ) : ?>
-				<section class="mb-12">
-					<h2 class="m-0 text-2xl font-bold tracking-tight"><?php esc_html_e( 'About this course', 'job-seekers-theme' ); ?></h2>
-					<div class="jsl-prose mt-4"><?php the_content(); ?></div>
-				</section>
-			<?php endif; ?>
+	<?php $jsl_has_about = (bool) trim( (string) get_the_content() ); ?>
 
-			<section aria-labelledby="jsl-curriculum">
-				<h2 id="jsl-curriculum" class="m-0 text-2xl font-bold tracking-tight"><?php esc_html_e( 'Curriculum', 'job-seekers-theme' ); ?></h2>
+	<div class="jsl-container py-10">
+		<div class="mx-auto max-w-4xl">
 
+			<!-- M3 primary tabs -->
+			<div class="md-tabs" role="tablist" data-tabs aria-label="<?php esc_attr_e( 'Course sections', 'job-seekers-theme' ); ?>">
+				<button type="button" class="md-tab" role="tab" id="tab-curriculum" aria-controls="panel-curriculum" aria-selected="true">
+					<?php echo jsl_icon( 'list-checks', 'w-[18px] h-[18px]' ); ?>
+					<?php esc_html_e( 'Curriculum', 'job-seekers-theme' ); ?>
+				</button>
+				<?php if ( $jsl_has_about ) : ?>
+					<button type="button" class="md-tab" role="tab" id="tab-about" aria-controls="panel-about" aria-selected="false" tabindex="-1">
+						<?php echo jsl_icon( 'article', 'w-[18px] h-[18px]' ); ?>
+						<?php esc_html_e( 'About', 'job-seekers-theme' ); ?>
+					</button>
+				<?php endif; ?>
+			</div>
+
+			<!-- Curriculum -->
+			<section class="pt-8" id="panel-curriculum" role="tabpanel" aria-labelledby="tab-curriculum" tabindex="0">
 				<?php if ( empty( $modules ) ) : ?>
-					<p class="mt-4 text-ink-muted"><?php esc_html_e( 'Content coming soon.', 'job-seekers-theme' ); ?></p>
+					<p class="text-on-surface-variant"><?php esc_html_e( 'Content coming soon.', 'job-seekers-theme' ); ?></p>
 				<?php else : ?>
-					<div class="mt-6 flex flex-col gap-4">
+					<div class="flex flex-col gap-4">
 						<?php foreach ( $modules as $m_index => $module ) : ?>
-							<details class="group overflow-hidden rounded-xl border border-line bg-raised shadow-sm" <?php echo 0 === $m_index ? 'open' : ''; ?>>
-								<summary class="flex cursor-pointer list-none items-center gap-4 px-5 py-4 [&::-webkit-details-marker]:hidden">
-									<span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent-soft font-mono text-sm font-bold text-accent"><?php echo esc_html( str_pad( (string) ( $m_index + 1 ), 2, '0', STR_PAD_LEFT ) ); ?></span>
-									<span class="flex-1 font-semibold text-ink"><?php echo esc_html( $module['title'] ); ?></span>
-									<span class="text-xs font-medium text-ink-muted"><?php printf( esc_html( _n( '%d lesson', '%d lessons', count( $module['lessons'] ), 'job-seekers-theme' ) ), count( $module['lessons'] ) ); ?></span>
-									<span class="text-ink-muted transition-transform group-open:rotate-90"><?php echo jsl_icon( 'arrow-r', 'w-4 h-4' ); ?></span>
+							<details class="md-card group" <?php echo 0 === $m_index ? 'open' : ''; ?>>
+								<summary class="md-state flex cursor-pointer list-none items-center gap-4 px-5 py-4 [&::-webkit-details-marker]:hidden">
+									<span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary-container font-mono text-sm font-bold text-on-primary-container">
+										<?php echo esc_html( str_pad( (string) ( $m_index + 1 ), 2, '0', STR_PAD_LEFT ) ); ?>
+									</span>
+									<span class="flex-1 font-display font-bold text-on-surface"><?php echo esc_html( $module['title'] ); ?></span>
+									<span class="hidden text-xs font-medium text-on-surface-variant sm:block">
+										<?php printf( esc_html( _n( '%d lesson', '%d lessons', count( $module['lessons'] ), 'job-seekers-theme' ) ), count( $module['lessons'] ) ); ?>
+									</span>
+									<span class="text-on-surface-variant transition-transform duration-200 group-open:rotate-90"><?php echo jsl_icon( 'caret-right', 'w-5 h-5' ); ?></span>
 								</summary>
 
-								<ol class="m-0 list-none border-t border-line p-0">
+								<ol class="md-list !py-0 border-t border-outline-variant">
 									<?php
-									foreach ( $module['lessons'] as $l_index => $lesson ) :
+									foreach ( $module['lessons'] as $lesson ) :
 										$is_done    = in_array( (int) $lesson->ID, $completed, true );
 										$duration   = (int) get_post_meta( $lesson->ID, 'jsl_duration_minutes', true );
 										$is_preview = (bool) get_post_meta( $lesson->ID, 'jsl_is_preview', true );
 										$locked     = ! $has_access && ! $is_preview;
+										$type       = get_post_meta( $lesson->ID, 'jsl_lesson_type', true ) ?: 'article';
 										?>
-										<li class="border-t border-line first:border-t-0">
-											<a class="flex items-center gap-3.5 px-5 py-3.5 no-underline transition hover:bg-subtle" href="<?php echo esc_url( get_permalink( $lesson ) ); ?>">
-												<span class="grid h-7 w-7 shrink-0 place-items-center rounded-full <?php echo $is_done ? 'bg-accent text-on-accent' : 'border border-line-strong text-ink-muted'; ?>">
-													<?php echo $is_done ? jsl_icon( 'check', 'w-3.5 h-3.5' ) : ( $locked ? jsl_icon( 'lock', 'w-3.5 h-3.5' ) : jsl_icon( 'play', 'w-3 h-3' ) ); ?>
+										<li class="border-t border-outline-variant first:border-t-0">
+											<a class="md-list-item" href="<?php echo esc_url( get_permalink( $lesson ) ); ?>">
+												<span class="md-list-item__leading grid h-8 w-8 place-items-center rounded-full <?php echo $is_done ? 'bg-primary text-on-primary' : ( $locked ? 'bg-surface-high text-on-surface-variant' : 'border border-outline text-on-surface-variant' ); ?>">
+													<?php
+													echo $is_done
+														? jsl_icon( 'check', 'w-4 h-4' )
+														: ( $locked
+															? jsl_icon( 'lock-simple', 'w-4 h-4' )
+															: jsl_icon( 'video' === $type ? 'play-fill' : ( 'quiz' === $type ? 'question' : 'article' ), 'w-4 h-4' ) );
+													?>
 												</span>
-												<span class="flex-1 text-sm font-medium text-ink"><?php echo esc_html( get_the_title( $lesson ) ); ?></span>
-												<?php if ( $is_preview && ! $has_access ) : ?>
-													<span class="jsl-badge jsl-badge--free"><?php esc_html_e( 'Preview', 'job-seekers-theme' ); ?></span>
-												<?php endif; ?>
-												<?php if ( $duration ) : ?>
-													<span class="inline-flex items-center gap-1 text-xs text-ink-muted"><?php echo jsl_icon( 'clock', 'w-3.5 h-3.5' ); ?><?php echo esc_html( $duration ); ?>m</span>
-												<?php endif; ?>
+
+												<span class="md-list-item__content">
+													<span class="md-list-item__headline !text-sm"><?php echo esc_html( get_the_title( $lesson ) ); ?></span>
+												</span>
+
+												<span class="md-list-item__trailing flex items-center gap-2">
+													<?php if ( $is_preview && ! $has_access ) : ?>
+														<span class="md-chip md-chip--static md-chip--selected !h-6 !px-2.5 !text-[0.65rem]"><?php esc_html_e( 'Preview', 'job-seekers-theme' ); ?></span>
+													<?php endif; ?>
+													<?php if ( $duration ) : ?>
+														<span class="inline-flex items-center gap-1 text-xs"><?php echo jsl_icon( 'clock', 'w-3.5 h-3.5' ); ?><?php echo esc_html( $duration ); ?>m</span>
+													<?php endif; ?>
+												</span>
 											</a>
 										</li>
 									<?php endforeach; ?>
@@ -202,13 +228,29 @@ while ( have_posts() ) :
 					</div>
 				<?php endif; ?>
 			</section>
+
+			<!-- About -->
+			<?php if ( $jsl_has_about ) : ?>
+				<section class="pt-8" id="panel-about" role="tabpanel" aria-labelledby="tab-about" tabindex="0" hidden>
+					<div class="jsl-prose"><?php the_content(); ?></div>
+				</section>
+			<?php endif; ?>
 		</div>
 	</div>
+
+	<?php if ( ! $has_access && is_user_logged_in() ) : ?>
+		<!-- Extended FAB: keeps the primary action reachable once the hero
+		     card has scrolled away. Compact windows only. -->
+		<a class="md-fab md-fab--extended fixed bottom-6 right-4 z-30 md:hidden" href="#jsl-enroll-box">
+			<?php echo jsl_icon( 'lightning-fill', 'w-5 h-5' ); ?>
+			<?php echo $is_paid ? esc_html__( 'Get this course', 'job-seekers-theme' ) : esc_html__( 'Start free', 'job-seekers-theme' ); ?>
+		</a>
+	<?php endif; ?>
 
 	<?php
 endwhile;
 
-wp_enqueue_script( 'jsl-course', JSL_THEME_URI . '/assets/js/course.js', array(), jsl_asset_version( '/assets/js/course.js' ), true );
+wp_enqueue_script( 'jsl-course', JSL_THEME_URI . '/assets/js/course.js', array( 'jsl-md3' ), jsl_asset_version( '/assets/js/course.js' ), true );
 wp_localize_script(
 	'jsl-course',
 	'jslCourse',
