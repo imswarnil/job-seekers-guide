@@ -11,6 +11,7 @@
 
 namespace Guide\Payments;
 
+use Guide\Billing\Billing;
 use Guide\Enrollment\Enrollment;
 
 defined( 'ABSPATH' ) || exit;
@@ -102,18 +103,50 @@ class Webhook {
 			$user_id = 0;
 		}
 
+		// Everything the learner sees on their billing page comes from here, so
+		// the record is written before any grant: a payment we failed to grant
+		// for is a support ticket, a payment we never recorded is invisible.
+		$amount   = isset( $data['total_amount'] ) ? (int) $data['total_amount'] : ( isset( $data['amount'] ) ? (int) $data['amount'] : null );
+		$currency = (string) ( $data['currency'] ?? '' );
+
 		switch ( $type ) {
 			case 'payment.succeeded':
 				if ( ! $user_id ) {
 					break;
 				}
 				if ( $is_plan ) {
+					Billing::record(
+						array(
+							'user_id'      => $user_id,
+							'external_id'  => (string) ( $data['payment_id'] ?? $id ),
+							'kind'         => Billing::KIND_SUBSCRIPTION,
+							'amount_minor' => $amount,
+							'currency'     => $currency,
+							'description'  => __( 'Platform subscription', 'guide-lms' ),
+							'period_end'   => (string) ( $data['next_billing_date'] ?? '' ),
+						)
+					);
 					Subscription::grant( $user_id, (string) ( $data['subscription_id'] ?? '' ), (string) ( $data['next_billing_date'] ?? '' ) );
 					do_action( 'jsl_subscription_activated', $user_id, $payload );
 					break;
 				}
+				// Per-course checkout was removed when the site moved to a
+				// single subscription, so nothing creates these any more. The
+				// branch stays because a payment started before the change can
+				// still land here, and dropping it on the floor would take
+				// someone's money without granting anything.
 				$course_id = isset( $metadata['course_id'] ) ? (int) $metadata['course_id'] : 0;
 				if ( $course_id && 'course' === get_post_type( $course_id ) ) {
+					Billing::record(
+						array(
+							'user_id'      => $user_id,
+							'external_id'  => (string) ( $data['payment_id'] ?? $id ),
+							'kind'         => Billing::KIND_COURSE,
+							'amount_minor' => $amount,
+							'currency'     => $currency,
+							'description'  => get_the_title( $course_id ),
+						)
+					);
 					Enrollment::enroll( $user_id, $course_id, 'course', 'dodo', null, (string) ( $data['payment_id'] ?? '' ) );
 					do_action( 'jsl_payment_confirmed', $user_id, $course_id, $payload );
 				}
@@ -122,6 +155,17 @@ class Webhook {
 			case 'subscription.active':
 			case 'subscription.renewed':
 				if ( $user_id ) {
+					Billing::record(
+						array(
+							'user_id'      => $user_id,
+							'external_id'  => (string) ( $data['payment_id'] ?? $id ),
+							'kind'         => 'subscription.renewed' === $type ? Billing::KIND_RENEWAL : Billing::KIND_SUBSCRIPTION,
+							'amount_minor' => $amount,
+							'currency'     => $currency,
+							'description'  => __( 'Platform subscription', 'guide-lms' ),
+							'period_end'   => (string) ( $data['next_billing_date'] ?? '' ),
+						)
+					);
 					Subscription::grant( $user_id, (string) ( $data['subscription_id'] ?? '' ), (string) ( $data['next_billing_date'] ?? '' ) );
 					do_action( 'jsl_subscription_activated', $user_id, $payload );
 				}

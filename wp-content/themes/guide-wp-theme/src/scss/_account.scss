@@ -1,0 +1,243 @@
+// =============================================================================
+// Account, receipts, and ad slots
+// =============================================================================
+
+@use "tokens" as t;
+@use "bulma/sass/utilities/mixins" as mx;
+@use "bulma/sass/utilities/initial-variables" as iv;
+
+// -----------------------------------------------------------------------------
+// Account
+// -----------------------------------------------------------------------------
+
+.guide-account-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+
+  @include mx.until(iv.$desktop) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.guide-plan {
+  padding: 1rem 1.15rem;
+  border-radius: var(--bulma-radius-medium);
+  background: var(--bulma-primary-soft);
+  color: var(--bulma-primary-on-scheme);
+}
+
+.guide-plan__name {
+  margin-top: 0.5rem;
+  font-family: var(--bulma-family-secondary);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.guide-plan__meta {
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+// -----------------------------------------------------------------------------
+// Billing table
+// -----------------------------------------------------------------------------
+
+.guide-billing-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+
+  th {
+    padding: 0.5rem 0.6rem;
+    text-align: left;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--bulma-text-weak);
+    border-bottom: 1px solid var(--bulma-border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.7rem 0.6rem;
+    border-bottom: 1px solid var(--bulma-border-weak);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+}
+
+.guide-billing-kind {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  color: var(--bulma-text-weak);
+}
+
+// -----------------------------------------------------------------------------
+// Receipt
+// -----------------------------------------------------------------------------
+
+.guide-receipt {
+  margin-top: 1.5rem;
+  padding: 2rem;
+  border: 1px solid var(--bulma-border-weak);
+  border-radius: var(--bulma-radius-large);
+  background: var(--bulma-scheme-main);
+
+  @include mx.mobile {
+    padding: 1.25rem;
+  }
+}
+
+.guide-receipt__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--bulma-border-weak);
+}
+
+.guide-receipt__site {
+  font-family: var(--bulma-family-secondary);
+  font-weight: 800;
+  color: var(--bulma-text-strong);
+}
+
+.guide-receipt__number {
+  font-family: var(--bulma-family-code);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--bulma-text-strong);
+}
+
+.guide-receipt__meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 1.15rem;
+  margin: 1.5rem 0;
+
+  dt {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--bulma-text-weak);
+  }
+
+  dd {
+    margin: 0.3rem 0 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--bulma-text-strong);
+  }
+
+  code {
+    font-family: var(--bulma-family-code);
+    font-size: 0.8rem;
+    word-break: break-all;
+  }
+}
+
+.guide-receipt__lines {
+  margin-top: 1rem;
+
+  tfoot th,
+  tfoot td {
+    padding-top: 0.85rem;
+    border-top: 2px solid var(--bulma-border);
+    border-bottom: 0;
+    font-size: 0.95rem;
+    color: var(--bulma-text-strong);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+}
+
+.guide-receipt__note {
+  margin-top: 1.25rem;
+}
+
+.guide-receipt__foot {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--bulma-border-weak);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--bulma-text-weak);
+}
+
+.guide-receipt__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+// A printed receipt should be the receipt, not the website around it.
+@media print {
+  .guide-header,
+  .guide-bottom-nav,
+  .guide-footer,
+  .guide-receipt__actions,
+  .guide-breadcrumb,
+  .guide-ad {
+    display: none !important;
+  }
+
+  .guide-receipt {
+    border: 0;
+    padding: 0;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Ad slots
+// -----------------------------------------------------------------------------
+//
+// Labelled, boxed, and kept clearly outside the content column. An ad that
+// tries to look like part of the lesson is the thing that makes a learning
+// site feel untrustworthy — and it is a disclosure obligation besides.
+
+.guide-ad {
+  margin-block: 2rem;
+  padding: 0.75rem;
+  border: 1px solid var(--bulma-border-weak);
+  border-radius: var(--bulma-radius-medium);
+  background: var(--bulma-scheme-main-bis);
+  text-align: center;
+  // Reserve height so the page does not jump when the unit fills.
+  min-height: 8rem;
+}
+
+.guide-ad__label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bulma-text-weak);
+}
+
+.guide-ad__upsell {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--bulma-text-weak);
+  text-align: center;
+
+  a {
+    font-weight: 650;
+  }
+}
+
+.guide-ad--feed {
+  grid-column: 1 / -1;
+}

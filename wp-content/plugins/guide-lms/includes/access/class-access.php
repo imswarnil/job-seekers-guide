@@ -10,15 +10,16 @@
  *   1. Anyone who can edit posts (authors/admins) sees everything.
  *   2. A lesson flagged as a free preview is open to everyone.
  *   3. A free course is open to everyone.
- *   4. A paid course opens for a user with an active grant for THAT course —
- *      buying the course unlocks every lesson in it, not lesson by lesson.
- *   5. An active platform subscription opens every course on the site.
+ *   4. A premium course opens for anyone with an active platform subscription.
+ *      There is no per-course purchase — the site sells one subscription.
+ *   5. Legacy per-course grants from the old pricing model are still honoured,
+ *      so nobody loses access to something they paid for before the change.
  */
 
 namespace Guide\Access;
 
 use Guide\Enrollment\Enrollment;
-use Guide\Payments\Course_Pricing;
+use Guide\Payments\Course_Access;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -27,8 +28,16 @@ class Access {
 	/** Why access was denied — drives which upsell the template renders. */
 	const REASON_OK           = 'ok';
 	const REASON_LOGIN        = 'login_required';
-	const REASON_PURCHASE     = 'purchase_required';
+	const REASON_SUBSCRIBE    = 'subscription_required';
 	const REASON_NO_SUCH_ITEM = 'not_found';
+
+	/**
+	 * Kept so any stored value or third-party check written against the old
+	 * per-course purchase model still resolves to "needs to pay us something".
+	 *
+	 * @deprecated Use REASON_SUBSCRIBE — there are no per-course purchases.
+	 */
+	const REASON_PURCHASE = 'subscription_required';
 
 	public static function init() {
 		add_action( 'template_redirect', array( __CLASS__, 'guard_lesson_request' ) );
@@ -91,7 +100,7 @@ class Access {
 			return self::REASON_OK;
 		}
 
-		if ( ! Course_Pricing::is_paid( $course_id ) ) {
+		if ( ! Course_Access::is_premium( $course_id ) ) {
 			return self::REASON_OK;
 		}
 
@@ -99,16 +108,19 @@ class Access {
 			return self::REASON_LOGIN;
 		}
 
-		// Paid: one grant for the whole course, or a platform subscription.
-		if ( Enrollment::is_enrolled( $user_id, $course_id, 'course' ) ) {
-			return self::REASON_OK;
-		}
-
+		// Premium is unlocked by the platform subscription, and only by that.
 		if ( Enrollment::has_platform_subscription( $user_id ) ) {
 			return self::REASON_OK;
 		}
 
-		return self::REASON_PURCHASE;
+		// Course-scoped grants no longer exist, but a site that ran the old
+		// per-course checkout may still hold them. Honouring them means nobody
+		// loses access to something they actually paid for.
+		if ( Enrollment::is_enrolled( $user_id, $course_id, 'course' ) ) {
+			return self::REASON_OK;
+		}
+
+		return self::REASON_SUBSCRIBE;
 	}
 
 	/**

@@ -238,6 +238,9 @@ while ( have_posts() ) :
 					<div class="guide-prose mt-4"><?php the_content(); ?></div>
 				<?php endif; ?>
 
+				<?php // Below the lesson, never inside it: an ad between two paragraphs of an explanation is the worst possible interruption. ?>
+				<?php guide_ad( 'page' ); ?>
+
 				<nav class="guide-lesson-nav" aria-label="<?php esc_attr_e( 'Lesson navigation', 'guide-wp-theme' ); ?>">
 					<?php if ( $guide_adjacent['prev'] ) : ?>
 						<a class="guide-lesson-nav__link" href="<?php echo esc_url( get_permalink( $guide_adjacent['prev'] ) ); ?>">

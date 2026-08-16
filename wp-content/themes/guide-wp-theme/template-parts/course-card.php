@@ -8,9 +8,9 @@ defined( 'ABSPATH' ) || exit;
 
 $guide_id      = get_the_ID();
 $guide_is_course = 'course' === get_post_type();
-$guide_is_paid = $guide_is_course
-	&& class_exists( 'Guide\\Payments\\Course_Pricing' )
-	&& \Guide\Payments\Course_Pricing::is_paid( $guide_id );
+$guide_is_premium = $guide_is_course
+	&& class_exists( 'Guide\\Payments\\Course_Access' )
+	&& \Guide\Payments\Course_Access::is_premium( $guide_id );
 $guide_stats = $guide_is_course && class_exists( 'Guide\\Course_Api' )
 	? \Guide\Course_Api::get_stats( $guide_id )
 	: null;
@@ -31,8 +31,8 @@ if ( ! $guide_img && $guide_is_course && class_exists( 'Guide\\Media\\Placeholde
 	<div class="guide-card__body">
 		<div class="is-flex is-align-items-center" style="gap:.5rem;flex-wrap:wrap">
 			<?php if ( $guide_is_course ) : ?>
-				<span class="guide-price-tag <?php echo $guide_is_paid ? 'guide-price-tag--paid' : 'guide-price-tag--free'; ?>">
-					<?php echo $guide_is_paid ? esc_html__( 'Paid', 'guide-wp-theme' ) : esc_html__( 'Free', 'guide-wp-theme' ); ?>
+				<span class="guide-price-tag <?php echo $guide_is_premium ? 'guide-price-tag--paid' : 'guide-price-tag--free'; ?>">
+					<?php echo $guide_is_premium ? esc_html__( 'Members', 'guide-wp-theme' ) : esc_html__( 'Free', 'guide-wp-theme' ); ?>
 				</span>
 			<?php endif; ?>
 			<?php if ( $guide_code ) : ?>

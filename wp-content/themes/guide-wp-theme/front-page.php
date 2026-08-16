@@ -350,27 +350,28 @@ $guide_has_visual = $guide_resume || ! empty( $guide_hero_steps );
 		?>
 		<section class="guide-section" aria-labelledby="guide-pricing-head">
 			<div style="text-align:center">
-				<span class="guide-eyebrow"><?php esc_html_e( 'Pricing', 'guide-wp-theme' ); ?></span>
-				<h2 id="guide-pricing-head" class="title is-3 mt-2"><?php esc_html_e( 'The core path stays free', 'guide-wp-theme' ); ?></h2>
-				<p class="mt-3" style="max-width:52ch;margin-inline:auto;color:var(--bulma-text-weak)">
-					<?php esc_html_e( 'Foundations, one language, projects, and the whole job-search module cost nothing. A subscription only adds the extras.', 'guide-wp-theme' ); ?>
+				<span class="guide-eyebrow"><?php esc_html_e( 'Membership', 'guide-wp-theme' ); ?></span>
+				<h2 id="guide-pricing-head" class="title is-3 mt-2"><?php esc_html_e( 'One subscription. No per-course prices.', 'guide-wp-theme' ); ?></h2>
+				<p class="mt-3" style="max-width:56ch;margin-inline:auto;color:var(--bulma-text-weak)">
+					<?php esc_html_e( 'Courses are never sold individually — being asked to buy something at every step of a path is exactly the paralysis this platform exists to remove. The foundations stay free. One subscription opens everything else and turns the ads off.', 'guide-wp-theme' ); ?>
 				</p>
 			</div>
 
 			<div class="guide-pricing mt-6">
 				<div class="guide-card" style="padding:1.75rem">
-					<h3 class="guide-card__title"><?php esc_html_e( 'A single course', 'guide-wp-theme' ); ?></h3>
-					<p class="guide-card__excerpt mt-2"><?php esc_html_e( 'Pay once for the course you need. Every lesson in it unlocks immediately, and it stays yours.', 'guide-wp-theme' ); ?></p>
+					<h3 class="guide-card__title"><?php esc_html_e( 'Free', 'guide-wp-theme' ); ?></h3>
+					<p class="guide-enroll-card__price mt-3"><?php esc_html_e( '₹0', 'guide-wp-theme' ); ?></p>
+					<p class="guide-card__excerpt mt-2"><?php esc_html_e( 'The core path — orientation, foundations, one language, projects, and the whole job-search module.', 'guide-wp-theme' ); ?></p>
 					<ul class="guide-check-list mt-4">
-						<li><?php echo guide_icon( 'check-circle-fill' ); ?><?php esc_html_e( 'All lessons in that course', 'guide-wp-theme' ); ?></li>
+						<li><?php echo guide_icon( 'check-circle-fill' ); ?><?php esc_html_e( 'Every free course, in order', 'guide-wp-theme' ); ?></li>
 						<li><?php echo guide_icon( 'check-circle-fill' ); ?><?php esc_html_e( 'Progress tracking and quizzes', 'guide-wp-theme' ); ?></li>
-						<li><?php echo guide_icon( 'check-circle-fill' ); ?><?php esc_html_e( 'No recurring charge', 'guide-wp-theme' ); ?></li>
+						<li><?php echo guide_icon( 'check-circle-fill' ); ?><?php esc_html_e( 'No card, no trial, no expiry', 'guide-wp-theme' ); ?></li>
 					</ul>
 					<a class="button is-fullwidth mt-5" href="<?php echo esc_url( get_post_type_archive_link( 'course' ) ); ?>"><?php esc_html_e( 'Browse courses', 'guide-wp-theme' ); ?></a>
 				</div>
 
 				<div class="guide-card guide-card--featured" style="padding:1.75rem">
-					<span class="guide-card__ribbon"><?php esc_html_e( 'Best value', 'guide-wp-theme' ); ?></span>
+					<span class="guide-card__ribbon"><?php esc_html_e( 'Members', 'guide-wp-theme' ); ?></span>
 					<h3 class="guide-card__title"><?php esc_html_e( 'Everything', 'guide-wp-theme' ); ?></h3>
 					<?php if ( $guide_sub_price ) : ?>
 						<p class="guide-enroll-card__price mt-3"><?php echo esc_html( $guide_sub_price ); ?></p>
@@ -381,6 +382,7 @@ $guide_has_visual = $guide_resume || ! empty( $guide_hero_steps );
 					<ul class="guide-check-list mt-4">
 						<li><?php echo guide_icon( 'check-circle-fill' ); ?><?php esc_html_e( 'Every course on the platform', 'guide-wp-theme' ); ?></li>
 						<li><?php echo guide_icon( 'check-circle-fill' ); ?><?php esc_html_e( 'Every new course as it lands', 'guide-wp-theme' ); ?></li>
+						<li><?php echo guide_icon( 'check-circle-fill' ); ?><?php esc_html_e( 'No ads, anywhere', 'guide-wp-theme' ); ?></li>
 						<li><?php echo guide_icon( 'check-circle-fill' ); ?><?php esc_html_e( 'Cancel the day you are hired', 'guide-wp-theme' ); ?></li>
 					</ul>
 

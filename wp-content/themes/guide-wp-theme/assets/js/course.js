@@ -1,49 +1,66 @@
+/**
+ * Course page actions: enroll in a free course, or start a subscription
+ * checkout for a members-only one.
+ *
+ * There is no per-course purchase — the platform sells a single subscription,
+ * so `/enroll` never returns a checkout URL any more. If it answers 402 the
+ * course is members-only and the subscribe flow takes over.
+ */
 ( function () {
 	'use strict';
 
 	document.addEventListener( 'DOMContentLoaded', function () {
-		var btn = document.getElementById( 'guide-enroll-btn' );
-		var box = document.getElementById( 'guide-enroll-box' );
-		var status = document.getElementById( 'guide-enroll-status' );
+		var box    = document.getElementById( 'guide-enroll-box' );
+		var btn    = document.getElementById( 'guide-enroll-btn' );
 		var subBtn = document.getElementById( 'guide-subscribe-btn' );
+		var status = document.getElementById( 'guide-enroll-status' );
 
 		if ( ! box || ! window.guideCourse ) {
 			return;
 		}
 
-		// Subscribe to the whole platform instead of buying this one course.
+		function say( message ) {
+			if ( status ) {
+				status.textContent = message;
+			}
+		}
+
+		function startSubscription( trigger ) {
+			if ( trigger ) {
+				trigger.disabled = true;
+			}
+			say( 'Opening checkout…' );
+
+			return fetch( window.guideCourse.restUrl + '/subscribe', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': window.guideCourse.nonce },
+			} )
+				.then( function ( res ) { return res.json(); } )
+				.then( function ( data ) {
+					if ( data.checkout_url ) {
+						window.location.href = data.checkout_url;
+						return;
+					}
+					if ( data.already_subscribed ) {
+						window.location.reload();
+						return;
+					}
+					say( data.error || 'Could not start checkout.' );
+					if ( trigger ) {
+						trigger.disabled = false;
+					}
+				} )
+				.catch( function () {
+					say( 'Network error — try again.' );
+					if ( trigger ) {
+						trigger.disabled = false;
+					}
+				} );
+		}
+
 		if ( subBtn ) {
 			subBtn.addEventListener( 'click', function () {
-				subBtn.disabled = true;
-				if ( status ) {
-					status.textContent = 'Opening checkout…';
-				}
-
-				fetch( window.guideCourse.restUrl + '/subscribe', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': window.guideCourse.nonce },
-				} )
-					.then( function ( res ) { return res.json(); } )
-					.then( function ( data ) {
-						if ( data.checkout_url ) {
-							window.location.href = data.checkout_url;
-							return;
-						}
-						if ( data.already_subscribed ) {
-							window.location.reload();
-							return;
-						}
-						if ( status ) {
-							status.textContent = data.error || 'Could not start checkout.';
-						}
-						subBtn.disabled = false;
-					} )
-					.catch( function () {
-						if ( status ) {
-							status.textContent = 'Network error — try again.';
-						}
-						subBtn.disabled = false;
-					} );
+				startSubscription( subBtn );
 			} );
 		}
 
@@ -53,7 +70,7 @@
 
 		btn.addEventListener( 'click', function () {
 			btn.disabled = true;
-			status.textContent = 'Please wait…';
+			say( 'Please wait…' );
 
 			fetch( window.guideCourse.restUrl + '/enroll', {
 				method: 'POST',
@@ -62,20 +79,22 @@
 			} )
 				.then( function ( res ) { return res.json(); } )
 				.then( function ( data ) {
-					if ( data.checkout_url ) {
-						window.location.href = data.checkout_url;
+					// The course turned out to be members-only — hand straight over
+					// to the subscribe flow rather than showing a dead end.
+					if ( data.needsSubscription ) {
+						startSubscription( btn );
 						return;
 					}
 					if ( data.enrolled ) {
-						status.textContent = 'Enrolled! Scroll down to start.';
+						say( 'Enrolled — scroll down to start.' );
 						btn.textContent = 'Enrolled';
 						return;
 					}
-					status.textContent = data.error || 'Something went wrong.';
+					say( data.error || 'Something went wrong.' );
 					btn.disabled = false;
 				} )
 				.catch( function () {
-					status.textContent = 'Network error — try again.';
+					say( 'Network error — try again.' );
 					btn.disabled = false;
 				} );
 		} );

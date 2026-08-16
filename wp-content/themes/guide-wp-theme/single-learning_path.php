@@ -59,8 +59,8 @@ while ( have_posts() ) :
 					$guide_is_course = 'course' === $guide_step['type'];
 
 					if ( $guide_is_course ) {
-						$guide_is_paid = class_exists( 'Guide\\Payments\\Course_Pricing' )
-							&& \Guide\Payments\Course_Pricing::is_paid( $guide_step['id'] );
+						$guide_is_paid = class_exists( 'Guide\\Payments\\Course_Access' )
+							&& \Guide\Payments\Course_Access::is_premium( $guide_step['id'] );
 						$guide_stats = \Guide\Course_Api::get_stats( $guide_step['id'] );
 						$guide_kind  = __( 'Course', 'guide-wp-theme' );
 					} else {
@@ -85,7 +85,7 @@ while ( have_posts() ) :
 								<span class="guide-filter-group__label"><?php echo esc_html( $guide_kind ); ?></span>
 								<?php if ( $guide_is_course ) : ?>
 									<span class="guide-price-tag <?php echo $guide_is_paid ? 'guide-price-tag--paid' : 'guide-price-tag--free'; ?>">
-										<?php echo $guide_is_paid ? esc_html__( 'Paid', 'guide-wp-theme' ) : esc_html__( 'Free', 'guide-wp-theme' ); ?>
+										<?php echo $guide_is_paid ? esc_html__( 'Members', 'guide-wp-theme' ) : esc_html__( 'Free', 'guide-wp-theme' ); ?>
 									</span>
 								<?php endif; ?>
 							</div>

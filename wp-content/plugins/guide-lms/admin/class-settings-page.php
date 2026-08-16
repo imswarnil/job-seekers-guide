@@ -12,6 +12,7 @@ namespace Guide\Admin;
 
 use Guide\Auth\Google_Auth;
 use Guide\Payments\Settings as Payment_Settings;
+use Guide\Ads\Ads;
 use Guide\Payments\Subscription;
 use Guide\Seo\Seo;
 use Guide\Pwa\Pwa;
@@ -30,6 +31,7 @@ class Settings_Page {
 		'subscription' => array( 'Subscription', 'jsl_settings_subscription' ),
 		'google'       => array( 'Google Sign-In', 'jsl_settings_google' ),
 		'community'    => array( 'Community', 'jsl_settings_community' ),
+		'ads'          => array( 'Ads', 'jsl_settings_ads' ),
 		'seo'          => array( 'SEO', 'jsl_settings_seo' ),
 		'pwa'          => array( 'App / PWA', 'jsl_settings_pwa' ),
 	);
@@ -83,6 +85,13 @@ class Settings_Page {
 		// Community (stories + leaderboard).
 		register_setting( 'jsl_settings_community', Success_Stories::OPTION_ENABLED, $bool );
 		register_setting( 'jsl_settings_community', Leaderboard::OPTION_ENABLED, $bool );
+
+		// Ads.
+		register_setting( 'jsl_settings_ads', Ads::OPTION_ENABLED, $bool );
+		register_setting( 'jsl_settings_ads', Ads::OPTION_CLIENT, $text );
+		register_setting( 'jsl_settings_ads', Ads::OPTION_SLOT_FEED, $text );
+		register_setting( 'jsl_settings_ads', Ads::OPTION_SLOT_PAGE, $text );
+		register_setting( 'jsl_settings_ads', Ads::OPTION_TEST, $bool );
 
 		// SEO.
 		register_setting( 'jsl_settings_seo', Seo::OPTION_DESCRIPTION, array( 'sanitize_callback' => 'sanitize_textarea_field' ) );
@@ -206,7 +215,7 @@ class Settings_Page {
 		self::row(
 			__( 'Platform subscription', 'guide-lms' ),
 			self::checkbox( Subscription::OPTION_ENABLED, __( 'Offer a subscription that unlocks every course', 'guide-lms' ) ),
-			__( 'Learners can still buy individual courses. A subscriber gets all of them for as long as the subscription is active.', 'guide-lms' )
+			__( 'The subscription is the only thing sold — courses have no individual price. A subscriber gets every members-only course, and sees no ads, for as long as it is active.', 'guide-lms' )
 		);
 
 		self::row(
@@ -296,6 +305,40 @@ class Settings_Page {
 				__( 'This publishes learners’ display names and lesson counts at %s. Only aggregate totals are shown — never an email or which courses someone is taking — and every learner can remove themselves from the board. Off by default.', 'guide-lms' ),
 				'<code>' . esc_html( Leaderboard::url() ) . '</code>'
 			)
+		);
+	}
+
+	/* ---- Tab: Ads ---- */
+
+	private static function fields_ads() {
+		self::row(
+			__( 'Show ads', 'guide-lms' ),
+			self::checkbox( Ads::OPTION_ENABLED, __( 'Show AdSense units to visitors without a subscription', 'guide-lms' ) ),
+			__( 'Subscribers and staff never see an ad, and the AdSense script is not even loaded for them. Ads never appear inside lesson content, or on the account and sign-in pages.', 'guide-lms' )
+		);
+
+		self::row(
+			__( 'Publisher ID', 'guide-lms' ),
+			self::text_input( Ads::OPTION_CLIENT, 'ca-pub-0000000000000000' ),
+			__( 'From AdSense → Account → Settings. Ads stay off until this is filled in.', 'guide-lms' )
+		);
+
+		self::row(
+			__( 'Slot: below content', 'guide-lms' ),
+			self::text_input( Ads::OPTION_SLOT_PAGE, '1234567890' ),
+			__( 'Shown under a lesson and under a course curriculum.', 'guide-lms' )
+		);
+
+		self::row(
+			__( 'Slot: course listings', 'guide-lms' ),
+			self::text_input( Ads::OPTION_SLOT_FEED, '1234567890' ),
+			__( 'Shown once beneath the catalogue grid.', 'guide-lms' )
+		);
+
+		self::row(
+			__( 'Test mode', 'guide-lms' ),
+			self::checkbox( Ads::OPTION_TEST, __( 'Render test units', 'guide-lms' ) ),
+			__( 'Adds <code>data-adtest="on"</code>. Use this while checking placement — clicking your own live ads will get the account banned.', 'guide-lms' )
 		);
 	}
 

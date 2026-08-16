@@ -1,16 +1,16 @@
 <?php
 /**
- * Dodo Payments checkout session creation + the front-end enroll/checkout
- * REST routes (free courses enroll directly; paid courses hand back a
- * Dodo checkout_url to redirect to).
+ * Course enrollment.
  *
- * API contract (docs.dodopayments.com, verified against current docs):
- * POST {base}/checkouts, Bearer auth, body: { product_cart, customer,
- * return_url, metadata }, response includes checkout_url.
+ * There is no per-course checkout any more — the platform sells one thing, a
+ * subscription (see class-subscription.php). So this route only ever records
+ * an enrollment; when a course is premium and the user has no subscription it
+ * says so and points at the subscribe flow rather than creating a payment.
  */
 
 namespace Guide\Payments;
 
+use Guide\Access\Access;
 use Guide\Enrollment\Enrollment;
 
 defined( 'ABSPATH' ) || exit;
@@ -30,91 +30,47 @@ class Checkout {
 				'callback'            => array( __CLASS__, 'handle_enroll' ),
 				'permission_callback' => 'is_user_logged_in',
 				'args'                => array(
-					'course_id' => array( 'required' => true, 'type' => 'integer' ),
+					'course_id' => array(
+						'required' => true,
+						'type'     => 'integer',
+					),
 				),
 			)
 		);
 	}
 
 	/**
-	 * Free course -> enroll immediately. Paid course -> create a Dodo
-	 * checkout session and return its checkout_url for the browser to
-	 * redirect to (actual enrollment happens later, from the webhook,
-	 * once payment is confirmed).
+	 * Enroll the current user in a course they are allowed to take.
+	 *
+	 * Access is decided by Access::course_denial_reason(), not re-derived here,
+	 * so this route can never disagree with what the lesson player enforces.
 	 */
 	public static function handle_enroll( \WP_REST_Request $request ) {
 		$course_id = (int) $request->get_param( 'course_id' );
 		$user_id   = get_current_user_id();
 
-		if ( 'course' !== get_post_type( $course_id ) ) {
-			return new \WP_REST_Response( array( 'error' => 'Not a course.' ), 404 );
+		if ( 'course' !== get_post_type( $course_id ) || 'publish' !== get_post_status( $course_id ) ) {
+			return new \WP_REST_Response( array( 'error' => __( 'Not a course.', 'guide-lms' ) ), 404 );
 		}
 
-		if ( ! Course_Pricing::is_paid( $course_id ) ) {
-			Enrollment::enroll( $user_id, $course_id, 'course', 'free' );
-			return new \WP_REST_Response( array( 'enrolled' => true ), 200 );
-		}
+		$reason = Access::course_denial_reason( $course_id, $user_id );
 
-		$session = self::create_session( $course_id, $user_id );
-
-		if ( is_wp_error( $session ) ) {
-			return new \WP_REST_Response( array( 'error' => $session->get_error_message() ), 502 );
-		}
-
-		return new \WP_REST_Response( array( 'checkout_url' => $session['checkout_url'] ), 200 );
-	}
-
-	/**
-	 * @return array{checkout_url:string}|\WP_Error
-	 */
-	public static function create_session( int $course_id, int $user_id ) {
-		$product_id = Course_Pricing::product_id( $course_id );
-
-		if ( ! $product_id ) {
-			return new \WP_Error( 'jsl_no_product', __( 'This course has no Dodo Product ID configured.', 'guide-lms' ) );
-		}
-
-		if ( ! Settings::api_key() ) {
-			return new \WP_Error( 'jsl_no_api_key', __( 'Dodo Payments API key is not configured.', 'guide-lms' ) );
-		}
-
-		$user = get_userdata( $user_id );
-
-		$body = array(
-			'product_cart' => array(
-				array( 'product_id' => $product_id, 'quantity' => 1 ),
-			),
-			'customer'     => array( 'email' => $user ? $user->user_email : '' ),
-			'return_url'   => get_permalink( $course_id ),
-			'metadata'     => array(
-				'course_id' => (string) $course_id,
-				'user_id'   => (string) $user_id,
-			),
-		);
-
-		$response = wp_remote_post(
-			Settings::base_url() . '/checkouts',
-			array(
-				'headers' => array(
-					'Authorization' => 'Bearer ' . Settings::api_key(),
-					'Content-Type'  => 'application/json',
+		if ( Access::REASON_SUBSCRIBE === $reason ) {
+			return new \WP_REST_Response(
+				array(
+					'error'            => __( 'This course is part of the subscription.', 'guide-lms' ),
+					'needsSubscription' => true,
 				),
-				'body'    => wp_json_encode( $body ),
-				'timeout' => 15,
-			)
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
+				402
+			);
 		}
 
-		$code = wp_remote_retrieve_response_code( $response );
-		$data = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( $code >= 400 || empty( $data['checkout_url'] ) ) {
-			return new \WP_Error( 'jsl_dodo_error', 'Dodo Payments error: ' . wp_remote_retrieve_body( $response ) );
+		if ( Access::REASON_OK !== $reason ) {
+			return new \WP_REST_Response( array( 'error' => __( 'You cannot enroll in this course.', 'guide-lms' ) ), 403 );
 		}
 
-		return array( 'checkout_url' => $data['checkout_url'] );
+		Enrollment::enroll( $user_id, $course_id, 'course', 'free' );
+
+		return new \WP_REST_Response( array( 'enrolled' => true ), 200 );
 	}
 }

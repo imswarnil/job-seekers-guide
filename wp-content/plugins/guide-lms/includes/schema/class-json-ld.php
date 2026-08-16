@@ -69,7 +69,7 @@ class Json_Ld {
 	}
 
 	private static function course( int $course_id ): array {
-		$is_paid = class_exists( 'Guide\\Payments\\Course_Pricing' ) && \Guide\Payments\Course_Pricing::is_paid( $course_id );
+		$is_paid = class_exists( 'Guide\\Payments\\Course_Access' ) && \Guide\Payments\Course_Access::is_premium( $course_id );
 		$code    = class_exists( 'Guide\\Course_Meta' ) ? \Guide\Course_Meta::get_code( $course_id ) : '';
 		$stats   = \Guide\Course_Api::get_stats( $course_id );
 

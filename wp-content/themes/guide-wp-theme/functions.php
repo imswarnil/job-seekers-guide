@@ -284,3 +284,25 @@ function guide_img_src( $src ) {
 	}
 	return esc_url( $src );
 }
+
+/**
+ * Render an ad slot, if this request should see one.
+ *
+ * A thin wrapper so templates do not have to know whether the plugin is
+ * active, whether ads are configured, or whether this particular visitor is a
+ * subscriber — Guide\Ads\Ads owns all of that.
+ *
+ * @param string $which 'feed' or 'page'.
+ * @param bool   $upsell Show the "subscribe to remove ads" line underneath.
+ */
+function guide_ad( $which = 'page', $upsell = true ) {
+	if ( ! class_exists( 'Guide\\Ads\\Ads' ) ) {
+		return;
+	}
+
+	\Guide\Ads\Ads::render( $which );
+
+	if ( $upsell ) {
+		\Guide\Ads\Ads::render_upsell();
+	}
+}

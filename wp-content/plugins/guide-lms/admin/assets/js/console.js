@@ -370,7 +370,7 @@
 						'</div></section>' +
 						'<section class="guide-card"><div class="guide-card__head"><h2>Course page</h2></div><div class="guide-card__body" style="display:flex;flex-direction:column;gap:8px">' +
 							'<button class="guide-btn guide-btn--primary" id="guide-open-details" type="button">' + ICONS.pencil + 'Edit details &amp; description</button>' +
-							'<span class="guide-help">Full description, image, level, outcomes, requirements and pricing.</span>' +
+							'<span class="guide-help">Full description, image, level, outcomes, requirements and access.</span>' +
 						'</div></section>' +
 					'</aside>' +
 				'</div>';
@@ -1074,7 +1074,7 @@
 	/**
 	 * Everything about a course that isn't its lesson structure: the
 	 * description learners actually read, the card image, level, outcomes,
-	 * requirements and pricing. This is what the classic editor used to be
+	 * requirements and access tier. This is what the classic editor used to be
 	 * for.
 	 */
 	function openCourseDrawer( courseId, course ) {
@@ -1124,19 +1124,12 @@
 
 				'<div class="guide-field"><label>Requirements</label><div id="guide-cd-reqs"></div></div>' +
 
-				'<div class="guide-field"><label>Pricing</label>' +
-					'<div class="guide-segmented" id="guide-cd-pricing">' +
-						'<button type="button" data-price="free">Free</button>' +
-						'<button type="button" data-price="paid">Paid</button>' +
-					'</div></div>' +
-
-				'<div id="guide-cd-paid-fields">' +
-					'<div class="guide-field"><label for="guide-cd-product">Dodo product ID</label>' +
-						'<input class="guide-input" id="guide-cd-product" type="text" placeholder="pdt_…"></div>' +
-					'<div class="guide-field"><label for="guide-cd-price">Price label</label>' +
-						'<input class="guide-input" id="guide-cd-price" type="text" placeholder="$49" style="max-width:180px">' +
-						'<span class="guide-help">Display only — the amount charged is whatever the Dodo product says.</span></div>' +
-				'</div>' +
+				'<div class="guide-field"><label>Access</label>' +
+					'<div class="guide-segmented" id="guide-cd-tier">' +
+						'<button type="button" data-tier="free">Free</button>' +
+						'<button type="button" data-tier="premium">Members</button>' +
+					'</div>' +
+					'<span class="guide-help">There is no per-course price. “Members” means the course is part of the platform subscription; subscribers get every one of them.</span></div>' +
 			'</div>' +
 
 			'<footer class="guide-drawer__foot">' +
@@ -1153,8 +1146,6 @@
 		document.getElementById( 'guide-cd-title' ).value = ( course.title && course.title.raw ) || '';
 		document.getElementById( 'guide-cd-excerpt' ).value = ( course.excerpt && course.excerpt.raw ) || '';
 		document.getElementById( 'guide-cd-level' ).value = meta.jsl_course_level || '';
-		document.getElementById( 'guide-cd-product' ).value = meta.jsl_dodo_product_id || '';
-		document.getElementById( 'guide-cd-price' ).value = meta.jsl_price_label || '';
 
 		var editor = richEditor(
 			document.getElementById( 'guide-cd-editor' ),
@@ -1204,24 +1195,26 @@
 			paintImage();
 		} );
 
-		/* ---- Pricing ---- */
-		var pricing = meta.jsl_pricing_type === 'paid' ? 'paid' : 'free';
-		var paidFields = document.getElementById( 'guide-cd-paid-fields' );
+		/* ---- Access tier ---- */
+		// 'paid' is the legacy value from the per-course pricing model; it
+		// means the same thing as 'premium' now.
+		var tier = ( meta.jsl_pricing_type === 'premium' || meta.jsl_pricing_type === 'paid' ) ? 'premium' : 'free';
 
-		function paintPricing() {
-			document.querySelectorAll( '#guide-cd-pricing button' ).forEach( function ( b ) {
-				b.setAttribute( 'aria-selected', b.dataset.price === pricing ? 'true' : 'false' );
+		function paintTier() {
+			document.querySelectorAll( '#guide-cd-tier button' ).forEach( function ( b ) {
+				var on = b.dataset.tier === tier;
+				b.setAttribute( 'aria-pressed', on ? 'true' : 'false' );
+				b.classList.toggle( 'is-active', on );
 			} );
-			paidFields.hidden = pricing !== 'paid';
 		}
 
-		document.querySelectorAll( '#guide-cd-pricing button' ).forEach( function ( b ) {
+		document.querySelectorAll( '#guide-cd-tier button' ).forEach( function ( b ) {
 			b.addEventListener( 'click', function () {
-				pricing = b.dataset.price;
-				paintPricing();
+				tier = b.dataset.tier;
+				paintTier();
 			} );
 		} );
-		paintPricing();
+		paintTier();
 
 		/* ---- Save ---- */
 		document.getElementById( 'guide-cd-close' ).addEventListener( 'click', closeDrawer );
@@ -1241,9 +1234,7 @@
 					jsl_course_level: document.getElementById( 'guide-cd-level' ).value,
 					jsl_course_outcomes: outcomes.getValues(),
 					jsl_course_requirements: reqs.getValues(),
-					jsl_pricing_type: pricing,
-					jsl_dodo_product_id: document.getElementById( 'guide-cd-product' ).value.trim(),
-					jsl_price_label: document.getElementById( 'guide-cd-price' ).value.trim(),
+					jsl_pricing_type: tier,
 				},
 			};
 

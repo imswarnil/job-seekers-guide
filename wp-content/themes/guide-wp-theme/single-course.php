@@ -23,9 +23,8 @@ while ( have_posts() ) :
 			'lessons' => 0,
 			'minutes' => 0,
 		);
-	$guide_is_paid = class_exists( 'Guide\\Payments\\Course_Pricing' )
-		&& \Guide\Payments\Course_Pricing::is_paid( $guide_course_id );
-	$guide_price = $guide_is_paid ? \Guide\Payments\Course_Pricing::price_label( $guide_course_id ) : '';
+	$guide_is_premium = class_exists( 'Guide\\Payments\\Course_Access' )
+		&& \Guide\Payments\Course_Access::is_premium( $guide_course_id );
 
 	$guide_user_id = get_current_user_id();
 
@@ -38,7 +37,9 @@ while ( have_posts() ) :
 	$guide_is_enrolled = $guide_user_id
 		&& class_exists( 'Guide\\Enrollment\\Enrollment' )
 		&& \Guide\Enrollment\Enrollment::is_enrolled( $guide_user_id, $guide_course_id );
-	$guide_via_plan = $guide_has_access && $guide_is_paid && ! $guide_is_enrolled;
+	// Access to a premium course comes from the subscription (or staff), since
+	// courses cannot be bought individually any more.
+	$guide_via_plan = $guide_has_access && $guide_is_premium;
 
 	$guide_subscription_on = class_exists( 'Guide\\Payments\\Subscription' )
 		&& \Guide\Payments\Subscription::is_enabled();
@@ -79,8 +80,8 @@ while ( have_posts() ) :
 						<?php if ( $guide_code ) : ?>
 							<span class="guide-chip guide-chip--spark"><?php echo esc_html( $guide_code ); ?></span>
 						<?php endif; ?>
-						<span class="guide-price-tag <?php echo $guide_is_paid ? 'guide-price-tag--paid' : 'guide-price-tag--free'; ?>">
-							<?php echo $guide_is_paid ? esc_html__( 'Paid', 'guide-wp-theme' ) : esc_html__( 'Free', 'guide-wp-theme' ); ?>
+						<span class="guide-price-tag <?php echo $guide_is_premium ? 'guide-price-tag--paid' : 'guide-price-tag--free'; ?>">
+							<?php echo $guide_is_premium ? esc_html__( 'Members', 'guide-wp-theme' ) : esc_html__( 'Free', 'guide-wp-theme' ); ?>
 						</span>
 						<?php if ( $guide_is_enrolled || $guide_via_plan ) : ?>
 							<span class="guide-chip guide-chip--primary">
@@ -170,16 +171,17 @@ while ( have_posts() ) :
 					<?php if ( $guide_via_plan ) : ?>
 						<p class="guide-enroll-card__price"><?php esc_html_e( 'Included in your plan', 'guide-wp-theme' ); ?></p>
 						<p class="mt-1 is-size-7" style="color:var(--bulma-text-weak)"><?php esc_html_e( 'Your subscription covers this course.', 'guide-wp-theme' ); ?></p>
-					<?php else : ?>
+					<?php elseif ( $guide_is_premium ) : ?>
 						<p class="guide-enroll-card__price">
-							<?php echo $guide_is_paid ? esc_html( $guide_price ? $guide_price : '—' ) : esc_html__( 'Free', 'guide-wp-theme' ); ?>
+							<?php echo $guide_sub_price ? esc_html( $guide_sub_price ) : esc_html__( 'Members', 'guide-wp-theme' ); ?>
 						</p>
 						<p class="mt-1 is-size-7" style="color:var(--bulma-text-weak)">
-							<?php
-							echo $guide_is_paid
-								? esc_html__( 'One-time payment. Buy once and every lesson unlocks.', 'guide-wp-theme' )
-								: esc_html__( 'Full access, no card required.', 'guide-wp-theme' );
-							?>
+							<?php esc_html_e( 'Part of the subscription — one price, every course on the platform.', 'guide-wp-theme' ); ?>
+						</p>
+					<?php else : ?>
+						<p class="guide-enroll-card__price"><?php esc_html_e( 'Free', 'guide-wp-theme' ); ?></p>
+						<p class="mt-1 is-size-7" style="color:var(--bulma-text-weak)">
+							<?php esc_html_e( 'Full access, no card required.', 'guide-wp-theme' ); ?>
 						</p>
 					<?php endif; ?>
 
@@ -188,32 +190,26 @@ while ( have_posts() ) :
 							<a class="button is-primary is-fullwidth" href="<?php echo esc_url( get_permalink( $guide_resume ) ); ?>">
 								<?php echo $guide_progress > 0 ? esc_html__( 'Continue learning', 'guide-wp-theme' ) : esc_html__( 'Start course', 'guide-wp-theme' ); ?>
 							</a>
-						<?php elseif ( is_user_logged_in() ) : ?>
-							<button type="button" class="button is-primary is-fullwidth" id="guide-enroll-btn">
-								<?php echo $guide_is_paid ? esc_html__( 'Get this course', 'guide-wp-theme' ) : esc_html__( 'Start free', 'guide-wp-theme' ); ?>
-							</button>
-							<p class="mt-2 is-size-7 has-text-centered" id="guide-enroll-status" aria-live="polite"></p>
-
-							<?php if ( $guide_is_paid && $guide_subscription_on ) : ?>
-								<p class="guide-or"><?php esc_html_e( 'or', 'guide-wp-theme' ); ?></p>
-								<button type="button" class="button is-fullwidth" id="guide-subscribe-btn">
-									<?php
-									echo $guide_sub_price
-										? esc_html(
-											sprintf(
-												/* translators: %s: subscription price, e.g. "₹499/month". */
-												__( 'Unlock everything — %s', 'guide-wp-theme' ),
-												$guide_sub_price
-											)
-										)
-										: esc_html__( 'Unlock every course', 'guide-wp-theme' );
-									?>
-								</button>
-							<?php endif; ?>
-						<?php else : ?>
+						<?php elseif ( ! is_user_logged_in() ) : ?>
 							<a class="button is-primary is-fullwidth" href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>">
 								<?php esc_html_e( 'Sign in to start', 'guide-wp-theme' ); ?>
 							</a>
+						<?php elseif ( $guide_is_premium ) : ?>
+							<?php if ( $guide_subscription_on ) : ?>
+								<button type="button" class="button is-primary is-fullwidth" id="guide-subscribe-btn">
+									<?php esc_html_e( 'Subscribe for full access', 'guide-wp-theme' ); ?>
+								</button>
+								<p class="mt-2 is-size-7 has-text-centered" id="guide-enroll-status" aria-live="polite"></p>
+							<?php else : ?>
+								<p class="guide-notice guide-notice--info">
+									<span><?php esc_html_e( 'Subscriptions are not open yet — check back shortly.', 'guide-wp-theme' ); ?></span>
+								</p>
+							<?php endif; ?>
+						<?php else : ?>
+							<button type="button" class="button is-primary is-fullwidth" id="guide-enroll-btn">
+								<?php esc_html_e( 'Start free', 'guide-wp-theme' ); ?>
+							</button>
+							<p class="mt-2 is-size-7 has-text-centered" id="guide-enroll-status" aria-live="polite"></p>
 						<?php endif; ?>
 					</div>
 
@@ -336,6 +332,8 @@ while ( have_posts() ) :
 					</div>
 				<?php endif; ?>
 			</section>
+
+			<?php guide_ad( 'page' ); ?>
 
 			<?php if ( $guide_has_about ) : ?>
 				<section id="panel-about" role="tabpanel" aria-labelledby="tab-about" tabindex="0" hidden>

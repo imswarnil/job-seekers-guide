@@ -101,6 +101,8 @@ $guide_state      = $guide_filterable ? guide_course_filter_state() : array();
 					?>
 				</div>
 
+				<?php guide_ad( 'feed' ); ?>
+
 				<div class="mt-6">
 					<?php
 					the_posts_pagination(

@@ -9,7 +9,7 @@
 namespace Guide\Cli;
 
 use Guide\Builder\Tables as Builder_Tables;
-use Guide\Payments\Course_Pricing;
+use Guide\Payments\Course_Access;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -65,11 +65,7 @@ class Seed_Command {
 			update_post_meta( $course_id, 'jsl_course_code', $def['code'] );
 			wp_set_post_terms( $course_id, array( $categories[ $def['category'] ] ), 'course_category' );
 
-			update_post_meta( $course_id, Course_Pricing::META_TYPE, $def['pricing'] );
-			if ( 'paid' === $def['pricing'] ) {
-				update_post_meta( $course_id, Course_Pricing::META_PRODUCT_ID, $def['product_id'] );
-				update_post_meta( $course_id, Course_Pricing::META_PRICE_LABEL, $def['price'] );
-			}
+			update_post_meta( $course_id, Course_Access::META_TIER, Course_Access::sanitize_tier( $def['pricing'] ) );
 
 			foreach ( $def['modules'] as $module_order => $module ) {
 				$wpdb->insert(

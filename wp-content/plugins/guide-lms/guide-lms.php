@@ -3,7 +3,7 @@
  * Plugin Name: Guide LMS
  * Plugin URI: https://github.com/imswarnil/job-seekers-guide
  * Description: Structured-learning-path LMS. Courses, lessons, learning paths, a visual course builder, enrollment and progress tracking, quizzes, a community resource library, learner discussion, and checkout.
- * Version: 0.7.0
+ * Version: 0.8.0
  * Requires at least: 6.4
  * Requires PHP: 8.0
  * Author: Guide
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'GUIDE_VERSION', '0.7.0' );
+define( 'GUIDE_VERSION', '0.8.0' );
 define( 'GUIDE_PLUGIN_FILE', __FILE__ );
 define( 'GUIDE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GUIDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -28,15 +28,18 @@ require_once GUIDE_PLUGIN_DIR . 'includes/media/class-placeholder.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/schema/class-json-ld.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/progress/class-progress.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/enrollment/class-tables.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/billing/class-billing.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/enrollment/class-enrollment.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/access/class-access.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/account/class-account.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/ads/class-ads.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/api/class-course-api.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/builder/class-tables.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/builder/class-rest.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/builder/class-path-tables.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/builder/class-path-rest.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/payments/class-settings.php';
-require_once GUIDE_PLUGIN_DIR . 'includes/payments/class-course-pricing.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/payments/class-course-access.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/payments/class-checkout.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/payments/class-subscription.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/payments/class-webhook.php';
@@ -83,11 +86,13 @@ function guide_boot() {
 	Guide\Builder\Rest::init();
 	Guide\Builder\Path_Rest::init();
 	Guide\Payments\Settings::init();
-	Guide\Payments\Course_Pricing::init();
+	Guide\Payments\Course_Access::init();
 	Guide\Payments\Checkout::init();
 	Guide\Payments\Subscription::init();
 	Guide\Payments\Webhook::init();
 	Guide\Access\Access::init();
+	Guide\Account\Account::init();
+	Guide\Ads\Ads::init();
 	Guide\Auth\Google_Auth::init();
 	Guide\Success\Success_Stories::init();
 	Guide\Leaderboard\Leaderboard::init();
@@ -115,6 +120,7 @@ function guide_maybe_upgrade_schema() {
 	}
 
 	Guide\Enrollment\Tables::create();
+	Guide\Billing\Billing::create_table();
 	Guide\Builder\Tables::create();
 	Guide\Builder\Path_Tables::create();
 	Guide\Builder\Path_Tables::migrate_legacy_course_links();
@@ -130,7 +136,9 @@ add_action( 'admin_init', 'guide_maybe_upgrade_schema' );
 function guide_activate() {
 	Guide\Post_Types::register();
 	Guide\Permalinks::add_rewrite_rules();
+	Guide\Account\Account::add_rewrite_rules();
 	Guide\Enrollment\Tables::create();
+	Guide\Billing\Billing::create_table();
 	Guide\Builder\Tables::create();
 	Guide\Builder\Path_Tables::create();
 	flush_rewrite_rules();
