@@ -13,8 +13,8 @@
  * stressful object in their life. Every message that is not useful spends
  * goodwill that the useful ones need.
  *
- * So: no digests, no streak nagging, no "we miss you". Eight messages, each
- * of which someone would be annoyed to have missed.
+ * So: no digests, no streak nagging, no "we miss you". Five messages, each of
+ * which someone would be annoyed to have missed.
  */
 
 namespace Guide\Email;
@@ -42,11 +42,6 @@ class Notifications {
 		// Stories.
 		add_action( 'jsl_story_submitted', array( __CLASS__, 'story_received' ), 10, 2 );
 		add_action( 'transition_post_status', array( __CLASS__, 'story_published' ), 10, 3 );
-
-		// Sponsorship.
-		add_action( 'guide_sponsorship_submitted', array( __CLASS__, 'sponsorship_submitted' ), 10, 2 );
-		add_action( 'guide_sponsorship_approved', array( __CLASS__, 'sponsorship_approved' ), 10, 2 );
-		add_action( 'guide_sponsorship_rejected', array( __CLASS__, 'sponsorship_rejected' ), 10, 2 );
 	}
 
 	public static function is_enabled(): bool {
@@ -280,94 +275,6 @@ class Notifications {
 				),
 				'cta'       => __( 'Read it on the site', 'guide-lms' ),
 				'cta_url'   => get_permalink( $post ),
-			)
-		);
-	}
-
-	// -------------------------------------------------------------------------
-	// Sponsorship
-	// -------------------------------------------------------------------------
-
-	/** @param int $campaign_id @param int $user_id */
-	public static function sponsorship_submitted( $campaign_id, $user_id = 0 ) {
-		$user = get_userdata( (int) $user_id );
-
-		if ( $user ) {
-			Mailer::send(
-				$user->user_email,
-				__( 'We have your sponsorship request', 'guide-lms' ),
-				array(
-					'heading' => __( 'Your sponsorship is with us', 'guide-lms' ),
-					'body'    => array(
-						__( 'We review every campaign by hand before it goes live. You will hear back shortly, and you can still edit the creative until it is approved.', 'guide-lms' ),
-					),
-					'cta'     => __( 'View your campaign', 'guide-lms' ),
-					'cta_url' => home_url( '/sponsor/' ),
-				)
-			);
-		}
-
-		Mailer::send(
-			Mailer::operator_address(),
-			__( 'A sponsorship needs review', 'guide-lms' ),
-			array(
-				'heading' => __( 'A sponsorship needs review', 'guide-lms' ),
-				'body'    => array(
-					sprintf(
-						/* translators: %s: campaign title. */
-						__( '“%s” has been submitted.', 'guide-lms' ),
-						get_the_title( (int) $campaign_id )
-					),
-				),
-				'cta'     => __( 'Review it', 'guide-lms' ),
-				'cta_url' => admin_url( 'post.php?post=' . (int) $campaign_id . '&action=edit' ),
-			)
-		);
-	}
-
-	/** @param int $campaign_id @param int $user_id */
-	public static function sponsorship_approved( $campaign_id, $user_id = 0 ) {
-		$user = get_userdata( (int) $user_id );
-
-		if ( ! $user ) {
-			return;
-		}
-
-		Mailer::send(
-			$user->user_email,
-			__( 'Your sponsorship is approved', 'guide-lms' ),
-			array(
-				'heading'  => __( 'Approved — one step left', 'guide-lms' ),
-				'body'     => array(
-					__( 'Your campaign has been approved. The creative is now locked, which is deliberate: what we reviewed is what runs.', 'guide-lms' ),
-					__( 'Complete the payment and it goes live for the months you chose.', 'guide-lms' ),
-				),
-				'cta'      => __( 'Complete payment', 'guide-lms' ),
-				'cta_url'  => home_url( '/sponsor/' ),
-				'footnote' => __( 'Need a change after this? Reply to this email and we will sort it out.', 'guide-lms' ),
-			)
-		);
-	}
-
-	/** @param int $campaign_id @param int $user_id */
-	public static function sponsorship_rejected( $campaign_id, $user_id = 0 ) {
-		$user = get_userdata( (int) $user_id );
-
-		if ( ! $user ) {
-			return;
-		}
-
-		Mailer::send(
-			$user->user_email,
-			__( 'About your sponsorship request', 'guide-lms' ),
-			array(
-				'heading' => __( 'We cannot run this one', 'guide-lms' ),
-				'body'    => array(
-					__( 'We have not approved this campaign. You have not been charged, and nothing has run.', 'guide-lms' ),
-					__( 'This is usually about fit rather than anything being wrong — the audience here is people looking for their first job, and we turn down anything that sells them a shortcut. You are welcome to submit a different creative.', 'guide-lms' ),
-				),
-				'cta'     => __( 'Submit another', 'guide-lms' ),
-				'cta_url' => home_url( '/sponsor/' ),
 			)
 		);
 	}

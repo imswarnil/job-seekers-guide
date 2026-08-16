@@ -9,7 +9,7 @@
  *     Things somebody adjusts once while deciding whether the site feels
  *     right, with a live preview beside them.
  *
- *   · Payments, ads, sponsorship, sign-in and access control stay in
+ *   · Payments, ads, sign-in and access control stay in
  *     LMS → Settings. They are operational, they need explanation and
  *     validation, and a live preview of a webhook secret is meaningless.
  *
@@ -84,7 +84,7 @@ function guide_customize_register( $wp_customize ) {
 		'guide_panel',
 		array(
 			'title'       => __( 'Guide theme', 'guide-wp-theme' ),
-			'description' => __( 'How the site looks and what the homepage says. Payments, ads and sponsorship live in LMS → Settings.', 'guide-wp-theme' ),
+			'description' => __( 'How the site looks and what the homepage says. Payments, ads and sign-in live in LMS → Settings.', 'guide-wp-theme' ),
 			'priority'    => 20,
 		)
 	);

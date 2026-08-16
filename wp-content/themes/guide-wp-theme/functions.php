@@ -329,9 +329,9 @@ function guide_ad( $which = 'page', $upsell = true ) {
 	$drawn = \Guide\Ads\Ads::render( $which );
 
 	// "Subscribe to remove them" only makes sense under something a
-	// subscription would actually remove. Under the house ad — which is the
-	// site offering the space for sale — it reads as nonsense.
-	if ( $upsell && in_array( $drawn, array( 'sponsor', 'adsense' ), true ) ) {
+	// subscription would actually remove — not under the administrator-only
+	// outline of an empty slot.
+	if ( $upsell && 'adsense' === $drawn ) {
 		\Guide\Ads\Ads::render_upsell();
 	}
 }

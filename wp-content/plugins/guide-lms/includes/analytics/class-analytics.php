@@ -84,7 +84,6 @@ class Analytics {
 			'subscribers'     => self::subscriber_count(),
 			'content'         => self::content_counts(),
 			'feedback'        => self::feedback_summary(),
-			'ads'             => self::ad_summary(),
 			'funnel'          => self::funnel(),
 		);
 	}
@@ -164,39 +163,6 @@ class Analytics {
 					'downs' => (int) $worst['downs'],
 				)
 				: null,
-		);
-	}
-
-	/** Ad and sponsorship delivery over the last 30 days. */
-	public static function ad_summary(): array {
-		if ( ! class_exists( 'Guide\\Sponsors\\Sponsor_Stats' ) ) {
-			return array( 'slots' => array(), 'live' => 0, 'pending' => 0 );
-		}
-
-		$live = get_posts(
-			array(
-				'post_type'      => \Guide\Sponsors\Sponsorship::POST_TYPE,
-				'post_status'    => 'any',
-				'posts_per_page' => 50,
-				'fields'         => 'ids',
-				'meta_query'     => array( array( 'key' => 'jsl_sponsor_status', 'value' => 'live' ) ),
-			)
-		);
-
-		$pending = get_posts(
-			array(
-				'post_type'      => \Guide\Sponsors\Sponsorship::POST_TYPE,
-				'post_status'    => 'any',
-				'posts_per_page' => 50,
-				'fields'         => 'ids',
-				'meta_query'     => array( array( 'key' => 'jsl_sponsor_status', 'value' => 'submitted' ) ),
-			)
-		);
-
-		return array(
-			'slots'   => \Guide\Sponsors\Sponsor_Stats::by_slot( 30 ),
-			'live'    => count( $live ),
-			'pending' => count( $pending ),
 		);
 	}
 

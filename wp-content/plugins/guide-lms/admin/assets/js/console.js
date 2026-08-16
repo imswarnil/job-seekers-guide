@@ -239,19 +239,7 @@
 			} ).join( '' );
 
 			var fb  = o.feedback || {};
-			var ads = o.ads || {};
 			var c   = o.content || {};
-
-			var slotRows = ( ads.slots || [] ).map( function ( s ) {
-				var imp = parseInt( s.impressions, 10 ) || 0;
-				var clk = parseInt( s.clicks, 10 ) || 0;
-				var spo = parseInt( s.sponsored, 10 ) || 0;
-				return '<tr><td>' + esc( s.slot ) + '</td>' +
-					'<td class="guide-num">' + imp + '</td>' +
-					'<td class="guide-num">' + clk + '</td>' +
-					'<td class="guide-num">' + ( imp ? ( clk / imp * 100 ).toFixed( 2 ) : '0.00' ) + '%</td>' +
-					'<td class="guide-num">' + ( imp ? Math.round( spo / imp * 100 ) : 0 ) + '%</td></tr>';
-			} ).join( '' ) || '<tr><td colspan="5">No ad delivery recorded yet.</td></tr>';
 
 			view.innerHTML =
 				'<header class="guide-page-head"><div><h1>Dashboard</h1><p class="guide-sub">What learners are doing across your LMS.</p></div></header>' +
@@ -283,12 +271,6 @@
 						'</div></section>' +
 				'</div>' +
 
-				'<section class="guide-card" style="margin-top:16px"><div class="guide-card__head"><h2>Ads and sponsorship — last 30 days</h2>' +
-					'<span class="guide-sub">' + ( ads.live || 0 ) + ' live · ' + ( ads.pending || 0 ) + ' awaiting review</span></div>' +
-					'<div class="guide-table-wrap"><table class="guide-table"><thead><tr>' +
-						'<th>Slot</th><th class="guide-num">Shown</th><th class="guide-num">Clicks</th>' +
-						'<th class="guide-num">CTR</th><th class="guide-num">Sponsored</th>' +
-					'</tr></thead><tbody>' + slotRows + '</tbody></table></div></section>' +
 				'<div class="guide-grid-2">' +
 					'<div style="display:flex;flex-direction:column;gap:16px;min-width:0">' +
 						'<section class="guide-card"><div class="guide-card__head"><h2>Completions — last 14 days</h2></div><div class="guide-card__body">' + sparkHTML( o.completions_14d ) + '</div></section>' +

@@ -230,13 +230,6 @@ class Lms_Admin {
 			return;
 		}
 
-		// Sponsors are not learners — sending them to a learning dashboard
-		// would be confusing and would hide the only screen they need.
-		if ( class_exists( 'Guide\\Sponsors\\Sponsorship' ) && \Guide\Sponsors\Sponsorship::is_sponsor() ) {
-			wp_safe_redirect( \Guide\Sponsors\Sponsor_Portal::url() );
-			exit;
-		}
-
 		wp_safe_redirect( home_url( '/my-learning/' ) );
 		exit;
 	}

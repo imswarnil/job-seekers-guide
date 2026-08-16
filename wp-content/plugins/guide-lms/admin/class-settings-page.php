@@ -13,8 +13,6 @@ namespace Guide\Admin;
 use Guide\Auth\Google_Auth;
 use Guide\Payments\Settings as Payment_Settings;
 use Guide\Ads\Ads;
-use Guide\Sponsors\Sponsorship;
-use Guide\Sponsors\Sponsor_Portal;
 use Guide\Payments\Subscription;
 use Guide\Seo\Seo;
 use Guide\Pwa\Pwa;
@@ -34,7 +32,6 @@ class Settings_Page {
 		'google'       => array( 'Google Sign-In', 'jsl_settings_google' ),
 		'community'    => array( 'Community', 'jsl_settings_community' ),
 		'ads'          => array( 'Ads', 'jsl_settings_ads' ),
-		'sponsors'     => array( 'Sponsorship', 'jsl_settings_sponsors' ),
 		'seo'          => array( 'SEO', 'jsl_settings_seo' ),
 		'pwa'          => array( 'App / PWA', 'jsl_settings_pwa' ),
 	);
@@ -94,22 +91,9 @@ class Settings_Page {
 		register_setting( 'jsl_settings_ads', Ads::OPTION_CLIENT, $text );
 		register_setting( 'jsl_settings_ads', Ads::OPTION_SLOT_FEED, $text );
 		register_setting( 'jsl_settings_ads', Ads::OPTION_SLOT_PAGE, $text );
+		register_setting( 'jsl_settings_ads', Ads::OPTION_SLOT_SIDE, $text );
 		register_setting( 'jsl_settings_ads', Ads::OPTION_SLOT_ANY, $text );
-		register_setting( 'jsl_settings_ads', Ads::OPTION_HOUSE, $bool );
 		register_setting( 'jsl_settings_ads', Ads::OPTION_TEST, $bool );
-
-		// Sponsorship.
-		register_setting( 'jsl_settings_sponsors', Sponsor_Portal::OPTION_OPEN, $bool );
-		register_setting( 'jsl_settings_sponsors', Sponsor_Portal::OPTION_PRODUCT, $text );
-		register_setting(
-			'jsl_settings_sponsors',
-			Sponsor_Portal::OPTION_PRICES,
-			array(
-				'type'              => 'array',
-				'sanitize_callback' => array( __CLASS__, 'sanitize_prices' ),
-				'default'           => array(),
-			)
-		);
 
 		// SEO.
 		register_setting( 'jsl_settings_seo', Seo::OPTION_DESCRIPTION, array( 'sanitize_callback' => 'sanitize_textarea_field' ) );
@@ -354,74 +338,22 @@ class Settings_Page {
 		);
 
 		self::row(
+			__( 'Slot: sidebar', 'guide-lms' ),
+			self::text_input( Ads::OPTION_SLOT_SIDE, '1234567890' ),
+			__( 'The rail beside a course or lesson. Asks AdSense for a rectangle rather than “auto”, because auto in a narrow column returns a tall banner that pushes the real content off the screen.', 'guide-lms' )
+		);
+
+		self::row(
 			__( 'Default slot', 'guide-lms' ),
 			self::text_input( Ads::OPTION_SLOT_ANY, '1234567890' ),
 			__( 'Used wherever the two above are left blank. Create one responsive unit in AdSense, paste it here, and every placement works — responsive units adapt to the space they are given, so one is genuinely enough to start with.', 'guide-lms' )
 		);
 
-		self::row(
-			__( 'Unsold space', 'guide-lms' ),
-			self::checkbox( Ads::OPTION_HOUSE, __( 'Offer empty slots for sponsorship', 'guide-lms' ) ),
-			__( 'When no sponsor has bought a slot and AdSense has nothing to fill it with, show a quiet card inviting sponsors instead of leaving a gap. Turn this off to leave unsold space genuinely empty.', 'guide-lms' )
-		);
 
 		self::row(
 			__( 'Test mode', 'guide-lms' ),
 			self::checkbox( Ads::OPTION_TEST, __( 'Render test units', 'guide-lms' ) ),
 			__( 'Adds <code>data-adtest="on"</code>. Use this while checking placement — clicking your own live ads will get the account banned.', 'guide-lms' )
-		);
-	}
-
-	public static function sanitize_prices( $value ): array {
-		$out = array();
-
-		foreach ( (array) $value as $slot => $price ) {
-			$slot = sanitize_key( $slot );
-
-			if ( isset( Sponsorship::SLOTS[ $slot ] ) ) {
-				$out[ $slot ] = sanitize_text_field( (string) $price );
-			}
-		}
-
-		return $out;
-	}
-
-	/* ---- Tab: Sponsorship ---- */
-
-	private static function fields_sponsors() {
-		self::row(
-			__( 'Applications', 'guide-lms' ),
-			self::checkbox( Sponsor_Portal::OPTION_OPEN, __( 'Accept new sponsorship applications', 'guide-lms' ) ),
-			sprintf(
-				/* translators: %s: the public sponsor page URL. */
-				__( 'The public rate card is at %s. Turning this off leaves the page up but closes the form.', 'guide-lms' ),
-				'<code>' . esc_html( Sponsor_Portal::url( 'apply' ) ) . '</code>'
-			)
-		);
-
-		foreach ( Sponsorship::SLOTS as $slot => $meta ) {
-			$prices = (array) get_option( Sponsor_Portal::OPTION_PRICES, array() );
-
-			self::row(
-				sprintf(
-					/* translators: %s: slot name. */
-					__( '%s — monthly price', 'guide-lms' ),
-					$meta['label']
-				),
-				sprintf(
-					'<input type="text" class="regular-text" name="%1$s[%2$s]" value="%3$s" placeholder="₹15,000">',
-					esc_attr( Sponsor_Portal::OPTION_PRICES ),
-					esc_attr( $slot ),
-					esc_attr( (string) ( $prices[ $slot ] ?? '' ) )
-				),
-				esc_html( $meta['note'] )
-			);
-		}
-
-		self::row(
-			__( 'Dodo product ID', 'guide-lms' ),
-			self::text_input( Sponsor_Portal::OPTION_PRODUCT, 'pdt_…' ),
-			__( 'A per-month product. Quantity is set from the number of months the sponsor chose. Without it, the pay button tells them you will invoice directly.', 'guide-lms' )
 		);
 	}
 

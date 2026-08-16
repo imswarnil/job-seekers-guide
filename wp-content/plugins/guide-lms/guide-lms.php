@@ -3,7 +3,7 @@
  * Plugin Name: Guide LMS
  * Plugin URI: https://github.com/imswarnil/job-seekers-guide
  * Description: Structured-learning-path LMS. Courses, lessons, learning paths, a visual course builder, enrollment and progress tracking, quizzes, a community resource library, learner discussion, and checkout.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Requires at least: 6.4
  * Tested up to: 6.7
  * Requires PHP: 8.0
@@ -15,7 +15,14 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'GUIDE_VERSION', '0.12.0' );
+// Must match the Version header above. It is repeated rather than read from
+// the header because get_file_data() is a file read on every request, and this
+// constant gates the upgrade routine that runs on every deploy — so it is
+// checked constantly and changed rarely.
+//
+// It had drifted (header 1.0.0, constant 0.12.0), which meant two releases of
+// header bumps never triggered a single upgrade. If you bump one, bump both.
+define( 'GUIDE_VERSION', '1.1.0' );
 define( 'GUIDE_PLUGIN_FILE', __FILE__ );
 define( 'GUIDE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GUIDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -34,13 +41,11 @@ require_once GUIDE_PLUGIN_DIR . 'includes/enrollment/class-enrollment.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/access/class-access.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/security/class-permalink-repair.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/content/class-starter-content.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/content/class-sponsorship-removal.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/email/class-mailer.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/email/class-notifications.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/account/class-account.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/account/class-profile.php';
-require_once GUIDE_PLUGIN_DIR . 'includes/sponsors/class-sponsorship.php';
-require_once GUIDE_PLUGIN_DIR . 'includes/sponsors/class-sponsor-stats.php';
-require_once GUIDE_PLUGIN_DIR . 'includes/sponsors/class-sponsor-portal.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/ads/class-ads.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/structure/class-structure-tables.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/structure/class-structure.php';
@@ -119,9 +124,6 @@ function guide_boot() {
 	Guide\Email\Notifications::init();
 	Guide\Account\Account::init();
 	Guide\Account\Profile::init();
-	Guide\Sponsors\Sponsorship::init();
-	Guide\Sponsors\Sponsor_Stats::init();
-	Guide\Sponsors\Sponsor_Portal::init();
 	Guide\Ads\Ads::init();
 	Guide\Auth\Google_Auth::init();
 	Guide\Companies\Companies::init();
@@ -167,7 +169,6 @@ function guide_maybe_upgrade_schema() {
 	Guide\Enrollment\Tables::create();
 	Guide\Billing\Billing::create_table();
 	Guide\Community\Feedback::create_table();
-	Guide\Sponsors\Sponsor_Stats::create_table();
 	Guide\Builder\Tables::create();
 	Guide\Builder\Path_Tables::create();
 	Guide\Builder\Path_Tables::migrate_legacy_course_links();
@@ -178,23 +179,25 @@ function guide_maybe_upgrade_schema() {
 	Guide\Structure\Structure_Tables::create();
 	Guide\Structure\Structure_Tables::migrate_from_modules();
 
-	// Roles and rewrite rules are NOT part of activation on a live site:
-	// production deploys by pulling code and restarting, which never fires the
-	// activation hook. Anything an install needs has to happen here too.
-	Guide\Sponsors\Sponsorship::sync_role();
-
+	// Rewrite rules are NOT part of activation on a live site: production
+	// deploys by pulling code and restarting, which never fires the activation
+	// hook. Anything an install needs has to happen here too.
 	Guide\Post_Types::register();
 	Guide\Companies\Companies::register();
 	Guide\Community\Community_Types::register();
 	Guide\Permalinks::add_rewrite_rules();
 	Guide\Account\Account::add_rewrite_rules();
 	Guide\Structure\Path_Player::add_rewrite_rules();
-	Guide\Sponsors\Sponsor_Portal::add_rewrite_rules();
 	flush_rewrite_rules();
 
 	// Clean URLs, if the server turns out to support them. Runs before the
 	// content seed so the permalinks reported below are the final ones.
 	Guide\Security\Permalink_Repair::maybe_repair();
+
+	// The sponsorship module was removed in 1.1.0. Code travels on a deploy;
+	// its tables, posts, options, role and cron job do not, so they are cleared
+	// here — before the rewrite flush below, which drops /sponsor/.
+	Guide\Content\Sponsorship_Removal::run();
 
 	// The courses that ship with the plugin. Same reasoning as the roles above:
 	// a deploy moves code, not the database, so content written on a laptop has
@@ -217,12 +220,9 @@ function guide_activate() {
 	Guide\Permalinks::add_rewrite_rules();
 	Guide\Account\Account::add_rewrite_rules();
 	Guide\Structure\Path_Player::add_rewrite_rules();
-	Guide\Sponsors\Sponsor_Portal::add_rewrite_rules();
-	Guide\Sponsors\Sponsorship::add_role();
 	Guide\Enrollment\Tables::create();
 	Guide\Billing\Billing::create_table();
 	Guide\Community\Feedback::create_table();
-	Guide\Sponsors\Sponsor_Stats::create_table();
 	Guide\Builder\Tables::create();
 	Guide\Builder\Path_Tables::create();
 	Guide\Structure\Structure_Tables::create();
