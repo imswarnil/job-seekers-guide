@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
 class Starter_Content {
 
 	/** Bump to re-seed after editing the shipped content files. */
-	const VERSION = '3';
+	const VERSION = '4';
 
 	const OPTION_VERSION = 'jsl_starter_content_version';
 
@@ -61,6 +61,8 @@ class Starter_Content {
 		// considerably worse.
 		update_option( self::OPTION_VERSION, self::VERSION, false );
 
+		self::migrate_meta_keys();
+
 		foreach ( array( 'foundation', 'resume' ) as $file ) {
 			$path = GUIDE_PLUGIN_DIR . 'content/' . $file . '.php';
 
@@ -75,6 +77,43 @@ class Starter_Content {
 			}
 		}
 
+	}
+
+
+	/**
+	 * Move lesson meta written under the wrong key.
+	 *
+	 * A previous release of this seeder wrote `jsl_duration` and
+	 * `jsl_free_preview`. Both read like the obvious names and neither is the
+	 * one the templates use, so every shipped lesson displayed a blank duration
+	 * and no preview flag while looking, in the database, perfectly populated.
+	 *
+	 * Copied rather than assumed: the canonical key is only written where it is
+	 * missing, so a value an operator has since set by hand always wins.
+	 */
+	private static function migrate_meta_keys() {
+		global $wpdb;
+
+		$pairs = array(
+			'jsl_duration'      => 'jsl_duration_minutes',
+			'jsl_free_preview'  => 'jsl_is_preview',
+		);
+
+		foreach ( $pairs as $wrong => $right ) {
+			$rows = $wpdb->get_results(
+				$wpdb->prepare( "SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s", $wrong )
+			);
+
+			foreach ( (array) $rows as $row ) {
+				$existing = get_post_meta( (int) $row->post_id, $right, true );
+
+				if ( '' === $existing || null === $existing ) {
+					update_post_meta( (int) $row->post_id, $right, $row->meta_value );
+				}
+			}
+
+			$wpdb->delete( $wpdb->postmeta, array( 'meta_key' => $wrong ), array( '%s' ) );
+		}
 	}
 
 	/**
@@ -187,9 +226,14 @@ class Starter_Content {
 
 		$fresh = ! $existing;
 
+		// The canonical keys, which are what every template actually reads.
+		// An earlier version of this seeder wrote jsl_duration and
+		// jsl_free_preview — plausible names that nothing looks at — so the
+		// shipped courses displayed no durations at all. migrate_meta_keys()
+		// below repairs sites that already have them.
 		self::maybe_set_meta( $lesson_id, 'jsl_course_id', $course_id, $fresh );
 		self::maybe_set_meta( $lesson_id, 'jsl_lesson_type', 'article', $fresh );
-		self::maybe_set_meta( $lesson_id, 'jsl_duration', (int) $lesson['duration'], $fresh );
+		self::maybe_set_meta( $lesson_id, 'jsl_duration_minutes', (int) $lesson['duration'], $fresh );
 
 		return $lesson_id;
 	}

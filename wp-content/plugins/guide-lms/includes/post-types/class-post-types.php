@@ -33,7 +33,7 @@ class Post_Types {
 				),
 				'public'            => true,
 				'show_ui'           => true,
-				'show_in_menu'      => false,
+				'show_in_menu'      => 'guide-lms',
 				'show_in_nav_menus' => true,
 				'show_in_rest'      => true,
 				'rest_base'         => 'courses',
@@ -49,7 +49,12 @@ class Post_Types {
 	/**
 	 * Lessons are public but have no rewrite base of their own — their URLs
 	 * are built by Guide\Permalinks as /courses/{course}/{lesson}/ so a lesson
-	 * never has a second, duplicate address. show_in_menu is off because all
+	 * never has a second, duplicate address. show_in_menu points at the LMS
+	 * menu so the standard WordPress list and editor sit beside the console —
+	 * the console is the faster way to build a course, and the editor is the
+	 * one people already know. Neither is hidden from the other.
+	 *
+	 * The old comment here said all
 	 * authoring happens in the LMS console.
 	 */
 	private static function register_lesson() {
@@ -65,7 +70,7 @@ class Post_Types {
 				'public'             => true,
 				'publicly_queryable' => true,
 				'show_ui'            => true,
-				'show_in_menu'       => false,
+				'show_in_menu'       => 'guide-lms',
 				'show_in_nav_menus'  => false,
 				'show_in_rest'       => true,
 				'rest_base'          => 'lessons',
@@ -89,7 +94,7 @@ class Post_Types {
 				),
 				'public'            => true,
 				'show_ui'           => true,
-				'show_in_menu'      => false,
+				'show_in_menu'      => 'guide-lms',
 				'show_in_nav_menus' => true,
 				'show_in_rest'      => true,
 				'rest_base'         => 'learning-paths',
@@ -112,7 +117,7 @@ class Post_Types {
 				),
 				'public'            => true,
 				'show_ui'           => true,
-				'show_in_menu'      => false,
+				'show_in_menu'      => 'guide-lms',
 				'show_in_rest'      => true,
 				'rest_base'         => 'course-categories',
 				'hierarchical'      => true,

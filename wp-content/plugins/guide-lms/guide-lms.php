@@ -78,6 +78,7 @@ require_once GUIDE_PLUGIN_DIR . 'includes/security/class-login-guard.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/security/class-registration.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/security/class-trim.php';
 require_once GUIDE_PLUGIN_DIR . 'admin/class-lms-admin.php';
+require_once GUIDE_PLUGIN_DIR . 'admin/class-meta-boxes.php';
 require_once GUIDE_PLUGIN_DIR . 'admin/class-console.php';
 require_once GUIDE_PLUGIN_DIR . 'admin/class-settings-page.php';
 require_once GUIDE_PLUGIN_DIR . 'admin/class-help-page.php';
@@ -143,6 +144,7 @@ function guide_boot() {
 	Guide\Security\Registration::init();
 	Guide\Security\Trim::init();
 	Guide\Admin\Lms_Admin::init();
+	Guide\Admin\Meta_Boxes::init();
 	Guide\Admin\Console::init();
 	Guide\Admin\Settings_Page::init();
 	Guide\Admin\Help_Page::init();

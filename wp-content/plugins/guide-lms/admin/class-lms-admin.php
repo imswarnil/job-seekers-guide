@@ -31,7 +31,6 @@ class Lms_Admin {
 		add_action( 'admin_bar_menu', array( __CLASS__, 'trim_admin_bar' ), 999 );
 		add_action( 'wp_dashboard_setup', array( __CLASS__, 'strip_dashboard_widgets' ), 100 );
 		add_action( 'admin_init', array( __CLASS__, 'keep_learners_out' ) );
-		add_action( 'admin_init', array( __CLASS__, 'redirect_native_editors' ) );
 		add_filter( 'show_admin_bar', array( __CLASS__, 'hide_admin_bar_for_learners' ) );
 		add_filter( 'use_block_editor_for_post_type', array( __CLASS__, 'disable_block_editor' ), 10, 2 );
 		add_action( 'admin_head', array( __CLASS__, 'hide_screen_clutter' ) );
