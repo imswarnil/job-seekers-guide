@@ -520,3 +520,17 @@
   font-size: 0.78rem;
   letter-spacing: 0.04em;
 }
+
+// In a path, a section borrowed from a course is labelled with the course it
+// came from — otherwise a learner three sections deep has no idea whose
+// material they are reading.
+.guide-player__from {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--bulma-text-weak);
+  opacity: 0.8;
+}

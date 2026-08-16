@@ -26,6 +26,14 @@ while ( have_posts() ) :
 				<p class="guide-course-hero__lede"><?php echo esc_html( get_the_excerpt() ); ?></p>
 			<?php endif; ?>
 			<?php if ( $guide_steps ) : ?>
+				<?php
+				$guide_path_lessons = class_exists( 'Guide\\Structure\\Structure' )
+					? \Guide\Structure\Structure::flatten_lessons( 'path', $guide_path_id )
+					: array();
+				$guide_path_percent = ( $guide_path_lessons && class_exists( 'Guide\\Structure\\Path_Player' ) )
+					? \Guide\Structure\Path_Player::percent( get_current_user_id(), $guide_path_lessons )
+					: 0;
+				?>
 				<div class="guide-course-hero__meta">
 					<span class="guide-chip guide-chip--spark">
 						<?php
@@ -36,7 +44,39 @@ while ( have_posts() ) :
 						);
 						?>
 					</span>
+					<?php if ( $guide_path_lessons ) : ?>
+						<span class="guide-chip guide-chip--outline">
+							<?php echo guide_icon( 'article' ); ?>
+							<?php
+							printf(
+								/* translators: %d: number of lessons across the whole path. */
+								esc_html( _n( '%d lesson', '%d lessons', count( $guide_path_lessons ), 'guide-wp-theme' ) ),
+								(int) count( $guide_path_lessons )
+							);
+							?>
+						</span>
+					<?php endif; ?>
 				</div>
+
+				<?php if ( $guide_path_lessons && class_exists( 'Guide\\Structure\\Path_Player' ) ) : ?>
+					<?php // The path has its own player, so following it end to end never drops you into a single course's navigation. ?>
+					<div class="guide-hero__actions">
+						<a class="button is-primary is-medium" href="<?php echo esc_url( \Guide\Structure\Path_Player::start_url( $guide_path_id ) ); ?>">
+							<?php echo $guide_path_percent > 0 ? esc_html__( 'Continue this path', 'guide-wp-theme' ) : esc_html__( 'Start this path', 'guide-wp-theme' ); ?>
+						</a>
+					</div>
+
+					<?php if ( $guide_path_percent > 0 ) : ?>
+						<div class="mt-4" style="max-width:22rem">
+							<div class="guide-progress-label">
+								<span><?php echo esc_html( sprintf( '%d%%', $guide_path_percent ) ); ?></span>
+							</div>
+							<span class="guide-progress">
+								<span class="guide-progress__bar" style="width:<?php echo esc_attr( (string) $guide_path_percent ); ?>%"></span>
+							</span>
+						</div>
+					<?php endif; ?>
+				<?php endif; ?>
 			<?php endif; ?>
 		</div>
 	</section>

@@ -3,7 +3,7 @@
  * Plugin Name: Guide LMS
  * Plugin URI: https://github.com/imswarnil/job-seekers-guide
  * Description: Structured-learning-path LMS. Courses, lessons, learning paths, a visual course builder, enrollment and progress tracking, quizzes, a community resource library, learner discussion, and checkout.
- * Version: 0.8.0
+ * Version: 0.9.0
  * Requires at least: 6.4
  * Requires PHP: 8.0
  * Author: Guide
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'GUIDE_VERSION', '0.8.0' );
+define( 'GUIDE_VERSION', '0.9.0' );
 define( 'GUIDE_PLUGIN_FILE', __FILE__ );
 define( 'GUIDE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GUIDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -33,6 +33,9 @@ require_once GUIDE_PLUGIN_DIR . 'includes/enrollment/class-enrollment.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/access/class-access.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/account/class-account.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/ads/class-ads.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/structure/class-structure-tables.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/structure/class-structure.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/structure/class-path-player.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/api/class-course-api.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/builder/class-tables.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/builder/class-rest.php';
@@ -84,6 +87,8 @@ function guide_boot() {
 	Guide\Quiz\Quiz::init();
 	Guide\Schema\Json_Ld::init();
 	Guide\Progress\Progress::init();
+	Guide\Structure\Structure::init();
+	Guide\Structure\Path_Player::init();
 	Guide\Builder\Rest::init();
 	Guide\Builder\Path_Rest::init();
 	Guide\Payments\Settings::init();
@@ -127,6 +132,12 @@ function guide_maybe_upgrade_schema() {
 	Guide\Builder\Path_Tables::create();
 	Guide\Builder\Path_Tables::migrate_legacy_course_links();
 
+	// Sections + outline, then move the old tightly-coupled structure across.
+	// Order matters: the legacy path-step migration above must have run first,
+	// or paths created before the steps table would migrate empty.
+	Guide\Structure\Structure_Tables::create();
+	Guide\Structure\Structure_Tables::migrate_from_modules();
+
 	update_option( 'jsl_db_version', GUIDE_VERSION, false );
 }
 add_action( 'admin_init', 'guide_maybe_upgrade_schema' );
@@ -139,10 +150,13 @@ function guide_activate() {
 	Guide\Post_Types::register();
 	Guide\Permalinks::add_rewrite_rules();
 	Guide\Account\Account::add_rewrite_rules();
+	Guide\Structure\Path_Player::add_rewrite_rules();
 	Guide\Enrollment\Tables::create();
 	Guide\Billing\Billing::create_table();
 	Guide\Builder\Tables::create();
 	Guide\Builder\Path_Tables::create();
+	Guide\Structure\Structure_Tables::create();
+	Guide\Structure\Structure_Tables::migrate_from_modules();
 	flush_rewrite_rules();
 }
 register_activation_hook( __FILE__, 'guide_activate' );
