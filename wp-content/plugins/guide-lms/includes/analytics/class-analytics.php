@@ -77,6 +77,155 @@ class Analytics {
 			),
 			'completions_14d' => self::completions_per_day( 14 ),
 			'activity'        => self::recent_activity( 12 ),
+
+			// Everything below answers "is the platform working?" rather than
+			// "how many rows are in a table". A dashboard of raw counts tells
+			// you nothing you can act on.
+			'subscribers'     => self::subscriber_count(),
+			'content'         => self::content_counts(),
+			'feedback'        => self::feedback_summary(),
+			'ads'             => self::ad_summary(),
+			'funnel'          => self::funnel(),
+		);
+	}
+
+	/** Learners holding an active platform subscription. */
+	public static function subscriber_count(): int {
+		global $wpdb;
+
+		$enroll = Tables::enrollments_table_name();
+		$now    = current_time( 'mysql', true );
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(DISTINCT user_id) FROM {$enroll}
+				  WHERE object_type = 'platform' AND status = 'active'
+				    AND ( expires_at IS NULL OR expires_at > %s )",
+				$now
+			)
+		);
+	}
+
+	/** How much there is to learn — the supply side. */
+	public static function content_counts(): array {
+		global $wpdb;
+
+		$sections = $wpdb->prefix . 'jsl_sections';
+
+		return array(
+			'courses'   => (int) wp_count_posts( 'course' )->publish,
+			'lessons'   => (int) wp_count_posts( 'lesson' )->publish,
+			'paths'     => (int) wp_count_posts( 'learning_path' )->publish,
+			'companies' => post_type_exists( 'company' ) ? (int) wp_count_posts( 'company' )->publish : 0,
+			'help'      => post_type_exists( 'help_article' ) ? (int) wp_count_posts( 'help_article' )->publish : 0,
+			'sections'  => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$sections}" ),
+		);
+	}
+
+	/**
+	 * Reaction totals plus the worst-rated piece of content.
+	 *
+	 * The single worst item is more useful on a dashboard than a ratio: it is
+	 * the thing to go and fix this week.
+	 */
+	public static function feedback_summary(): array {
+		global $wpdb;
+
+		if ( ! class_exists( 'Guide\\Community\\Feedback' ) ) {
+			return array( 'up' => 0, 'down' => 0, 'unread' => 0, 'worst' => null );
+		}
+
+		$table = \Guide\Community\Feedback::table_name();
+
+		$row = $wpdb->get_row(
+			"SELECT SUM(sentiment='up') AS ups, SUM(sentiment='down') AS downs
+			   FROM {$table} WHERE object_type <> 'roadmap_item'",
+			ARRAY_A
+		);
+
+		$worst = $wpdb->get_row(
+			"SELECT object_id, SUM(sentiment='down') AS downs
+			   FROM {$table}
+			  WHERE object_type <> 'roadmap_item'
+			  GROUP BY object_id
+			 HAVING downs > 0
+			  ORDER BY downs DESC LIMIT 1",
+			ARRAY_A
+		);
+
+		return array(
+			'up'     => (int) ( $row['ups'] ?? 0 ),
+			'down'   => (int) ( $row['downs'] ?? 0 ),
+			'unread' => \Guide\Community\Feedback::unread_count(),
+			'worst'  => $worst && get_post( (int) $worst['object_id'] )
+				? array(
+					'title' => get_the_title( (int) $worst['object_id'] ),
+					'link'  => (string) get_permalink( (int) $worst['object_id'] ),
+					'downs' => (int) $worst['downs'],
+				)
+				: null,
+		);
+	}
+
+	/** Ad and sponsorship delivery over the last 30 days. */
+	public static function ad_summary(): array {
+		if ( ! class_exists( 'Guide\\Sponsors\\Sponsor_Stats' ) ) {
+			return array( 'slots' => array(), 'live' => 0, 'pending' => 0 );
+		}
+
+		$live = get_posts(
+			array(
+				'post_type'      => \Guide\Sponsors\Sponsorship::POST_TYPE,
+				'post_status'    => 'any',
+				'posts_per_page' => 50,
+				'fields'         => 'ids',
+				'meta_query'     => array( array( 'key' => 'jsl_sponsor_status', 'value' => 'live' ) ),
+			)
+		);
+
+		$pending = get_posts(
+			array(
+				'post_type'      => \Guide\Sponsors\Sponsorship::POST_TYPE,
+				'post_status'    => 'any',
+				'posts_per_page' => 50,
+				'fields'         => 'ids',
+				'meta_query'     => array( array( 'key' => 'jsl_sponsor_status', 'value' => 'submitted' ) ),
+			)
+		);
+
+		return array(
+			'slots'   => \Guide\Sponsors\Sponsor_Stats::by_slot( 30 ),
+			'live'    => count( $live ),
+			'pending' => count( $pending ),
+		);
+	}
+
+	/**
+	 * The drop-off that actually matters: signed up → started → finished
+	 * something. Enrolments without completions is the number that says the
+	 * content is not landing.
+	 */
+	public static function funnel(): array {
+		global $wpdb;
+
+		$enroll   = Tables::enrollments_table_name();
+		$progress = Tables::progress_table_name();
+
+		$registered = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->users}" );
+		$enrolled   = (int) $wpdb->get_var( "SELECT COUNT(DISTINCT user_id) FROM {$enroll}" );
+		$started    = (int) $wpdb->get_var( "SELECT COUNT(DISTINCT user_id) FROM {$progress}" );
+
+		$finished = (int) $wpdb->get_var(
+			"SELECT COUNT(DISTINCT user_id) FROM (
+				SELECT user_id, COUNT(*) AS done FROM {$progress} GROUP BY user_id HAVING done >= 5
+			 ) AS t"
+		);
+
+		return array(
+			'registered' => $registered,
+			'enrolled'   => $enrolled,
+			'started'    => $started,
+			'engaged'    => $finished,
 		);
 	}
 

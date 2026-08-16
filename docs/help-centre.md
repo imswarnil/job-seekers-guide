@@ -221,3 +221,73 @@ Your part:
 - Never paste the Dodo API key anywhere but the settings screen
 - Prefer `GUIDE_GOOGLE_CLIENT_SECRET` in `wp-config.php` over storing the
   Google secret in the database
+
+---
+
+## 11. Deploying safely
+
+### The server rules are not optional
+
+`docker/apache-hardening.conf` is mounted into both the local and production
+stacks. It closes things WordPress code cannot:
+
+| Rule | Why |
+|---|---|
+| `readme.html`, `license.txt` denied | They state the exact WordPress version — the first thing a scanner reads |
+| PHP execution denied in `wp-content/uploads` | If a file upload is ever mishandled anywhere in the stack, this is what stops the file being run |
+| `xmlrpc.php` denied | Refuses brute-force amplification before PHP even starts |
+| Dotfiles, `.sql`, `.env`, `.bak`, `~` denied | Editor backups and database dumps must never be fetchable |
+| `.git`, `node_modules`, `vendor` denied | A readable dependency tree tells an attacker what to target |
+| `Options -Indexes` | No directory listings |
+
+These are static-file rules. A plugin cannot enforce them, because Apache
+serves those files without ever starting PHP.
+
+**After changing that file you must recreate the container**, not just restart
+it — the conf is a bind mount read at startup:
+
+```bash
+docker compose -f docker/docker-compose.prod.yml up -d
+```
+
+### What happens on a code deploy
+
+Production deploys by pulling code and restarting, which does **not** fire the
+plugin activation hook. Everything an install needs therefore also runs from
+the upgrade routine, which triggers whenever the plugin version changes:
+
+- new database tables
+- the structure migration
+- the **Sponsor role** and its capabilities
+- rewrite rules for `/account/`, the path player, and `/sponsor/`
+
+So the deploy step is: pull, restart, then load any wp-admin page once as an
+administrator. That single request runs the upgrade.
+
+If URLs 404 after a deploy and you are impatient: **Settings → Permalinks →
+Save** flushes rewrites immediately.
+
+### Verifying a deploy
+
+```bash
+curl -sI https://your-site/            | grep -i x-frame        # headers present
+curl -s -o /dev/null -w '%{http_code}' https://your-site/readme.html   # 403
+curl -s -o /dev/null -w '%{http_code}' https://your-site/xmlrpc.php    # 403
+curl -s -o /dev/null -w '%{http_code}' https://your-site/?author=1     # 404
+curl -s -o /dev/null -w '%{http_code}' https://your-site/wp-json/wp/v2/users  # 404
+```
+
+All five should hold. If `?author=1` returns a 301 to `/author/{name}/`, the
+plugin is not loading.
+
+### Login
+
+Login is deliberately unhelpful to attackers and should stay that way:
+
+- Wrong username and wrong password produce the **same** message, so nobody can
+  enumerate accounts by watching responses.
+- `wp-json/wp/v2/users` returns 404.
+- `?author=N` returns 404 rather than redirecting to the author slug.
+
+If you add a security or caching plugin, re-run the checks above — the common
+failure is a plugin restoring the canonical `?author=` redirect.

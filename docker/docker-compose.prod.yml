@@ -18,6 +18,7 @@ services:
     volumes:
       - wordpress_core:/var/www/html
       - ../wp-content:/var/www/html/wp-content
+      - ./apache-hardening.conf:/etc/apache2/conf-enabled/zz-hardening.conf:ro
     depends_on:
       - db
 

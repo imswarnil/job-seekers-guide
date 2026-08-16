@@ -36,7 +36,8 @@ class Hardening {
 		add_filter( 'the_generator', '__return_empty_string' );
 
 		add_action( 'send_headers', array( __CLASS__, 'security_headers' ) );
-		add_action( 'template_redirect', array( __CLASS__, 'block_author_enumeration' ) );
+		add_action( 'parse_request', array( __CLASS__, 'block_author_enumeration' ) );
+		add_action( 'parse_request', array( __CLASS__, 'block_core_readme' ), 1 );
 		add_filter( 'rest_endpoints', array( __CLASS__, 'restrict_user_endpoints' ) );
 		add_filter( 'login_errors', array( __CLASS__, 'generic_login_error' ) );
 		add_filter( 'wp_headers', array( __CLASS__, 'strip_pingback_header' ) );
@@ -64,11 +65,60 @@ class Hardening {
 	 * /?author=N (and author archives generally) leak usernames; this is a
 	 * courses site, not a blog — send them home.
 	 */
-	public static function block_author_enumeration() {
-		if ( is_author() || ( isset( $_GET['author'] ) && ! is_admin() ) ) {
-			wp_safe_redirect( home_url( '/' ), 301 );
+	/**
+	 * Refuse /readme.html and /license.txt.
+	 *
+	 * Both ship with WordPress and readme.html states the exact version, which
+	 * is the first thing an automated scanner reads to decide which exploits to
+	 * try. Ideally the web server refuses these before PHP is involved — see
+	 * docs/help-centre.md — but a rule here means the leak is closed even on a
+	 * host where nobody edited a vhost.
+	 */
+	public static function block_core_readme() {
+		$path = wp_parse_url( $_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH );
+		$path = strtolower( trim( (string) $path, '/' ) );
+
+		if ( in_array( $path, array( 'readme.html', 'license.txt', 'wp-config-sample.php' ), true ) ) {
+			status_header( 404 );
+			nocache_headers();
 			exit;
 		}
+	}
+
+	/**
+	 * Block ?author=N and /author/{slug}/ scans.
+	 *
+	 * Hooked on `parse_request`, not `template_redirect`, and that matters:
+	 * core's redirect_canonical() also runs on template_redirect and would turn
+	 * /?author=1 into /author/admin/ before we ever got a look — handing the
+	 * scanner the username in a Location header, which is the exact thing this
+	 * is meant to prevent.
+	 *
+	 * The query vars are removed and the request is turned into a 404 rather
+	 * than redirected. A redirect confirms something was there; a 404 says the
+	 * author archive does not exist on this site, which is simply true — this
+	 * is an LMS, and nothing links to one.
+	 *
+	 * @param \WP $wp
+	 */
+	public static function block_author_enumeration( $wp ) {
+		if ( is_admin() ) {
+			return;
+		}
+
+		$requested = isset( $_GET['author'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			|| ! empty( $wp->query_vars['author'] )
+			|| ! empty( $wp->query_vars['author_name'] );
+
+		if ( ! $requested ) {
+			return;
+		}
+
+		// Unset first: leaving them in place lets redirect_canonical rebuild
+		// the pretty author URL from the id.
+		unset( $wp->query_vars['author'], $wp->query_vars['author_name'] );
+
+		$wp->query_vars['error'] = '404';
 	}
 
 	/**

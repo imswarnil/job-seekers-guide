@@ -221,6 +221,38 @@
 				return '<li><span class="guide-feed__dot"></span><span><strong>' + esc( a.user ) + '</strong> completed “' + esc( a.lesson ) + '” <span class="guide-feed__course">· ' + esc( a.course ) + '</span></span><span class="guide-feed__when">' + esc( a.when ) + ' ago</span></li>';
 			} ).join( '' ) || '<li><span>No activity yet.</span></li>';
 
+			// The funnel matters more than any single count: it is where people
+			// stop. Registered -> enrolled -> started -> stuck with it.
+			var f = o.funnel || {};
+			var funnelHTML = [
+				[ 'Registered', f.registered ],
+				[ 'Enrolled', f.enrolled ],
+				[ 'Started a lesson', f.started ],
+				[ 'Finished 5+', f.engaged ],
+			].map( function ( row ) {
+				var pct = f.registered ? Math.round( ( row[ 1 ] / f.registered ) * 100 ) : 0;
+				return '<div class="guide-funnel__row">' +
+					'<span class="guide-funnel__label">' + esc( row[ 0 ] ) + '</span>' +
+					'<span class="guide-funnel__track"><span class="guide-funnel__fill" style="width:' + pct + '%"></span></span>' +
+					'<span class="guide-funnel__value">' + ( row[ 1 ] || 0 ) + '</span>' +
+				'</div>';
+			} ).join( '' );
+
+			var fb  = o.feedback || {};
+			var ads = o.ads || {};
+			var c   = o.content || {};
+
+			var slotRows = ( ads.slots || [] ).map( function ( s ) {
+				var imp = parseInt( s.impressions, 10 ) || 0;
+				var clk = parseInt( s.clicks, 10 ) || 0;
+				var spo = parseInt( s.sponsored, 10 ) || 0;
+				return '<tr><td>' + esc( s.slot ) + '</td>' +
+					'<td class="guide-num">' + imp + '</td>' +
+					'<td class="guide-num">' + clk + '</td>' +
+					'<td class="guide-num">' + ( imp ? ( clk / imp * 100 ).toFixed( 2 ) : '0.00' ) + '%</td>' +
+					'<td class="guide-num">' + ( imp ? Math.round( spo / imp * 100 ) : 0 ) + '%</td></tr>';
+			} ).join( '' ) || '<tr><td colspan="5">No ad delivery recorded yet.</td></tr>';
+
 			view.innerHTML =
 				'<header class="guide-page-head"><div><h1>Dashboard</h1><p class="guide-sub">What learners are doing across your LMS.</p></div></header>' +
 				'<div class="guide-stat-grid">' +
@@ -228,7 +260,35 @@
 					statHTML( 'layers', 'Enrollments', o.enrollments ) +
 					statHTML( 'check', 'Lessons completed', o.completions ) +
 					statHTML( 'flame', 'Active this week', o.active_7d, 'learners with completions' ) +
+					statHTML( 'star', 'Subscribers', o.subscribers, 'active platform plans' ) +
+					statHTML( 'doc', 'Published', ( c.courses || 0 ) + ' courses', ( c.lessons || 0 ) + ' lessons · ' + ( c.sections || 0 ) + ' sections' ) +
 				'</div>' +
+
+				'<div class="guide-grid-2">' +
+					'<section class="guide-card"><div class="guide-card__head"><h2>Where people stop</h2>' +
+						'<span class="guide-sub">Share of everyone who registered</span></div>' +
+						'<div class="guide-card__body"><div class="guide-funnel">' + funnelHTML + '</div></div></section>' +
+
+					'<section class="guide-card"><div class="guide-card__head"><h2>Feedback</h2>' +
+						'<a class="guide-btn guide-btn--ghost guide-btn--sm" href="' + esc( cfg.adminUrl ) + 'admin.php?page=guide-feedback">Open queue</a></div>' +
+						'<div class="guide-card__body">' +
+							'<div class="guide-stat-grid" style="margin-bottom:0">' +
+								statHTML( 'check', 'Useful', fb.up || 0 ) +
+								statHTML( 'question', 'Not useful', fb.down || 0 ) +
+								statHTML( 'doc', 'Unread notes', fb.unread || 0 ) +
+							'</div>' +
+							( fb.worst
+								? '<p class="guide-help" style="margin-top:12px">Most flagged: <a href="' + esc( fb.worst.link ) + '" target="_blank" rel="noopener">' + esc( fb.worst.title ) + '</a> — ' + fb.worst.downs + ' said not useful.</p>'
+								: '<p class="guide-help" style="margin-top:12px">Nothing flagged yet.</p>' ) +
+						'</div></section>' +
+				'</div>' +
+
+				'<section class="guide-card" style="margin-top:16px"><div class="guide-card__head"><h2>Ads and sponsorship — last 30 days</h2>' +
+					'<span class="guide-sub">' + ( ads.live || 0 ) + ' live · ' + ( ads.pending || 0 ) + ' awaiting review</span></div>' +
+					'<div class="guide-table-wrap"><table class="guide-table"><thead><tr>' +
+						'<th>Slot</th><th class="guide-num">Shown</th><th class="guide-num">Clicks</th>' +
+						'<th class="guide-num">CTR</th><th class="guide-num">Sponsored</th>' +
+					'</tr></thead><tbody>' + slotRows + '</tbody></table></div></section>' +
 				'<div class="guide-grid-2">' +
 					'<div style="display:flex;flex-direction:column;gap:16px;min-width:0">' +
 						'<section class="guide-card"><div class="guide-card__head"><h2>Completions — last 14 days</h2></div><div class="guide-card__body">' + sparkHTML( o.completions_14d ) + '</div></section>' +

@@ -130,6 +130,28 @@ class Webhook {
 					do_action( 'jsl_subscription_activated', $user_id, $payload );
 					break;
 				}
+				// A sponsorship payment activates the campaign and starts its
+				// window from now — a sponsor should not lose days to however
+				// long review took.
+				$sponsorship_id = isset( $metadata['sponsorship_id'] ) ? (int) $metadata['sponsorship_id'] : 0;
+
+				if ( $sponsorship_id && 'sponsorship' === ( $metadata['kind'] ?? '' ) ) {
+					Billing::record(
+						array(
+							'user_id'      => $user_id,
+							'external_id'  => (string) ( $data['payment_id'] ?? $id ),
+							'kind'         => 'sponsorship',
+							'amount_minor' => $amount,
+							'currency'     => $currency,
+							'description'  => get_the_title( $sponsorship_id ),
+						)
+					);
+
+					\Guide\Sponsors\Sponsorship::activate( $sponsorship_id, (string) ( $data['payment_id'] ?? '' ) );
+					do_action( 'guide_sponsorship_paid', $user_id, $sponsorship_id, $payload );
+					break;
+				}
+
 				// Per-course checkout was removed when the site moved to a
 				// single subscription, so nothing creates these any more. The
 				// branch stays because a payment started before the change can

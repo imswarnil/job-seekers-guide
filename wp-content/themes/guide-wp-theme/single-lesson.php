@@ -141,6 +141,9 @@ while ( have_posts() ) :
 					<?php endforeach; ?>
 				<?php endforeach; ?>
 			</nav>
+
+			<?php // Sponsor badge: seen by learners mid-course, which is the whole value of the slot. ?>
+			<?php guide_ad( 'badge', false ); ?>
 		</aside>
 
 		<article class="guide-player__main">

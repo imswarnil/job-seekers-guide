@@ -3,7 +3,7 @@
  * Plugin Name: Guide LMS
  * Plugin URI: https://github.com/imswarnil/job-seekers-guide
  * Description: Structured-learning-path LMS. Courses, lessons, learning paths, a visual course builder, enrollment and progress tracking, quizzes, a community resource library, learner discussion, and checkout.
- * Version: 0.10.0
+ * Version: 0.11.0
  * Requires at least: 6.4
  * Requires PHP: 8.0
  * Author: Guide
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'GUIDE_VERSION', '0.10.0' );
+define( 'GUIDE_VERSION', '0.11.0' );
 define( 'GUIDE_PLUGIN_FILE', __FILE__ );
 define( 'GUIDE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GUIDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -32,6 +32,9 @@ require_once GUIDE_PLUGIN_DIR . 'includes/billing/class-billing.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/enrollment/class-enrollment.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/access/class-access.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/account/class-account.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/sponsors/class-sponsorship.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/sponsors/class-sponsor-stats.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/sponsors/class-sponsor-portal.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/ads/class-ads.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/structure/class-structure-tables.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/structure/class-structure.php';
@@ -104,6 +107,9 @@ function guide_boot() {
 	Guide\Payments\Webhook::init();
 	Guide\Access\Access::init();
 	Guide\Account\Account::init();
+	Guide\Sponsors\Sponsorship::init();
+	Guide\Sponsors\Sponsor_Stats::init();
+	Guide\Sponsors\Sponsor_Portal::init();
 	Guide\Ads\Ads::init();
 	Guide\Auth\Google_Auth::init();
 	Guide\Companies\Companies::init();
@@ -139,6 +145,7 @@ function guide_maybe_upgrade_schema() {
 	Guide\Enrollment\Tables::create();
 	Guide\Billing\Billing::create_table();
 	Guide\Community\Feedback::create_table();
+	Guide\Sponsors\Sponsor_Stats::create_table();
 	Guide\Builder\Tables::create();
 	Guide\Builder\Path_Tables::create();
 	Guide\Builder\Path_Tables::migrate_legacy_course_links();
@@ -148,6 +155,20 @@ function guide_maybe_upgrade_schema() {
 	// or paths created before the steps table would migrate empty.
 	Guide\Structure\Structure_Tables::create();
 	Guide\Structure\Structure_Tables::migrate_from_modules();
+
+	// Roles and rewrite rules are NOT part of activation on a live site:
+	// production deploys by pulling code and restarting, which never fires the
+	// activation hook. Anything an install needs has to happen here too.
+	Guide\Sponsors\Sponsorship::sync_role();
+
+	Guide\Post_Types::register();
+	Guide\Companies\Companies::register();
+	Guide\Community\Community_Types::register();
+	Guide\Permalinks::add_rewrite_rules();
+	Guide\Account\Account::add_rewrite_rules();
+	Guide\Structure\Path_Player::add_rewrite_rules();
+	Guide\Sponsors\Sponsor_Portal::add_rewrite_rules();
+	flush_rewrite_rules();
 
 	update_option( 'jsl_db_version', GUIDE_VERSION, false );
 }
@@ -164,9 +185,12 @@ function guide_activate() {
 	Guide\Permalinks::add_rewrite_rules();
 	Guide\Account\Account::add_rewrite_rules();
 	Guide\Structure\Path_Player::add_rewrite_rules();
+	Guide\Sponsors\Sponsor_Portal::add_rewrite_rules();
+	Guide\Sponsors\Sponsorship::add_role();
 	Guide\Enrollment\Tables::create();
 	Guide\Billing\Billing::create_table();
 	Guide\Community\Feedback::create_table();
+	Guide\Sponsors\Sponsor_Stats::create_table();
 	Guide\Builder\Tables::create();
 	Guide\Builder\Path_Tables::create();
 	Guide\Structure\Structure_Tables::create();

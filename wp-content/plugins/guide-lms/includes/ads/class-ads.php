@@ -38,6 +38,28 @@ class Ads {
 		return (bool) get_option( self::OPTION_ENABLED, false ) && '' !== self::client();
 	}
 
+	/** Cheap check for any live campaign, memoised per request. */
+	public static function has_live_sponsorship(): bool {
+		static $has = null;
+
+		if ( null !== $has ) {
+			return $has;
+		}
+
+		$has = false;
+
+		if ( class_exists( 'Guide\\Sponsors\\Sponsorship' ) ) {
+			foreach ( array_keys( \Guide\Sponsors\Sponsorship::SLOTS ) as $slot ) {
+				if ( \Guide\Sponsors\Sponsorship::for_slot( $slot ) ) {
+					$has = true;
+					break;
+				}
+			}
+		}
+
+		return $has;
+	}
+
 	public static function client(): string {
 		return (string) get_option( self::OPTION_CLIENT, '' );
 	}
@@ -59,7 +81,9 @@ class Ads {
 	 * the other way round).
 	 */
 	public static function should_show(): bool {
-		if ( ! self::is_enabled() ) {
+		// A live sponsorship is worth rendering even when AdSense is not set
+		// up at all — the two are independent revenue streams.
+		if ( ! self::is_enabled() && ! self::has_live_sponsorship() ) {
 			return false;
 		}
 
@@ -86,7 +110,9 @@ class Ads {
 	}
 
 	public static function enqueue() {
-		if ( ! self::should_show() ) {
+		// Only load Google's script when there is actually an AdSense unit to
+		// fill — a page served entirely by sponsors should hand Google nothing.
+		if ( ! self::should_show() || ! self::is_enabled() ) {
 			return;
 		}
 
@@ -127,11 +153,20 @@ class Ads {
 			return;
 		}
 
+		// A paying sponsor gets the slot before any network filler does. It
+		// would be indefensible to sell a placement and then let AdSense
+		// compete with it for the same space.
+		if ( self::render_sponsor( $which, $label ) ) {
+			return;
+		}
+
 		$slot = self::slot( $which );
 
 		if ( '' === $slot ) {
 			return;
 		}
+
+		\Guide\Sponsors\Sponsor_Stats::record_impression( $which, 0 );
 
 		$label = $label ? $label : __( 'Advertisement', 'guide-lms' );
 		?>
@@ -147,6 +182,73 @@ class Ads {
 			<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 		</aside>
 		<?php
+	}
+
+	/**
+	 * Draw a sponsored creative if one is live for this slot.
+	 *
+	 * @return bool True when a sponsor filled the slot.
+	 */
+	public static function render_sponsor( string $which, string $label = '' ): bool {
+		if ( ! class_exists( 'Guide\\Sponsors\\Sponsorship' ) ) {
+			return false;
+		}
+
+		// The front end asks for 'page' or 'feed'; sponsorship slots are named
+		// by shape. Both leaderboard placements map to the wide creative.
+		$slot_map = array(
+			'page' => 'leaderboard',
+			'feed' => 'leaderboard',
+			'side' => 'square',
+			'badge' => 'badge',
+		);
+
+		$slot = $slot_map[ $which ] ?? $which;
+
+		$campaign = \Guide\Sponsors\Sponsorship::for_slot( $slot );
+
+		if ( ! $campaign ) {
+			return false;
+		}
+
+		$creative = \Guide\Sponsors\Sponsorship::creative( (int) $campaign->ID );
+		$label    = $label ? $label : __( 'Sponsored', 'guide-lms' );
+
+		\Guide\Sponsors\Sponsor_Stats::record_impression( $slot, (int) $campaign->ID );
+
+		$href = \Guide\Sponsors\Sponsor_Stats::click_url( (int) $campaign->ID, $slot );
+		?>
+		<aside class="guide-ad guide-ad--sponsor guide-ad--<?php echo esc_attr( $slot ); ?>" aria-label="<?php echo esc_attr( $label ); ?>">
+			<span class="guide-ad__label"><?php echo esc_html( $label ); ?></span>
+
+			<?php // rel="sponsored nofollow" is required disclosure, not decoration. ?>
+			<a class="guide-sponsor" href="<?php echo esc_url( $href ); ?>" rel="sponsored nofollow noopener" target="_blank">
+				<?php if ( $creative['logo'] ) : ?>
+					<span class="guide-sponsor__logo">
+						<?php echo wp_get_attachment_image( $creative['logo'], 'medium', false, array( 'alt' => esc_attr( $creative['company'] ) ) ); ?>
+					</span>
+				<?php endif; ?>
+
+				<span class="guide-sponsor__text">
+					<span class="guide-sponsor__headline"><?php echo esc_html( $creative['headline'] ); ?></span>
+					<?php if ( $creative['body'] ) : ?>
+						<span class="guide-sponsor__body"><?php echo esc_html( $creative['body'] ); ?></span>
+					<?php endif; ?>
+					<span class="guide-sponsor__by">
+						<?php
+						printf(
+							/* translators: %s: sponsoring company name. */
+							esc_html__( 'Sponsored by %s', 'guide-lms' ),
+							esc_html( $creative['company'] )
+						);
+						?>
+					</span>
+				</span>
+			</a>
+		</aside>
+		<?php
+
+		return true;
 	}
 
 	/**
