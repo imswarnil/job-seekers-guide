@@ -11,6 +11,9 @@
 
 namespace Guide\Builder;
 
+use Guide\Structure\Structure;
+use Guide\Structure\Structure_Tables;
+
 defined( 'ABSPATH' ) || exit;
 
 class Path_Rest {
@@ -88,18 +91,26 @@ class Path_Rest {
 				'callback'            => array( __CLASS__, 'reorder_steps' ),
 				'permission_callback' => array( __CLASS__, 'can_edit_path' ),
 				'args'                => array(
-					'step_ids' => array( 'required' => true, 'type' => 'array' ),
+					'items' => array( 'required' => true, 'type' => 'array' ),
 				),
 			)
 		);
 
+		// Scoped to the path, because a step is now identified by type + id
+		// and only means anything inside the path it belongs to.
 		register_rest_route(
 			self::NS,
-			'/path-steps/(?P<step>\d+)',
+			'/paths/(?P<id>\d+)/steps/remove',
 			array(
-				'methods'             => 'DELETE',
+				'methods'             => 'POST',
 				'callback'            => array( __CLASS__, 'remove_step' ),
-				'permission_callback' => array( __CLASS__, 'can_edit_step' ),
+				'permission_callback' => function ( \WP_REST_Request $request ) {
+					return current_user_can( 'edit_post', (int) $request['id'] );
+				},
+				'args'                => array(
+					'item_type' => array( 'required' => true, 'type' => 'string' ),
+					'item_id'   => array( 'required' => true, 'type' => 'integer' ),
+				),
 			)
 		);
 
@@ -124,15 +135,6 @@ class Path_Rest {
 	public static function can_edit_path( \WP_REST_Request $request ): bool {
 		$path_id = (int) $request['id'];
 		return $path_id && 'learning_path' === get_post_type( $path_id ) && current_user_can( 'edit_post', $path_id );
-	}
-
-	public static function can_edit_step( \WP_REST_Request $request ): bool {
-		global $wpdb;
-
-		$table   = Path_Tables::table_name();
-		$path_id = (int) $wpdb->get_var( $wpdb->prepare( "SELECT path_id FROM {$table} WHERE id = %d", (int) $request['step'] ) );
-
-		return $path_id && current_user_can( 'edit_post', $path_id );
 	}
 
 	/* --- Paths --- */
@@ -218,6 +220,7 @@ class Path_Rest {
 		// deliberately left alone — a path is an arrangement of content, and
 		// deleting the arrangement must not delete the content.
 		$wpdb->delete( Path_Tables::table_name(), array( 'path_id' => $path_id ), array( '%d' ) );
+		Structure::clear_container( Structure_Tables::CONTAINER_PATH, $path_id );
 		wp_trash_post( $path_id );
 
 		return new \WP_REST_Response( array( 'deleted' => $path_id ), 200 );
@@ -294,18 +297,17 @@ class Path_Rest {
 			return new \WP_REST_Response( array( 'error' => __( 'Unknown step type.', 'guide-lms' ) ), 400 );
 		}
 
-		$table     = Path_Tables::table_name();
-		$max_order = (int) $wpdb->get_var( $wpdb->prepare( "SELECT MAX(menu_order) FROM {$table} WHERE path_id = %d", $path_id ) );
+		// The outline table is the source of truth now — see
+		// includes/structure/class-structure-tables.php. Writing here and
+		// reading from the outline is what makes reuse possible.
+		$order = Structure::count_items( Structure_Tables::CONTAINER_PATH, $path_id );
 
-		$wpdb->insert(
-			$table,
-			array(
-				'path_id'    => $path_id,
-				'step_type'  => $step_type,
-				'object_id'  => (int) $object_id,
-				'menu_order' => $max_order + 1,
-			),
-			array( '%d', '%s', '%d', '%d' )
+		Structure_Tables::place(
+			Structure_Tables::CONTAINER_PATH,
+			$path_id,
+			$step_type,
+			(int) $object_id,
+			$order
 		);
 
 		// Keep the legacy meta in sync so anything still reading
@@ -316,7 +318,6 @@ class Path_Rest {
 
 		return new \WP_REST_Response(
 			array(
-				'step_id'   => (int) $wpdb->insert_id,
 				'step_type' => $step_type,
 				'object_id' => (int) $object_id,
 				'title'     => get_the_title( $object_id ),
@@ -325,46 +326,56 @@ class Path_Rest {
 		);
 	}
 
+	/**
+	 * Remove a step from a path.
+	 *
+	 * Identified by type + id rather than a row id: a path can now hold
+	 * sections as well as posts, and section ids and post ids are separate
+	 * sequences that can collide. A bare number is ambiguous.
+	 *
+	 * The item itself is never deleted — it is very likely used elsewhere.
+	 */
 	public static function remove_step( \WP_REST_Request $request ) {
-		global $wpdb;
+		$path_id   = (int) $request['id'];
+		$item_type = sanitize_key( (string) $request->get_param( 'item_type' ) );
+		$item_id   = (int) $request->get_param( 'item_id' );
 
-		$table   = Path_Tables::table_name();
-		$step_id = (int) $request['step'];
-
-		$step = $wpdb->get_row( $wpdb->prepare( "SELECT step_type, object_id FROM {$table} WHERE id = %d", $step_id ) );
-
-		$wpdb->delete( $table, array( 'id' => $step_id ), array( '%d' ) );
-
-		if ( $step && 'course' === $step->step_type ) {
-			delete_post_meta( (int) $step->object_id, 'jsl_path_id' );
+		if ( ! in_array( $item_type, array( 'course', 'lesson', 'section' ), true ) || ! $item_id ) {
+			return new \WP_REST_Response( array( 'error' => __( 'Unknown step.', 'guide-lms' ) ), 400 );
 		}
 
-		return new \WP_REST_Response( array( 'deleted' => $step_id ), 200 );
+		Structure_Tables::remove( Structure_Tables::CONTAINER_PATH, $path_id, $item_type, $item_id );
+
+		if ( 'course' === $item_type ) {
+			delete_post_meta( $item_id, 'jsl_path_id' );
+		}
+
+		return new \WP_REST_Response( array( 'deleted' => true ), 200 );
 	}
 
+	/**
+	 * Replace a path's ordering wholesale.
+	 *
+	 * The console sends the entire new order after a drag: it is far less
+	 * error-prone than a diff, and these lists are short.
+	 */
 	public static function reorder_steps( \WP_REST_Request $request ) {
-		global $wpdb;
+		$path_id = (int) $request['id'];
+		$items   = (array) $request->get_param( 'items' );
+		$clean   = array();
 
-		$path_id  = (int) $request['id'];
-		$step_ids = array_map( 'intval', (array) $request->get_param( 'step_ids' ) );
-		$table    = Path_Tables::table_name();
-
-		foreach ( $step_ids as $order => $step_id ) {
-			// path_id in the WHERE clause: a step can only be reordered
-			// within the path the caller was authorized for.
-			$wpdb->update(
-				$table,
-				array( 'menu_order' => $order ),
-				array( 'id' => $step_id, 'path_id' => $path_id ),
-				array( '%d' ),
-				array( '%d', '%d' )
-			);
-
-			$step = $wpdb->get_row( $wpdb->prepare( "SELECT step_type, object_id FROM {$table} WHERE id = %d", $step_id ) );
-			if ( $step && 'course' === $step->step_type ) {
-				wp_update_post( array( 'ID' => (int) $step->object_id, 'menu_order' => $order ) );
+		foreach ( $items as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
 			}
+
+			$clean[] = array(
+				'item_type' => sanitize_key( (string) ( $item['item_type'] ?? '' ) ),
+				'item_id'   => (int) ( $item['item_id'] ?? 0 ),
+			);
 		}
+
+		Structure::set_contents( Structure_Tables::CONTAINER_PATH, $path_id, $clean );
 
 		return new \WP_REST_Response( array( 'ok' => true ), 200 );
 	}
@@ -373,10 +384,13 @@ class Path_Rest {
 		global $wpdb;
 
 		$path_id = (int) $request['id'];
-		$table   = Path_Tables::table_name();
 
-		$used = $wpdb->get_col( $wpdb->prepare( "SELECT object_id FROM {$table} WHERE path_id = %d AND step_type = 'course'", $path_id ) );
-		$used = array_map( 'intval', (array) $used );
+		$used = array();
+		foreach ( Structure::contents( Structure_Tables::CONTAINER_PATH, $path_id ) as $entry ) {
+			if ( Structure_Tables::ITEM_COURSE === $entry['item_type'] ) {
+				$used[] = (int) $entry['item_id'];
+			}
+		}
 
 		$courses = get_posts(
 			array(

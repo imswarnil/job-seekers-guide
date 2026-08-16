@@ -477,6 +477,17 @@
 		var btn   = el( 'button', { type: 'submit', class: 'guide-btn guide-btn--primary' }, '+ Add module' );
 		form.appendChild( input );
 		form.appendChild( btn );
+
+		// Reuse: pull in a section that already exists in another course or
+		// path, rather than rebuilding the same six lessons by hand.
+		var reuse = el( 'button', { type: 'button', class: 'guide-btn guide-btn--ghost' }, 'Reuse a section' );
+		reuse.addEventListener( 'click', function () {
+			openSectionLibrary( 'course', courseId, function () {
+				renderCourseEditor( courseId );
+			} );
+		} );
+		form.appendChild( reuse );
+
 		form.addEventListener( 'submit', function ( e ) {
 			e.preventDefault();
 			var value = input.value.trim();
@@ -679,10 +690,19 @@
 		refreshEmptyStates( list );
 
 		var form  = el( 'form', { class: 'guide-add-lesson' } );
+		// Placed below with the rest of the row; declared here so the reuse
+		// button can close over the module id.
+		var reuseLesson = el( 'button', { type: 'button', class: 'guide-btn guide-btn--ghost guide-btn--sm' }, 'Add existing' );
+		reuseLesson.addEventListener( 'click', function () {
+			openLessonLibrary( module.id, function () {
+				renderCourseEditor( courseId );
+			} );
+		} );
 		var input = el( 'input', { type: 'text', class: 'guide-input', placeholder: 'New lesson title…', required: 'required', 'aria-label': 'Add lesson' } );
 		var btn   = el( 'button', { type: 'submit', class: 'guide-btn guide-btn--ghost guide-btn--sm' }, '+ Add lesson' );
 		form.appendChild( input );
 		form.appendChild( btn );
+		form.appendChild( reuseLesson );
 		form.addEventListener( 'submit', function ( e ) {
 			e.preventDefault();
 			var value = input.value.trim();
@@ -1006,6 +1026,195 @@
 		var m = Math.floor( seconds / 60 );
 		var s = seconds % 60;
 		return m + ':' + String( s ).padStart( 2, '0' );
+	}
+
+
+	/* =====================================================================
+	 * Reuse library
+	 *
+	 * The whole point of the loose coupling: a section can live in several
+	 * courses and paths at once, and a lesson can live in several sections.
+	 * These pickers are how that gets used — without them the model is
+	 * technically correct and practically inert.
+	 *
+	 * Placing something never copies it. Editing a lesson updates it
+	 * everywhere it appears, which is the behaviour people expect and the
+	 * reason duplicating content was worth eliminating.
+	 * ================================================================== */
+
+	function libraryDrawer( title, subtitle ) {
+		closeDrawer();
+
+		var scrim = el( 'div', { class: 'guide-drawer-scrim' } );
+		scrim.addEventListener( 'click', closeDrawer );
+		overlayHost().appendChild( scrim );
+
+		var drawer = el( 'aside', { class: 'guide-drawer', role: 'dialog', 'aria-label': title } );
+		drawer.innerHTML =
+			'<header class="guide-drawer__head">' +
+				'<div style="flex:1">' +
+					'<span class="guide-drawer__eyebrow">' + esc( subtitle ) + '</span>' +
+					'<h2 style="font-size:1.15rem;font-weight:800;margin-top:2px">' + esc( title ) + '</h2>' +
+				'</div>' +
+				'<button class="guide-icon-btn" type="button" title="Close" data-lib-close>&#10005;</button>' +
+			'</header>' +
+			'<div class="guide-drawer__body">' +
+				'<div class="guide-field"><input class="guide-input" type="search" placeholder="Search…" data-lib-search></div>' +
+				'<div data-lib-create></div>' +
+				'<div data-lib-list><p class="guide-help">Loading…</p></div>' +
+			'</div>';
+
+		overlayHost().appendChild( drawer );
+		drawer.querySelector( '[data-lib-close]' ).addEventListener( 'click', closeDrawer );
+		document.addEventListener( 'keydown', escClose );
+
+		return drawer;
+	}
+
+	/** One row in a picker: what it is, how reused it is, and a button. */
+	function libraryRow( heading, meta, actionLabel, onAction ) {
+		var row = el( 'div', { class: 'guide-lib-row' } );
+
+		var text = el( 'div', { class: 'guide-lib-row__text' } );
+		text.appendChild( el( 'strong', {}, heading ) );
+		if ( meta ) {
+			text.appendChild( el( 'span', { class: 'guide-help' }, meta ) );
+		}
+		row.appendChild( text );
+
+		var btn = el( 'button', { type: 'button', class: 'guide-btn guide-btn--ghost guide-btn--sm' }, actionLabel );
+		btn.addEventListener( 'click', function () {
+			btn.disabled = true;
+			onAction( btn );
+		} );
+		row.appendChild( btn );
+
+		return row;
+	}
+
+	/**
+	 * Pick a section to reuse, or create a new one, for a course or a path.
+	 */
+	function openSectionLibrary( containerType, containerId, onDone ) {
+		var drawer = libraryDrawer( 'Add a section', containerType === 'path' ? 'Learning path' : 'Course' );
+		var list   = drawer.querySelector( '[data-lib-list]' );
+		var search = drawer.querySelector( '[data-lib-search]' );
+
+		/* Create-new form, first: the common case is a brand-new section. */
+		var createHost = drawer.querySelector( '[data-lib-create]' );
+		var form  = el( 'form', { class: 'guide-inline-form', style: 'margin-bottom:14px' } );
+		var input = el( 'input', { type: 'text', class: 'guide-input', placeholder: 'New section title…', 'aria-label': 'New section title' } );
+		var save  = el( 'button', { type: 'submit', class: 'guide-btn guide-btn--primary guide-btn--sm' }, '+ New section' );
+		form.appendChild( input );
+		form.appendChild( save );
+		form.addEventListener( 'submit', function ( e ) {
+			e.preventDefault();
+			var value = input.value.trim();
+			if ( ! value ) { return; }
+			save.disabled = true;
+			api( 'guide/v1/sections', {
+				method: 'POST',
+				body: { title: value, container_type: containerType, container_id: containerId },
+			} ).then( function () {
+				toast( 'Section created' );
+				closeDrawer();
+				onDone();
+			} ).catch( function () { save.disabled = false; } );
+		} );
+		createHost.appendChild( form );
+
+		function load() {
+			var q = search.value.trim();
+			list.innerHTML = '<p class="guide-help">Loading…</p>';
+
+			req( 'guide/v1/sections' + ( q ? '?search=' + encodeURIComponent( q ) : '' ) ).then( function ( sections ) {
+				list.innerHTML = '';
+
+				if ( ! sections.length ) {
+					list.appendChild( el( 'p', { class: 'guide-help' }, q ? 'No sections match that.' : 'No sections yet — create one above.' ) );
+					return;
+				}
+
+				list.appendChild( el( 'p', { class: 'guide-help', style: 'margin-bottom:8px' }, 'Reuse an existing section. It is not copied — editing it changes it everywhere it appears.' ) );
+
+				sections.forEach( function ( s ) {
+					var meta = s.lesson_count + ( s.lesson_count === 1 ? ' lesson' : ' lessons' );
+					if ( s.used_in > 0 ) {
+						meta += ' · used in ' + s.used_in + ( s.used_in === 1 ? ' place' : ' places' );
+					}
+
+					list.appendChild( libraryRow( s.title, meta, 'Add', function ( btn ) {
+						api( 'guide/v1/outline/' + containerType + '/' + containerId + '/place', {
+							method: 'POST',
+							body: { item_type: 'section', item_id: s.id },
+						} ).then( function () {
+							toast( 'Section added' );
+							closeDrawer();
+							onDone();
+						} ).catch( function () { btn.disabled = false; } );
+					} ) );
+				} );
+			} ).catch( function () {
+				list.innerHTML = '<p class="guide-help">Could not load sections.</p>';
+			} );
+		}
+
+		search.addEventListener( 'input', debounce( load, 250 ) );
+		load();
+	}
+
+	/**
+	 * Pick a lesson — from any course — to place into a section.
+	 */
+	function openLessonLibrary( sectionId, onDone ) {
+		var drawer = libraryDrawer( 'Add an existing lesson', 'From any course' );
+		var list   = drawer.querySelector( '[data-lib-list]' );
+		var search = drawer.querySelector( '[data-lib-search]' );
+
+		function load() {
+			var q = search.value.trim();
+			list.innerHTML = '<p class="guide-help">Loading…</p>';
+
+			req( 'guide/v1/lesson-library' + ( q ? '?search=' + encodeURIComponent( q ) : '' ) ).then( function ( lessons ) {
+				list.innerHTML = '';
+
+				if ( ! lessons.length ) {
+					list.appendChild( el( 'p', { class: 'guide-help' }, 'No lessons match that.' ) );
+					return;
+				}
+
+				lessons.forEach( function ( l ) {
+					var bits = [];
+					if ( l.course ) { bits.push( 'from ' + l.course ); }
+					if ( l.status !== 'publish' ) { bits.push( l.status ); }
+					if ( l.used_in > 1 ) { bits.push( 'used in ' + l.used_in + ' sections' ); }
+
+					list.appendChild( libraryRow( l.title, bits.join( ' · ' ), 'Add', function ( btn ) {
+						api( 'guide/v1/outline/section/' + sectionId + '/place', {
+							method: 'POST',
+							body: { item_type: 'lesson', item_id: l.id },
+						} ).then( function () {
+							toast( 'Lesson added' );
+							closeDrawer();
+							onDone();
+						} ).catch( function () { btn.disabled = false; } );
+					} ) );
+				} );
+			} ).catch( function () {
+				list.innerHTML = '<p class="guide-help">Could not load lessons.</p>';
+			} );
+		}
+
+		search.addEventListener( 'input', debounce( load, 250 ) );
+		load();
+	}
+
+	function debounce( fn, wait ) {
+		var timer = null;
+		return function () {
+			window.clearTimeout( timer );
+			timer = window.setTimeout( fn, wait );
+		};
 	}
 
 	function closeDrawer() {
@@ -1457,10 +1666,13 @@
 	}
 
 	function persistSteps( pathId ) {
-		var ids = Array.prototype.map.call( document.querySelectorAll( '#guide-path-steps .guide-step' ), function ( row ) {
-			return parseInt( row.dataset.stepId, 10 );
+		// Send the whole new order — a path can hold courses, sections and
+		// lessons, whose ids come from different sequences, so a list of bare
+		// numbers would be ambiguous.
+		var items = Array.prototype.map.call( document.querySelectorAll( '#guide-path-steps .guide-step' ), function ( row ) {
+			return { item_type: row.dataset.itemType, item_id: parseInt( row.dataset.itemId, 10 ) };
 		} );
-		api( 'guide/v1/paths/' + pathId + '/steps/reorder', { method: 'POST', body: { step_ids: ids } } );
+		api( 'guide/v1/paths/' + pathId + '/steps/reorder', { method: 'POST', body: { items: items } } );
 	}
 
 	function renumberSteps() {
@@ -1473,7 +1685,7 @@
 	}
 
 	function stepRow( pathId, step ) {
-		var row = el( 'li', { class: 'guide-step', 'data-step-id': step.step_id } );
+		var row = el( 'li', { class: 'guide-step', 'data-item-type': step.type, 'data-item-id': step.id } );
 
 		var handle = el( 'span', { class: 'guide-handle', title: 'Drag to reorder' } );
 		handle.innerHTML = ICONS.grip;
@@ -1525,7 +1737,10 @@
 				function () {
 					row.remove();
 					renumberSteps();
-					api( 'guide/v1/path-steps/' + step.step_id, { method: 'DELETE' } );
+					api( 'guide/v1/paths/' + pathId + '/steps/remove', {
+						method: 'POST',
+						body: { item_type: step.type, item_id: step.id },
+					} );
 				}
 			);
 		} );
@@ -1538,7 +1753,7 @@
 			dragged = { type: 'step', node: row };
 			row.classList.add( 'is-dragging' );
 			e.dataTransfer.effectAllowed = 'move';
-			try { e.dataTransfer.setData( 'text/plain', String( step.step_id ) ); } catch ( err ) {}
+			try { e.dataTransfer.setData( 'text/plain', step.type + ':' + step.id ); } catch ( err ) {}
 		} );
 		row.addEventListener( 'dragend', function () {
 			row.classList.remove( 'is-dragging' );
@@ -1585,6 +1800,10 @@
 								'<input class="guide-input" id="guide-inline-title" type="text" placeholder="Step title…" required style="width:220px">' +
 								'<button class="guide-btn guide-btn--primary guide-btn--sm" type="submit">' + ICONS.plus + 'Add step</button>' +
 							'</form>' +
+							'<div class="guide-inline-form">' +
+								'<button class="guide-btn guide-btn--ghost guide-btn--sm" type="button" id="guide-add-section">' + ICONS.layers + 'Reuse or create a section</button>' +
+								'<span class="guide-help">Bring a section in from any course, or build one for this path alone.</span>' +
+							'</div>' +
 						'</div>' +
 					'</div>' +
 				'</div>';
@@ -1666,6 +1885,17 @@
 					picker.appendChild( opt );
 				} );
 			} ).catch( function () {} );
+
+			// A path can curate its own sections — reuse one from a course, or
+			// make a new one and fill it with lessons borrowed from anywhere.
+			var addSection = document.getElementById( 'guide-add-section' );
+			if ( addSection ) {
+				addSection.addEventListener( 'click', function () {
+					openSectionLibrary( 'path', pathId, function () {
+						renderPathEditor( pathId );
+					} );
+				} );
+			}
 
 			document.getElementById( 'guide-add-course' ).addEventListener( 'submit', function ( e ) {
 				e.preventDefault();

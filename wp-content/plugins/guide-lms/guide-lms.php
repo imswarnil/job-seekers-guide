@@ -36,6 +36,7 @@ require_once GUIDE_PLUGIN_DIR . 'includes/ads/class-ads.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/structure/class-structure-tables.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/structure/class-structure.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/structure/class-path-player.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/structure/class-structure-rest.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/api/class-course-api.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/builder/class-tables.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/builder/class-rest.php';
@@ -89,6 +90,7 @@ function guide_boot() {
 	Guide\Progress\Progress::init();
 	Guide\Structure\Structure::init();
 	Guide\Structure\Path_Player::init();
+	Guide\Structure\Structure_Rest::init();
 	Guide\Builder\Rest::init();
 	Guide\Builder\Path_Rest::init();
 	Guide\Payments\Settings::init();

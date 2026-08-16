@@ -130,9 +130,11 @@ class Course_Api {
 	 * this course", "these six lessons from that one", and "read this".
 	 *
 	 * @param int  $path_id     Learning path post ID.
-	 * @param bool $include_ids Include the step row id — the console needs it
-	 *                          to reorder and delete; the theme does not.
-	 * @return array<int, array{step_id:int, type:string, id:int, title:string, permalink:string, status:string, lesson_type:string, post:\WP_Post}>
+	 * @param bool $include_ids Retained for call-site compatibility. Steps are
+	 *                          now identified by type + id, both of which are
+	 *                          always returned, so this no longer changes the
+	 *                          shape of the result.
+	 * @return array<int, array{type:string, id:int, title:string, permalink:string, status:string, lesson_type:string, post:?\WP_Post}>
 	 */
 	public static function get_path_steps( int $path_id, bool $include_ids = false ): array {
 		$steps = array();
@@ -160,10 +162,6 @@ class Course_Api {
 					'post'        => null,
 				);
 
-				if ( $include_ids ) {
-					$step['step_id'] = (int) $section['id'];
-				}
-
 				$steps[] = $step;
 				continue;
 			}
@@ -187,10 +185,6 @@ class Course_Api {
 					: '',
 				'post'        => $post,
 			);
-
-			if ( $include_ids ) {
-				$step['step_id'] = (int) $post->ID;
-			}
 
 			$steps[] = $step;
 		}
