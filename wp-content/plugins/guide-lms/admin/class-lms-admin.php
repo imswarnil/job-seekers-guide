@@ -4,7 +4,7 @@
  *
  * Everything authors need lives in the LMS console (admin.php?page=guide-lms).
  * This class removes the surfaces that compete with it:
- * - blog menus (Posts, Comments)
+ * - the Posts menu (this is not a blog)
  * - the Courses / Lessons / Learning Paths CPT list tables — those post types
  *   are registered with show_in_menu => false, and this class also intercepts
  *   direct hits on edit.php/post.php/post-new.php for them so nobody lands in
@@ -57,7 +57,9 @@ class Lms_Admin {
 		}
 
 		remove_menu_page( 'edit.php' );          // Posts.
-		remove_menu_page( 'edit-comments.php' ); // Comments.
+
+		// Comments stays: learners can now discuss lessons, and a moderation
+		// queue you cannot reach is a moderation queue that does not exist.
 
 		// Nothing to trim — and calling remove_submenu_page() against a menu
 		// that was never registered warns.

@@ -55,6 +55,7 @@ require_once GUIDE_PLUGIN_DIR . 'includes/auth/class-google-auth.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/companies/class-companies.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/community/class-community-types.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/community/class-feedback.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/community/class-discussion.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/success/class-success-stories.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/leaderboard/class-leaderboard.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/seo/class-seo.php';
@@ -115,6 +116,7 @@ function guide_boot() {
 	Guide\Companies\Companies::init();
 	Guide\Community\Community_Types::init();
 	Guide\Community\Feedback::init();
+	Guide\Community\Discussion::init();
 	Guide\Success\Success_Stories::init();
 	Guide\Leaderboard\Leaderboard::init();
 	Guide\Seo\Seo::init();

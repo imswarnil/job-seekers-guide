@@ -17,4 +17,18 @@ jobs:
           script: |
             cd ${{ secrets.VPS_APP_DIR }}
             git pull origin main
-            docker compose -f docker/docker-compose.prod.yml --env-file docker/.env restart wordpress
+
+            # `up -d` and not `restart`: restart reuses the existing container,
+            # so a changed compose file or a new bind mount (the Apache
+            # hardening conf, for one) would silently never take effect. `up -d`
+            # recreates only what actually changed.
+            docker compose -f docker/docker-compose.prod.yml --env-file docker/.env up -d wordpress
+
+            # The plugin's upgrade routine runs on the first admin request, but
+            # waiting for a human to load a page means new tables, roles and
+            # rewrite rules land at an unpredictable time. Do it here instead.
+            docker compose -f docker/docker-compose.prod.yml --env-file docker/.env \
+              exec -T wordpress wp --allow-root --path=/var/www/html eval 'guide_maybe_upgrade_schema();' || true
+
+            docker compose -f docker/docker-compose.prod.yml --env-file docker/.env \
+              exec -T wordpress wp --allow-root --path=/var/www/html rewrite flush || true
