@@ -371,6 +371,27 @@ class Sponsorship {
 			)
 		);
 
+		// Demonstration campaigns are visible to administrators only.
+		//
+		// They ship with the plugin so the review and payment flow can be
+		// walked with realistic data, and so an operator can see what a filled
+		// slot looks like. But a live campaign is a public statement that a
+		// named company is paying to be here, and that statement must never be
+		// fabricated in front of a learner — not by accident, and not because
+		// somebody clicked Approve to have a look.
+		$public_only = ! current_user_can( 'manage_options' );
+
+		if ( $public_only ) {
+			$candidates = array_values(
+				array_filter(
+					$candidates,
+					static function ( $campaign ) {
+						return ! get_post_meta( $campaign->ID, 'jsl_sponsor_demo', true );
+					}
+				)
+			);
+		}
+
 		if ( ! $candidates ) {
 			return null;
 		}

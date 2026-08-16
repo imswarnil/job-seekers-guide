@@ -33,7 +33,7 @@ defined( 'ABSPATH' ) || exit;
 class Starter_Content {
 
 	/** Bump to re-seed after editing the shipped content files. */
-	const VERSION = '1';
+	const VERSION = '2';
 
 	const OPTION_VERSION = 'jsl_starter_content_version';
 
@@ -73,6 +73,67 @@ class Starter_Content {
 			if ( is_array( $course ) ) {
 				self::seed_course( $course );
 			}
+		}
+
+		self::seed_sponsors();
+	}
+
+	/**
+	 * Demo sponsorship campaigns, filed as pending review.
+	 *
+	 * Never live: a live campaign tells every visitor that a named company is
+	 * paying to be on the site, and inventing that is not something a demo is
+	 * allowed to do. Pending gives the operator realistic data to walk the
+	 * review and payment flow with, and approving one is a single click.
+	 */
+	private static function seed_sponsors() {
+		$path = GUIDE_PLUGIN_DIR . 'content/sponsors.php';
+
+		if ( ! file_exists( $path ) || ! class_exists( 'Guide\\Sponsors\\Sponsorship' ) ) {
+			return;
+		}
+
+		foreach ( (array) require $path as $spec ) {
+			if ( get_page_by_path( $spec['slug'], OBJECT, \Guide\Sponsors\Sponsorship::POST_TYPE ) ) {
+				continue;
+			}
+
+			$id = wp_insert_post(
+				array(
+					'post_type'    => \Guide\Sponsors\Sponsorship::POST_TYPE,
+					'post_status'  => 'publish',
+					'post_name'    => $spec['slug'],
+					'post_title'   => sprintf( '%s — %s (demo)', $spec['company'], ucfirst( $spec['slot'] ) ),
+					'post_content' => '',
+				),
+				true
+			);
+
+			if ( is_wp_error( $id ) || ! $id ) {
+				continue;
+			}
+
+			update_post_meta( $id, 'jsl_sponsor_company', $spec['company'] );
+			update_post_meta( $id, 'jsl_sponsor_slot', $spec['slot'] );
+			update_post_meta( $id, 'jsl_sponsor_headline', $spec['headline'] );
+			update_post_meta( $id, 'jsl_sponsor_body', $spec['body'] );
+			update_post_meta( $id, 'jsl_sponsor_url', esc_url_raw( $spec['url'] ) );
+			update_post_meta( $id, 'jsl_sponsor_months', (int) $spec['months'] );
+			update_post_meta( $id, 'jsl_sponsor_logo', 0 );
+
+			// Awaiting review, and not locked: the creative can still be edited,
+			// which is exactly the state a real submission arrives in.
+			update_post_meta( $id, 'jsl_sponsor_status', 'submitted' );
+			update_post_meta( $id, 'jsl_sponsor_locked', 0 );
+
+			// Permanently flagged as a demonstration. Sponsorship::for_slot()
+			// refuses to serve a flagged campaign to anybody but an
+			// administrator, so approving one by accident — or on purpose, to
+			// see how it looks — can never put a fabricated "Sponsored by
+			// Example Corp" in front of a real learner.
+			update_post_meta( $id, 'jsl_sponsor_demo', 1 );
+
+			update_post_meta( $id, self::META_SEEDED, 1 );
 		}
 	}
 

@@ -327,3 +327,62 @@
     color: var(--guide-primary);
   }
 }
+
+/* -------------------------------------------------------------------------
+   The house ad
+   -------------------------------------------------------------------------
+   Shown when no sponsor has bought the slot and AdSense is not configured.
+   Deliberately quiet: it sits in the same box as a real ad and uses the same
+   restraint, because a site arguing that it is not a content farm cannot
+   then flash "ADVERTISE HERE" at its own learners.
+   ------------------------------------------------------------------------- */
+
+.guide-house {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.1rem 1.25rem;
+  border: 1px dashed var(--bulma-border);
+  border-radius: var(--bulma-radius-medium);
+  background: var(--bulma-scheme-main-bis);
+  color: var(--bulma-text);
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    border-color: var(--guide-primary);
+    background: var(--bulma-scheme-main);
+  }
+}
+
+.guide-house__headline {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--bulma-text-strong);
+}
+
+.guide-house__body {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--bulma-text-weak);
+}
+
+.guide-house__cta {
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  font-weight: 650;
+  color: var(--guide-primary);
+}
+
+/* In the course sidebar the badge slot is narrow, so the copy tightens. */
+.guide-ad--badge .guide-house {
+  padding: 0.9rem 1rem;
+
+  .guide-house__headline {
+    font-size: 0.85rem;
+  }
+
+  .guide-house__body {
+    font-size: 0.78rem;
+  }
+}

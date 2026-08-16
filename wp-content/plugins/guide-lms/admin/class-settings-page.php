@@ -94,6 +94,8 @@ class Settings_Page {
 		register_setting( 'jsl_settings_ads', Ads::OPTION_CLIENT, $text );
 		register_setting( 'jsl_settings_ads', Ads::OPTION_SLOT_FEED, $text );
 		register_setting( 'jsl_settings_ads', Ads::OPTION_SLOT_PAGE, $text );
+		register_setting( 'jsl_settings_ads', Ads::OPTION_SLOT_ANY, $text );
+		register_setting( 'jsl_settings_ads', Ads::OPTION_HOUSE, $bool );
 		register_setting( 'jsl_settings_ads', Ads::OPTION_TEST, $bool );
 
 		// Sponsorship.
@@ -349,6 +351,18 @@ class Settings_Page {
 			__( 'Slot: course listings', 'guide-lms' ),
 			self::text_input( Ads::OPTION_SLOT_FEED, '1234567890' ),
 			__( 'Shown once beneath the catalogue grid.', 'guide-lms' )
+		);
+
+		self::row(
+			__( 'Default slot', 'guide-lms' ),
+			self::text_input( Ads::OPTION_SLOT_ANY, '1234567890' ),
+			__( 'Used wherever the two above are left blank. Create one responsive unit in AdSense, paste it here, and every placement works — responsive units adapt to the space they are given, so one is genuinely enough to start with.', 'guide-lms' )
+		);
+
+		self::row(
+			__( 'Unsold space', 'guide-lms' ),
+			self::checkbox( Ads::OPTION_HOUSE, __( 'Offer empty slots for sponsorship', 'guide-lms' ) ),
+			__( 'When no sponsor has bought a slot and AdSense has nothing to fill it with, show a quiet card inviting sponsors instead of leaving a gap. Turn this off to leave unsold space genuinely empty.', 'guide-lms' )
 		);
 
 		self::row(

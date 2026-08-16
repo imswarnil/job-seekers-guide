@@ -245,6 +245,11 @@ while ( have_posts() ) :
 				</aside>
 			</div>
 		</div>
+
+		<?php // Below the guide, never inside it — a company guide is the page somebody reads while deciding where to apply. ?>
+		<div class="guide-shell">
+			<?php guide_ad( 'page' ); ?>
+		</div>
 	</article>
 
 	<?php

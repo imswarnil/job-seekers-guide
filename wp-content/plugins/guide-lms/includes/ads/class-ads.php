@@ -30,6 +30,8 @@ class Ads {
 	const OPTION_SLOT_FEED = 'jsl_ads_slot_feed';    // archives / catalogue
 	const OPTION_SLOT_PAGE = 'jsl_ads_slot_page';    // below article content
 	const OPTION_TEST      = 'jsl_ads_test';         // render test units
+	const OPTION_SLOT_ANY  = 'jsl_ads_slot_default'; // used when a named slot is blank
+	const OPTION_HOUSE     = 'jsl_ads_house';        // show the house ad in empty slots
 
 	public static function init() {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue' ), 20 );
@@ -65,9 +67,30 @@ class Ads {
 		return (string) get_option( self::OPTION_CLIENT, '' );
 	}
 
+	/**
+	 * The AdSense slot ID for a placement.
+	 *
+	 * Falls back to a single default unit when the specific one is blank.
+	 * AdSense responsive units adapt to the space they are given, so one unit
+	 * genuinely does work everywhere — and requiring three slot IDs before a
+	 * single ad appears is the sort of setup step that leaves a site earning
+	 * nothing for a month because somebody filled in two boxes out of three.
+	 */
 	public static function slot( string $which ): string {
 		$key = 'feed' === $which ? self::OPTION_SLOT_FEED : self::OPTION_SLOT_PAGE;
-		return (string) get_option( $key, '' );
+
+		$slot = trim( (string) get_option( $key, '' ) );
+
+		if ( '' === $slot ) {
+			$slot = trim( (string) get_option( self::OPTION_SLOT_ANY, '' ) );
+		}
+
+		return $slot;
+	}
+
+	/** Should empty slots show the house "sponsor this space" card? */
+	public static function house_enabled(): bool {
+		return (bool) get_option( self::OPTION_HOUSE, true );
 	}
 
 	public static function is_test(): bool {
@@ -93,6 +116,16 @@ class Ads {
 			return false;
 		}
 
+		return self::context_allows();
+	}
+
+	/**
+	 * Is this the kind of page an ad may appear on at all?
+	 *
+	 * Separate from should_show() because the house card follows these rules
+	 * but not the subscriber rule — see render() for why.
+	 */
+	public static function context_allows(): bool {
 		// Never beside anything that looks like a credential or payment form.
 		if ( is_admin() || is_feed() || is_embed() || is_404() ) {
 			return false;
@@ -163,34 +196,54 @@ class Ads {
 	 * @param string $label Visible label. Ads must be labelled — it is a
 	 *                      disclosure obligation and it is also just honest.
 	 */
-	public static function render( string $which = 'page', string $label = '' ) {
+	/**
+	 * @return string What was drawn: 'sponsor', 'adsense', 'house' or '' for nothing.
+	 */
+	public static function render( string $which = 'page', string $label = '' ): string {
 		if ( ! self::should_show() ) {
-			return;
+			// One exception, for administrators only.
+			//
+			// Staff and subscribers see no advertising, which is correct — but
+			// it also means the person running the site never sees which slots
+			// are sitting unsold, on the pages where they are unsold. The house
+			// card is not an advertisement; it is the site's own note that this
+			// space is for sale, and the operator is precisely who needs to see
+			// it. Page-type rules still apply, so it stays off the account and
+			// sign-in pages like everything else.
+			if ( self::context_allows()
+				&& current_user_can( 'manage_options' )
+				&& ! self::has_sponsor_for( $which )
+			) {
+				return self::render_house( $which ) ? 'house' : '';
+			}
+
+			return '';
 		}
 
-		// A paying sponsor gets the slot before any network filler does. It
-		// would be indefensible to sell a placement and then let AdSense
-		// compete with it for the same space.
-		if ( self::render_sponsor( $which, $label ) ) {
-			return;
-		}
-
-		// No sponsor took it, so this would be an AdSense unit — which is only
-		// legitimate when AdSense is actually switched on and configured.
+		// The chain, in order of what the slot is worth:
 		//
+		//   1. A paying sponsor. It would be indefensible to sell a placement
+		//      and then let an ad network compete with it for the same space.
+		//   2. AdSense, if it is switched on and configured.
+		//   3. The house ad — "this space is for sale".
+		//
+		// The third exists because the first two can both be absent for months
+		// on a new site, and a slot that renders nothing at all is a slot
+		// nobody remembers they have. It also happens to be the only
+		// advertisement the sponsorship product gets.
+		if ( self::render_sponsor( $which, $label ) ) {
+			return 'sponsor';
+		}
+
 		// should_show() deliberately returns true for a sponsor-only request
 		// (the two revenue streams are independent), so without this check a
 		// site running sponsors with AdSense disabled would still emit an empty
 		// <ins> and an adsbygoogle.push() against a script that was never
 		// loaded: a grey gap on the page and an error in the console.
-		if ( ! self::is_enabled() || '' === self::client() ) {
-			return;
-		}
-
-		$slot = self::slot( $which );
+		$slot = ( self::is_enabled() && '' !== self::client() ) ? self::slot( $which ) : '';
 
 		if ( '' === $slot ) {
-			return;
+			return self::render_house( $which ) ? 'house' : '';
 		}
 
 		\Guide\Sponsors\Sponsor_Stats::record_impression( $which, 0 );
@@ -209,6 +262,25 @@ class Ads {
 			<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 		</aside>
 		<?php
+
+		return 'adsense';
+	}
+
+
+	/** Is a campaign live for the placement this slot maps to? */
+	private static function has_sponsor_for( string $which ): bool {
+		if ( ! class_exists( 'Guide\\Sponsors\\Sponsorship' ) ) {
+			return false;
+		}
+
+		$slot_map = array(
+			'page'  => 'leaderboard',
+			'feed'  => 'leaderboard',
+			'side'  => 'square',
+			'badge' => 'badge',
+		);
+
+		return (bool) \Guide\Sponsors\Sponsorship::for_slot( $slot_map[ $which ] ?? $which );
 	}
 
 	/**
@@ -271,6 +343,48 @@ class Ads {
 						?>
 					</span>
 				</span>
+			</a>
+		</aside>
+		<?php
+
+		return true;
+	}
+
+
+	/**
+	 * The house ad: an empty slot offering itself.
+	 *
+	 * Deliberately quiet. It sits in the same box as a real ad, carries the
+	 * same "Sponsored" framing so nobody is misled about what the space is for,
+	 * and links to the sponsorship page. On a site whose whole argument is that
+	 * it is not a content farm, a flashing "ADVERTISE HERE" banner would do
+	 * more damage than the slot is worth.
+	 *
+	 * Never shown to somebody who is mid-purchase of a sponsorship, and never
+	 * when an operator has switched it off.
+	 */
+	public static function render_house( string $which ): bool {
+		if ( ! self::house_enabled() ) {
+			return false;
+		}
+
+		$url = home_url( '/sponsor/' );
+
+		$copy = array(
+			'badge' => __( 'Reach people learning to code, right here in the course sidebar.', 'guide-lms' ),
+			'feed'  => __( 'Put your company in front of people about to start job hunting.', 'guide-lms' ),
+		);
+
+		$body = $copy[ $which ] ?? __( 'Put your company in front of people learning to get their first software job.', 'guide-lms' );
+		?>
+		<aside class="guide-ad guide-ad--house guide-ad--<?php echo esc_attr( $which ); ?>"
+			aria-label="<?php esc_attr_e( 'Sponsorship', 'guide-lms' ); ?>">
+			<span class="guide-ad__label"><?php esc_html_e( 'Sponsorship', 'guide-lms' ); ?></span>
+
+			<a class="guide-house" href="<?php echo esc_url( $url ); ?>">
+				<span class="guide-house__headline"><?php esc_html_e( 'This space is available', 'guide-lms' ); ?></span>
+				<span class="guide-house__body"><?php echo esc_html( $body ); ?></span>
+				<span class="guide-house__cta"><?php esc_html_e( 'Sponsor the platform', 'guide-lms' ); ?></span>
 			</a>
 		</aside>
 		<?php

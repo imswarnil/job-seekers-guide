@@ -194,6 +194,8 @@ $guide_my_status  = $guide_stories_on ? \Guide\Success\Success_Stories::user_sto
 			<?php endwhile; ?>
 		</div>
 
+		<?php guide_ad( 'feed' ); ?>
+
 		<div class="mt-6">
 			<?php
 			the_posts_pagination(

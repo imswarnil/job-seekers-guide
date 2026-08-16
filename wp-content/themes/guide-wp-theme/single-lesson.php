@@ -238,27 +238,6 @@ while ( have_posts() ) :
 						<?php endif; ?>
 					</div>
 				<?php else : ?>
-					<?php
-					// Contents for a long lesson.
-					//
-					// A <details> rather than a fixed rail: the player already spends
-					// a column on course navigation, and a second permanent list of
-					// links either crowds the writing or vanishes on a phone — which
-					// is what most of this audience reads on. Closed by default,
-					// because a lesson is meant to be read top to bottom; this is for
-					// the person coming back to find one specific thing.
-					//
-					// The shared script hides it when there are fewer than three
-					// headings, so short lessons show nothing at all.
-					?>
-					<details class="guide-toc guide-toc--inline" data-toc>
-						<summary class="guide-toc__summary">
-							<?php esc_html_e( 'In this lesson', 'guide-wp-theme' ); ?>
-						</summary>
-						<nav class="guide-toc__list" data-toc-list
-							aria-label="<?php esc_attr_e( 'Lesson contents', 'guide-wp-theme' ); ?>"></nav>
-					</details>
-
 					<div class="guide-prose mt-4" data-toc-source><?php the_content(); ?></div>
 				<?php endif; ?>
 
@@ -304,6 +283,25 @@ while ( have_posts() ) :
 				</nav>
 			</div>
 		</article>
+
+		<?php
+		// Contents rail.
+		//
+		// Populated by the shared TOC script from the headings in the lesson,
+		// and hidden outright when there are fewer than three of them — a
+		// two-heading lesson does not need a table of contents, it needs
+		// reading.
+		//
+		// It is a third column rather than an addition to the left sidebar
+		// because that sidebar is the course: twenty lesson links, already
+		// scrolling. Putting "where am I in this page" inside "where am I in
+		// this course" makes both harder to read.
+		?>
+		<aside class="guide-player__toc guide-toc" data-toc
+			aria-label="<?php esc_attr_e( 'On this page', 'guide-wp-theme' ); ?>">
+			<p class="guide-filter-group__label"><?php esc_html_e( 'On this page', 'guide-wp-theme' ); ?></p>
+			<nav class="guide-toc__list" data-toc-list></nav>
+		</aside>
 	</div>
 
 	<?php

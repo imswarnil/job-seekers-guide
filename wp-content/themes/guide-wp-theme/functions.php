@@ -17,6 +17,7 @@ define( 'GUIDE_THEME_URI', get_template_directory_uri() );
 require_once GUIDE_THEME_DIR . '/inc/icons.php';
 require_once GUIDE_THEME_DIR . '/inc/dark-mode.php';
 require_once GUIDE_THEME_DIR . '/inc/course-filters.php';
+require_once GUIDE_THEME_DIR . '/inc/customizer.php';
 
 add_action( 'after_setup_theme', 'guide_theme_setup' );
 
@@ -325,9 +326,12 @@ function guide_ad( $which = 'page', $upsell = true ) {
 		return;
 	}
 
-	\Guide\Ads\Ads::render( $which );
+	$drawn = \Guide\Ads\Ads::render( $which );
 
-	if ( $upsell ) {
+	// "Subscribe to remove them" only makes sense under something a
+	// subscription would actually remove. Under the house ad — which is the
+	// site offering the space for sale — it reads as nonsense.
+	if ( $upsell && in_array( $drawn, array( 'sponsor', 'adsense' ), true ) ) {
 		\Guide\Ads\Ads::render_upsell();
 	}
 }

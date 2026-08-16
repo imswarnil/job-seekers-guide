@@ -62,7 +62,26 @@ defined( 'ABSPATH' ) || exit;
 			<nav aria-label="<?php esc_attr_e( 'Project', 'guide-wp-theme' ); ?>">
 				<h2 class="guide-footer__heading"><?php esc_html_e( 'Project', 'guide-wp-theme' ); ?></h2>
 				<div class="guide-footer__list">
-					<a href="https://github.com/imswarnil/job-seekers-guide">GitHub</a>
+					<?php
+					// Set in Appearance → Customize → Guide theme → Footer and
+					// links. Each one is omitted entirely when blank, rather
+					// than rendering a link to nowhere.
+					$guide_links = array(
+						'guide_github_url'   => 'GitHub',
+						'guide_linkedin_url' => 'LinkedIn',
+						'guide_youtube_url'  => 'YouTube',
+					);
+
+					foreach ( $guide_links as $guide_key => $guide_label ) :
+						$guide_url = (string) guide_option( $guide_key );
+
+						if ( '' === $guide_url ) {
+							continue;
+						}
+						?>
+						<a href="<?php echo esc_url( $guide_url ); ?>" rel="noopener"><?php echo esc_html( $guide_label ); ?></a>
+					<?php endforeach; ?>
+
 					<?php if ( ! is_user_logged_in() ) : ?>
 						<a href="<?php echo esc_url( wp_login_url() ); ?>"><?php esc_html_e( 'Sign in', 'guide-wp-theme' ); ?></a>
 					<?php endif; ?>
@@ -71,8 +90,12 @@ defined( 'ABSPATH' ) || exit;
 		</div>
 
 		<div class="guide-footer__bottom">
-			<p>&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?> — <?php esc_html_e( 'open source, GPL-2.0', 'guide-wp-theme' ); ?></p>
-			<p><?php esc_html_e( 'Built in the open on', 'guide-wp-theme' ); ?> <a href="https://github.com/imswarnil/job-seekers-guide">GitHub</a></p>
+			<p>&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php bloginfo( 'name' ); ?></p>
+
+			<?php $guide_tagline = (string) guide_option( 'guide_footer_tagline' ); ?>
+			<?php if ( '' !== $guide_tagline ) : ?>
+				<p class="guide-footer__tagline"><?php echo esc_html( $guide_tagline ); ?></p>
+			<?php endif; ?>
 		</div>
 	</div>
 </footer>

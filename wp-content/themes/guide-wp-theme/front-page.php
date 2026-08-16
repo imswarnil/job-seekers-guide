@@ -71,31 +71,33 @@ $guide_has_visual = $guide_resume || ! empty( $guide_hero_steps );
 			<div>
 				<span class="guide-chip guide-chip--spark">
 					<?php echo guide_icon( 'sparkle-fill' ); ?>
-					<?php esc_html_e( 'Free. Not a trial, not a teaser.', 'guide-wp-theme' ); ?>
+					<?php echo esc_html( guide_option( 'guide_hero_eyebrow' ) ); ?>
 				</span>
 
 				<h1 class="guide-display mt-5">
-					<?php esc_html_e( 'You were never bad at this. Nobody gave you the order.', 'guide-wp-theme' ); ?>
+					<?php echo esc_html( guide_option( 'guide_hero_heading' ) ); ?>
 				</h1>
 
 				<p class="guide-hero__lede">
-					<?php esc_html_e( 'Everything a training institute charges ₹80,000 to teach you is already free on the internet. What is not free is knowing what to learn first, what to skip, and what actually gets asked in interviews. That is what this is.', 'guide-wp-theme' ); ?>
+					<?php echo esc_html( guide_option( 'guide_hero_lede' ) ); ?>
 				</p>
 
 				<div class="guide-hero__actions">
 					<a class="button is-primary is-medium" href="#paths">
-						<?php esc_html_e( 'Start at the beginning', 'guide-wp-theme' ); ?>
+						<?php echo esc_html( guide_option( 'guide_hero_cta' ) ); ?>
 					</a>
 					<a class="button is-medium" href="<?php echo esc_url( get_post_type_archive_link( 'course' ) ); ?>">
-						<?php esc_html_e( 'Browse courses', 'guide-wp-theme' ); ?>
+						<?php echo esc_html( guide_option( 'guide_hero_cta_alt' ) ); ?>
 					</a>
 				</div>
 
+				<?php if ( guide_shows( 'guide_show_stats' ) ) : ?>
 				<div class="guide-hero__stats">
 					<span><strong><?php echo esc_html( number_format_i18n( count( $guide_paths ) ) ); ?></strong> <?php esc_html_e( 'paths', 'guide-wp-theme' ); ?></span>
 					<span><strong><?php echo esc_html( number_format_i18n( $guide_course_count ) ); ?></strong> <?php esc_html_e( 'courses', 'guide-wp-theme' ); ?></span>
 					<span><strong><?php echo esc_html( number_format_i18n( $guide_lesson_count ) ); ?></strong> <?php esc_html_e( 'lessons', 'guide-wp-theme' ); ?></span>
 				</div>
+				<?php endif; ?>
 			</div>
 
 			<?php if ( $guide_resume ) : ?>
@@ -205,6 +207,7 @@ $guide_has_visual = $guide_resume || ! empty( $guide_hero_steps );
 </section>
 
 <!-- ====================== The problem, stated ====================== -->
+<?php if ( guide_shows( 'guide_show_problem' ) ) : ?>
 <section class="guide-section guide-section--alt" aria-labelledby="guide-problem">
 	<div class="guide-shell">
 		<div class="guide-problem">
@@ -258,7 +261,10 @@ $guide_has_visual = $guide_resume || ! empty( $guide_hero_steps );
 	</div>
 </section>
 
+<?php endif; ?>
+
 <!-- ========================= How it works ========================= -->
+<?php if ( guide_shows( 'guide_show_how' ) ) : ?>
 <section class="guide-section guide-section--tight" aria-labelledby="guide-how">
 	<div class="guide-shell">
 		<h2 id="guide-how" class="is-sr-only"><?php esc_html_e( 'How it works', 'guide-wp-theme' ); ?></h2>
@@ -297,6 +303,8 @@ $guide_has_visual = $guide_resume || ! empty( $guide_hero_steps );
 		</div>
 	</div>
 </section>
+
+<?php endif; ?>
 
 <!-- ========================= Learning paths ======================== -->
 <div id="paths" class="guide-shell">
@@ -361,7 +369,7 @@ $guide_has_visual = $guide_resume || ! empty( $guide_hero_steps );
 	// Pricing: only shown once a subscription is actually configured, so a site
 	// that only sells individual courses never advertises a plan nobody can buy.
 	$guide_sub_on = class_exists( 'Guide\\Payments\\Subscription' ) && \Guide\Payments\Subscription::is_enabled();
-	if ( $guide_sub_on ) :
+	if ( $guide_sub_on && guide_shows( 'guide_show_pricing' ) ) :
 		$guide_sub_price  = \Guide\Payments\Subscription::price_label();
 		$guide_sub_blurb  = \Guide\Payments\Subscription::blurb();
 		$guide_all_access = class_exists( 'Guide\\Access\\Access' ) && \Guide\Access\Access::has_all_access();
@@ -419,6 +427,15 @@ $guide_has_visual = $guide_resume || ! empty( $guide_hero_steps );
 			</div>
 		</section>
 	<?php endif; ?>
+
+	<?php
+	// One slot on the homepage, above the closing call to action and below
+	// everything that argues the case. Never between the hero and the paths —
+	// the first screen has one job and selling advertising is not it.
+	?>
+	<div class="guide-shell">
+		<?php guide_ad( 'feed' ); ?>
+	</div>
 
 	<!-- ============================ CTA ============================ -->
 	<section class="guide-cta">

@@ -3,8 +3,9 @@
  * Plugin Name: Guide LMS
  * Plugin URI: https://github.com/imswarnil/job-seekers-guide
  * Description: Structured-learning-path LMS. Courses, lessons, learning paths, a visual course builder, enrollment and progress tracking, quizzes, a community resource library, learner discussion, and checkout.
- * Version: 0.15.0
+ * Version: 1.0.0
  * Requires at least: 6.4
+ * Tested up to: 6.7
  * Requires PHP: 8.0
  * Author: Guide
  * License: GPL v2 or later

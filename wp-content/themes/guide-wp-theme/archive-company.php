@@ -123,6 +123,8 @@ $guide_type_filter = isset( $_GET['type'] ) ? sanitize_title( wp_unslash( (strin
 				<?php endwhile; ?>
 			</div>
 			<?php wp_reset_postdata(); ?>
+
+			<?php guide_ad( 'feed' ); ?>
 		<?php else : ?>
 			<div class="guide-empty">
 				<span class="guide-empty__icon"><?php echo guide_icon( 'buildings' ); ?></span>

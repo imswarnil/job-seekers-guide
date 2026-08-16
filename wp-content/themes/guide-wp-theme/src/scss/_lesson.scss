@@ -13,11 +13,77 @@
 
 .guide-player {
   display: grid;
-  grid-template-columns: var(--guide-player-sidebar-w) minmax(0, 1fr);
+  // Course navigation, the lesson, and "on this page".
+  //
+  // The third column only exists on wide screens. Below that the contents
+  // rail moves above the lesson and stops being sticky — a sticky panel on a
+  // phone is a thing covering the text you are trying to read, which is most
+  // of the screen on the devices most of this audience is using.
+  grid-template-columns: var(--guide-player-sidebar-w) minmax(0, 1fr) var(--guide-player-toc-w);
   min-height: 100vh;
+
+  @include mx.until(iv.$widescreen) {
+    grid-template-columns: var(--guide-player-sidebar-w) minmax(0, 1fr);
+  }
 
   @include mx.until(iv.$desktop) {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Contents rail
+// -----------------------------------------------------------------------------
+
+.guide-player__toc {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  max-height: 100vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1.75rem 1.25rem 2rem;
+  border-left: 1px solid var(--bulma-border-weak);
+
+  // Hidden by the script when the lesson has fewer than three headings.
+  &[hidden] {
+    display: none;
+  }
+
+  // Below the third column's breakpoint it moves above the lesson: still
+  // useful, no longer sticky, and boxed so it reads as a nav rather than as
+  // the first paragraph of the article.
+  @include mx.until(iv.$widescreen) {
+    position: static;
+    grid-row: 1;
+    grid-column: 2;
+    max-height: none;
+    margin: 1.5rem 0 0;
+    padding: 1rem 1.15rem;
+    border-left: 0;
+    border: 1px solid var(--bulma-border-weak);
+    border-radius: var(--bulma-radius-medium);
+    background: var(--bulma-scheme-main-bis);
+  }
+
+  @include mx.until(iv.$desktop) {
+    grid-column: 1;
+    margin-inline: 1.25rem;
+  }
+}
+
+// On the narrow layouts the rail sits above the lesson, so the lesson has to
+// be told to follow it rather than share the row.
+@include mx.until(iv.$widescreen) {
+  .guide-player__main {
+    grid-row: 2;
+    grid-column: 2;
+  }
+}
+
+@include mx.until(iv.$desktop) {
+  .guide-player__main {
+    grid-column: 1;
   }
 }
 
@@ -533,4 +599,14 @@
   text-transform: none;
   color: var(--bulma-text-weak);
   opacity: 0.8;
+}
+
+
+// Jumping to a heading from the contents rail must not tuck it under the
+// sticky header. Applied to the headings the rail actually links to.
+.guide-prose {
+  h2,
+  h3 {
+    scroll-margin-top: calc(var(--guide-header-h, 4rem) + 1rem);
+  }
 }
