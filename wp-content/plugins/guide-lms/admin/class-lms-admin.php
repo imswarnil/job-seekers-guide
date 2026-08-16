@@ -4,7 +4,7 @@
  *
  * Everything authors need lives in the LMS console (admin.php?page=guide-lms).
  * This class removes the surfaces that compete with it:
- * - blog menus (Posts, Comments) and low-value menus (Tools)
+ * - blog menus (Posts, Comments)
  * - the Courses / Lessons / Learning Paths CPT list tables — those post types
  *   are registered with show_in_menu => false, and this class also intercepts
  *   direct hits on edit.php/post.php/post-new.php for them so nobody lands in
@@ -26,6 +26,7 @@ class Lms_Admin {
 
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'remove_menus' ), 100 );
+		add_action( 'admin_menu', array( __CLASS__, 'add_updates_link' ), 30 );
 		add_action( 'load-index.php', array( __CLASS__, 'redirect_dashboard' ) );
 		add_action( 'admin_bar_menu', array( __CLASS__, 'trim_admin_bar' ), 999 );
 		add_action( 'wp_dashboard_setup', array( __CLASS__, 'strip_dashboard_widgets' ), 100 );
@@ -39,11 +40,81 @@ class Lms_Admin {
 	/**
 	 * Strip menus that have no place in an LMS admin. Courses/Lessons/Paths
 	 * are already absent (show_in_menu => false at registration).
+	 *
+	 * Tools is trimmed rather than removed. It was removed entirely, which also
+	 * took Site Health and Export with it — on a self-hosted site those are the
+	 * two screens you least want hidden: one tells you when PHP or the database
+	 * is falling behind, the other is how you get your data out. Neither is
+	 * clutter; both are how the site stays yours.
 	 */
 	public static function remove_menus() {
+		global $menu, $submenu;
+
+		// Only meaningful once wp-admin has built the menu. Guarding keeps this
+		// safe when it is invoked outside a real admin request (WP-CLI, tests).
+		if ( ! is_array( $menu ) ) {
+			return;
+		}
+
 		remove_menu_page( 'edit.php' );          // Posts.
 		remove_menu_page( 'edit-comments.php' ); // Comments.
-		remove_menu_page( 'tools.php' );         // Tools.
+
+		// Nothing to trim — and calling remove_submenu_page() against a menu
+		// that was never registered warns.
+		if ( empty( $submenu['tools.php'] ) ) {
+			return;
+		}
+
+		// Keep Tools, minus the parts that only apply to a blog.
+		remove_submenu_page( 'tools.php', 'import.php' );
+
+		if ( empty( $submenu['tools.php'] ) ) {
+			remove_menu_page( 'tools.php' );
+			return;
+		}
+
+		// If everything worth keeping is gone, drop the empty menu too.
+		$keep = array( 'site-health.php', 'export.php', 'export-personal-data.php', 'erase-personal-data.php' );
+		$kept = false;
+		foreach ( $submenu['tools.php'] as $item ) {
+			if ( in_array( $item[2], $keep, true ) ) {
+				$kept = true;
+				break;
+			}
+		}
+
+		if ( ! $kept ) {
+			remove_menu_page( 'tools.php' );
+		}
+	}
+
+	/**
+	 * Surface pending core/plugin/theme updates inside the LMS menu.
+	 *
+	 * The Dashboard redirects to the console, so the usual place an admin
+	 * notices "3 updates available" never gets looked at. An LMS running an
+	 * outdated WordPress is the single most likely way this site gets
+	 * compromised, so the count follows them into the menu they do use.
+	 */
+	public static function add_updates_link() {
+		$updates = wp_get_update_data();
+		$count   = isset( $updates['counts']['total'] ) ? (int) $updates['counts']['total'] : 0;
+
+		if ( ! $count || ! current_user_can( 'update_core' ) ) {
+			return;
+		}
+
+		add_submenu_page(
+			Console::SLUG,
+			__( 'Updates', 'guide-lms' ),
+			sprintf(
+				/* translators: %s: number of pending updates. */
+				__( 'Updates %s', 'guide-lms' ),
+				'<span class="update-plugins count-' . (int) $count . '"><span class="update-count">' . number_format_i18n( $count ) . '</span></span>'
+			),
+			'update_core',
+			'update-core.php'
+		);
 	}
 
 	public static function redirect_dashboard() {
@@ -128,7 +199,9 @@ class Lms_Admin {
 	}
 
 	public static function strip_dashboard_widgets() {
-		foreach ( array( 'dashboard_primary', 'dashboard_quick_press', 'dashboard_activity', 'dashboard_right_now', 'dashboard_site_health' ) as $widget ) {
+		// dashboard_site_health deliberately kept: it is the one widget that
+		// tells a self-hoster something they need to act on.
+		foreach ( array( 'dashboard_primary', 'dashboard_quick_press', 'dashboard_activity', 'dashboard_right_now' ) as $widget ) {
 			remove_meta_box( $widget, 'dashboard', 'normal' );
 			remove_meta_box( $widget, 'dashboard', 'side' );
 		}

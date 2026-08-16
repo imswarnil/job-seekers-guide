@@ -54,6 +54,7 @@ require_once GUIDE_PLUGIN_DIR . 'includes/security/class-comments-off.php';
 require_once GUIDE_PLUGIN_DIR . 'admin/class-lms-admin.php';
 require_once GUIDE_PLUGIN_DIR . 'admin/class-console.php';
 require_once GUIDE_PLUGIN_DIR . 'admin/class-settings-page.php';
+require_once GUIDE_PLUGIN_DIR . 'admin/class-help-page.php';
 require_once GUIDE_PLUGIN_DIR . 'admin/class-admin-theme.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/cli/class-seed-command.php';
 
@@ -104,6 +105,7 @@ function guide_boot() {
 	Guide\Admin\Lms_Admin::init();
 	Guide\Admin\Console::init();
 	Guide\Admin\Settings_Page::init();
+	Guide\Admin\Help_Page::init();
 	Guide\Admin\Admin_Theme::init();
 	Guide\Cli\Seed_Command::register();
 }

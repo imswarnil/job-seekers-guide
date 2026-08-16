@@ -36,6 +36,14 @@ class Comments_Off {
 	}
 
 	public static function remove_admin_menu() {
+		global $menu;
+
+		// remove_menu_page() iterates $menu unguarded, which warns when this
+		// runs outside a real admin request (WP-CLI, tests).
+		if ( ! is_array( $menu ) ) {
+			return;
+		}
+
 		remove_menu_page( 'edit-comments.php' );
 	}
 
