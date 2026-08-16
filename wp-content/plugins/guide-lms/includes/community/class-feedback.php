@@ -306,7 +306,7 @@ class Feedback {
 		$object_type = sanitize_key( (string) $request->get_param( 'object_type' ) );
 		$object_id   = (int) $request->get_param( 'object_id' );
 
-		if ( ! in_array( $object_type, array( 'course', 'lesson', 'help_article' ), true ) ) {
+		if ( ! in_array( $object_type, array( 'course', 'lesson', 'help_article', 'company' ), true ) ) {
 			return new \WP_REST_Response( array( 'error' => __( 'Unknown item.', 'guide-lms' ) ), 400 );
 		}
 

@@ -110,6 +110,15 @@ function guide_primary_destinations( $with_home = false ) {
 		'here'  => is_post_type_archive( 'course' ) || is_singular( 'course' ),
 	);
 
+	if ( post_type_exists( 'company' ) ) {
+		$items[] = array(
+			'url'   => (string) get_post_type_archive_link( 'company' ),
+			'label' => __( 'Companies', 'guide-wp-theme' ),
+			'icon'  => 'buildings',
+			'here'  => is_post_type_archive( 'company' ) || is_singular( 'company' ),
+		);
+	}
+
 	if ( class_exists( 'Guide\\Success\\Success_Stories' ) && \Guide\Success\Success_Stories::is_enabled() ) {
 		$items[] = array(
 			'url'   => (string) get_post_type_archive_link( 'success_story' ),
@@ -163,6 +172,22 @@ function guide_secondary_destinations() {
 			'url'   => \Guide\Success\Success_Stories::archive_url(),
 			'label' => __( 'Wall of Success', 'guide-wp-theme' ),
 			'icon'  => 'trophy',
+		);
+	}
+
+	foreach ( array(
+		'help_article'    => array( __( 'Help centre', 'guide-wp-theme' ), 'question' ),
+		'roadmap_item'    => array( __( 'Roadmap', 'guide-wp-theme' ), 'map-pin' ),
+		'changelog_entry' => array( __( 'Changelog', 'guide-wp-theme' ), 'list-bullets' ),
+	) as $guide_type => $guide_meta ) {
+		if ( ! post_type_exists( $guide_type ) ) {
+			continue;
+		}
+
+		$items[] = array(
+			'url'   => (string) get_post_type_archive_link( $guide_type ),
+			'label' => $guide_meta[0],
+			'icon'  => $guide_meta[1],
 		);
 	}
 

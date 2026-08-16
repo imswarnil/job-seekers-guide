@@ -49,6 +49,7 @@ require_once GUIDE_PLUGIN_DIR . 'includes/payments/class-subscription.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/payments/class-webhook.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/analytics/class-analytics.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/auth/class-google-auth.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/companies/class-companies.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/community/class-community-types.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/community/class-feedback.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/success/class-success-stories.php';
@@ -104,6 +105,7 @@ function guide_boot() {
 	Guide\Account\Account::init();
 	Guide\Ads\Ads::init();
 	Guide\Auth\Google_Auth::init();
+	Guide\Companies\Companies::init();
 	Guide\Community\Community_Types::init();
 	Guide\Community\Feedback::init();
 	Guide\Success\Success_Stories::init();
@@ -155,6 +157,7 @@ add_action( 'admin_init', 'guide_maybe_upgrade_schema' );
  */
 function guide_activate() {
 	Guide\Post_Types::register();
+	Guide\Companies\Companies::register();
 	Guide\Community\Community_Types::register();
 	Guide\Permalinks::add_rewrite_rules();
 	Guide\Account\Account::add_rewrite_rules();

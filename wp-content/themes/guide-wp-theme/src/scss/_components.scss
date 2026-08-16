@@ -651,3 +651,11 @@
   font-size: 0.68rem;
   color: var(--bulma-text-weak);
 }
+
+// `.guide-card` is a flex column, so a bare button inside it stretches to the
+// full width as a flex item. Buttons should size to their label unless they
+// explicitly ask not to.
+.guide-card > .button:not(.is-fullwidth),
+.guide-card > a.button:not(.is-fullwidth) {
+  align-self: flex-start;
+}

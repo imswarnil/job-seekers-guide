@@ -16,6 +16,7 @@ _why_, the _who_, and the _shape_ of the product. Anything built in
 | 6 | [flows/](flows/) | Screen-by-screen product flow |
 | 7 | [curriculum/](curriculum/) | The syllabus and its logic |
 | 8 | [markdown/](markdown/) | Platform seed data (paths, courses, lessons) |
+| 9 | [05-company-guides.md](05-company-guides.md) | Why company guides exist and how they are written |
 
 ## One-line summary
 

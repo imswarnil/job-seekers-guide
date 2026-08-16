@@ -32,6 +32,10 @@ class Json_Ld {
 			$graph = self::lesson( get_queried_object_id() );
 		} elseif ( is_singular( 'learning_path' ) ) {
 			$graph = array( self::learning_path( get_queried_object_id() ) );
+		} elseif ( is_singular( 'company' ) ) {
+			$graph = self::company_guide( get_queried_object_id() );
+		} elseif ( is_singular( 'help_article' ) ) {
+			$graph = array( self::help_article( get_queried_object_id() ) );
 		}
 
 		$graph = array_values( array_filter( $graph ) );
@@ -48,6 +52,112 @@ class Json_Ld {
 	}
 
 	/* --- Builders --- */
+
+	/**
+	 * A company guide is an Article *about* an Organization — not a JobPosting.
+	 *
+	 * JobPosting would be wrong and actively harmful: it describes a specific
+	 * open vacancy with a real application URL, and search engines surface it
+	 * as one. This page is editorial advice about how a company hires, which is
+	 * a different thing, and claiming otherwise would put a fake vacancy into
+	 * job search results.
+	 *
+	 * @return array<int, array<string,mixed>>
+	 */
+	public static function company_guide( int $post_id ): array {
+		$post = get_post( $post_id );
+
+		if ( ! $post ) {
+			return array();
+		}
+
+		$name    = get_the_title( $post );
+		$website = (string) get_post_meta( $post_id, 'jsl_company_website', true );
+
+		$organization = array(
+			'@type' => 'Organization',
+			'name'  => $name,
+		);
+
+		if ( $website ) {
+			$organization['url'] = $website;
+		}
+
+		$logo = get_the_post_thumbnail_url( $post_id, 'full' );
+
+		if ( $logo ) {
+			$organization['logo'] = $logo;
+		}
+
+		$article = array(
+			'@type'            => 'Article',
+			'headline'         => sprintf(
+				/* translators: %s: company name. */
+				__( 'How to get a job at %s', 'guide-lms' ),
+				$name
+			),
+			'mainEntityOfPage' => get_permalink( $post ),
+			'datePublished'    => get_the_date( 'c', $post ),
+			'dateModified'     => get_the_modified_date( 'c', $post ),
+			'about'            => $organization,
+			'publisher'        => self::organization(),
+		);
+
+		if ( has_excerpt( $post ) ) {
+			$article['description'] = get_the_excerpt( $post );
+		}
+
+		// The selection process reads naturally as a HowTo, and that is what it
+		// is: ordered steps toward one outcome.
+		$steps = \Guide\Companies\Companies::process( $post_id );
+
+		if ( $steps ) {
+			$how_to_steps = array();
+
+			foreach ( $steps as $i => $step ) {
+				$how_to_steps[] = array_filter(
+					array(
+						'@type'    => 'HowToStep',
+						'position' => $i + 1,
+						'name'     => $step['title'] ?? '',
+						'text'     => $step['detail'] ?? '',
+					)
+				);
+			}
+
+			$article['hasPart'] = array(
+				'@type' => 'HowTo',
+				'name'  => sprintf(
+					/* translators: %s: company name. */
+					__( '%s selection process', 'guide-lms' ),
+					$name
+				),
+				'step'  => $how_to_steps,
+			);
+		}
+
+		return array( $article );
+	}
+
+	public static function help_article( int $post_id ) {
+		$post = get_post( $post_id );
+
+		if ( ! $post ) {
+			return null;
+		}
+
+		return array_filter(
+			array(
+				'@type'            => 'Article',
+				'headline'         => get_the_title( $post ),
+				'description'      => has_excerpt( $post ) ? get_the_excerpt( $post ) : '',
+				'mainEntityOfPage' => get_permalink( $post ),
+				'datePublished'    => get_the_date( 'c', $post ),
+				'dateModified'     => get_the_modified_date( 'c', $post ),
+				'publisher'        => self::organization(),
+			)
+		);
+	}
 
 	private static function organization(): array {
 		return array(
