@@ -52,6 +52,12 @@ class Hardening {
 	}
 
 	public static function security_headers() {
+		// PHP announces its exact version in X-Powered-By on every response,
+		// including wp-admin — which hands a scanner the precise list of CVEs
+		// worth trying. Removed everywhere, before the is_admin() bail, because
+		// the admin is the half worth attacking.
+		header_remove( 'X-Powered-By' );
+
 		if ( is_admin() ) {
 			return;
 		}

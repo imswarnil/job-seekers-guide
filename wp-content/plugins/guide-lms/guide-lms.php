@@ -3,7 +3,7 @@
  * Plugin Name: Guide LMS
  * Plugin URI: https://github.com/imswarnil/job-seekers-guide
  * Description: Structured-learning-path LMS. Courses, lessons, learning paths, a visual course builder, enrollment and progress tracking, quizzes, a community resource library, learner discussion, and checkout.
- * Version: 0.12.0
+ * Version: 0.13.0
  * Requires at least: 6.4
  * Requires PHP: 8.0
  * Author: Guide
@@ -31,6 +31,7 @@ require_once GUIDE_PLUGIN_DIR . 'includes/enrollment/class-tables.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/billing/class-billing.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/enrollment/class-enrollment.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/access/class-access.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/content/class-starter-content.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/email/class-mailer.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/email/class-notifications.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/account/class-account.php';
@@ -188,6 +189,12 @@ function guide_maybe_upgrade_schema() {
 	Guide\Structure\Path_Player::add_rewrite_rules();
 	Guide\Sponsors\Sponsor_Portal::add_rewrite_rules();
 	flush_rewrite_rules();
+
+	// The courses that ship with the plugin. Same reasoning as the roles above:
+	// a deploy moves code, not the database, so content written on a laptop has
+	// to travel as code and be planted here. Never overwrites anything an
+	// operator has edited — see Starter_Content for how that is enforced.
+	Guide\Content\Starter_Content::maybe_seed();
 
 	update_option( 'jsl_db_version', GUIDE_VERSION, false );
 }
