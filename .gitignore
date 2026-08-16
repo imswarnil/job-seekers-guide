@@ -20,6 +20,13 @@ wp-content/index.php
 wp-content/plugins/index.php
 wp-content/plugins/akismet/
 wp-content/plugins/hello.php
+
+# Third-party plugins installed through wp-admin. Tracking these breaks the
+# deploy: the server has its own copy, so an incoming commit that adds the same
+# files aborts the pull with "untracked working tree files would be
+# overwritten". Only this project's own plugin and theme belong in git.
+wp-content/plugins/classic-editor/
+wp-content/plugins/ai-provider-for-anthropic/
 wp-content/themes/index.php
 wp-content/themes/twentytwenty*/
 
