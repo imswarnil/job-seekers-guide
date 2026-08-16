@@ -14,6 +14,7 @@
 // reads as part of the same product rather than a stock WordPress install
 // wearing a different hat.
 
+@use "sass:color";
 @use "tokens" as t;
 
 // The admin skin uses fixed light-mode values: wp-admin has its own colour
@@ -24,6 +25,24 @@ $ink-weak: #5a5d71;
 $line: #e2e3ee;
 $surface: #ffffff;
 $surface-alt: #f6f7fb;
+
+// -----------------------------------------------------------------------------
+// Admin theme variables
+// -----------------------------------------------------------------------------
+//
+// WordPress derives checkbox fills, radio dots, focus rings and several control
+// accents from these. Setting them is how you recolour admin controls without
+// fighting core's CSS.
+
+:root {
+  --wp-admin-theme-color: #{t.$primary};
+  --wp-admin-theme-color--rgb: #{color.channel(t.$primary, "red", $space: rgb)}, #{color.channel(t.$primary, "green", $space: rgb)}, #{color.channel(t.$primary, "blue", $space: rgb)};
+  --wp-admin-theme-color-darker-10: #{t.$indigo-70};
+  --wp-admin-theme-color-darker-10--rgb: #{color.channel(t.$indigo-70, "red", $space: rgb)}, #{color.channel(t.$indigo-70, "green", $space: rgb)}, #{color.channel(t.$indigo-70, "blue", $space: rgb)};
+  --wp-admin-theme-color-darker-20: #{t.$indigo-80};
+  --wp-admin-theme-color-darker-20--rgb: #{color.channel(t.$indigo-80, "red", $space: rgb)}, #{color.channel(t.$indigo-80, "green", $space: rgb)}, #{color.channel(t.$indigo-80, "blue", $space: rgb)};
+  --wp-admin-border-width-focus: 2px;
+}
 
 // -----------------------------------------------------------------------------
 // Admin menu
@@ -166,14 +185,16 @@ textarea:focus {
   box-shadow: 0 0 0 1px t.$primary;
 }
 
-input[type="checkbox"]:checked::before {
-  content: "\f147";
-  color: t.$primary;
-}
-
-input[type="radio"]:checked::before {
-  background-color: t.$primary;
-}
+// Checkboxes and radios are deliberately NOT restyled by hand.
+//
+// Modern WordPress draws the tick as an SVG data-URI in `content` and fills the
+// box with `--wp-admin-theme-color`. Overriding `content` with a Dashicons
+// glyph — as this file used to — replaces the tick with a character that has no
+// font to render in, which is why they looked broken.
+//
+// Setting the admin theme variables is the supported way to recolour these, and
+// it fixes checkboxes, radios, focus rings and range sliders in one go, across
+// every core screen and every other plugin's screens too.
 
 // -----------------------------------------------------------------------------
 // Typography

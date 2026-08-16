@@ -114,7 +114,6 @@
   align-items: center;
   gap: 0.65rem;
   padding: 1.15rem 1.15rem 1rem;
-  border-bottom: 1px solid var(--bulma-border-weak);
 
   strong {
     display: block;
@@ -206,7 +205,6 @@
   gap: 0.1rem;
   margin-top: auto;
   padding: 0.75rem;
-  border-top: 1px solid var(--bulma-border-weak);
 
   @include mx.until(iv.$desktop) {
     flex-direction: row;
@@ -1948,4 +1946,39 @@
   font-size: 0.65rem;
   font-weight: 700;
   white-space: nowrap;
+}
+
+// -----------------------------------------------------------------------------
+// Link chrome inside the console
+// -----------------------------------------------------------------------------
+//
+// wp-admin styles every `a` with an underline on hover and a box-shadow ring on
+// focus. Inside our own app that shows up as a stray border under nav items and
+// buttons. Suppressed here, and replaced with the focus ring the rest of the
+// console uses so keyboard navigation is still obvious.
+
+.guide-console__links a,
+.guide-console__nav-foot a,
+.guide-console a.guide-btn,
+.guide-console a.guide-icon-btn {
+  border: 0;
+  text-decoration: none;
+  box-shadow: none;
+
+  &:hover,
+  &:active {
+    border: 0;
+    text-decoration: none;
+    box-shadow: none;
+  }
+
+  &:focus {
+    box-shadow: none;
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--bulma-primary);
+    outline-offset: 2px;
+  }
 }
