@@ -71,11 +71,23 @@
 		quiz: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.2 2.4c-.6.2-.9.7-.9 1.3v.3"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>',
 	};
 
+	/**
+	 * Where overlays (toasts, drawers, scrims) get attached.
+	 *
+	 * The console's stylesheet is compiled scoped under `.guide-admin`, so
+	 * anything appended straight to <body> lands outside that scope and renders
+	 * completely unstyled. Mounting inside the scope root keeps the CSS honest;
+	 * <body> stays as a fallback so nothing breaks if the wrapper ever moves.
+	 */
+	function overlayHost() {
+		return document.querySelector( '.guide-admin' ) || document.body;
+	}
+
 	function toast( message, isError ) {
 		var host = document.querySelector( '.guide-toasts' );
 		if ( ! host ) {
 			host = el( 'div', { class: 'guide-toasts' } );
-			document.body.appendChild( host );
+			overlayHost().appendChild( host );
 		}
 		var node = el( 'div', { class: 'guide-toast' + ( isError ? ' guide-toast--error' : '' ) } );
 		node.innerHTML = '<span class="guide-toast__icon">' + ICONS.check + '</span>';
@@ -1070,7 +1082,7 @@
 
 		var scrim = el( 'div', { class: 'guide-drawer-scrim' } );
 		scrim.addEventListener( 'click', closeDrawer );
-		document.body.appendChild( scrim );
+		overlayHost().appendChild( scrim );
 
 		var drawer = el( 'aside', { class: 'guide-drawer guide-drawer--wide', role: 'dialog', 'aria-label': 'Course details' } );
 		var meta   = course.meta || {};
@@ -1135,7 +1147,7 @@
 				'</div>' +
 			'</footer>';
 
-		document.body.appendChild( drawer );
+		overlayHost().appendChild( drawer );
 		document.addEventListener( 'keydown', escClose );
 
 		document.getElementById( 'guide-cd-title' ).value = ( course.title && course.title.raw ) || '';
@@ -1257,11 +1269,11 @@
 
 		var scrim = el( 'div', { class: 'guide-drawer-scrim' } );
 		scrim.addEventListener( 'click', closeDrawer );
-		document.body.appendChild( scrim );
+		overlayHost().appendChild( scrim );
 
 		var drawer = el( 'aside', { class: 'guide-drawer', role: 'dialog', 'aria-label': 'Lesson editor' } );
 		drawer.innerHTML = '<div class="guide-skeleton-page"><span class="guide-spinner"></span>Loading lesson…</div>';
-		document.body.appendChild( drawer );
+		overlayHost().appendChild( drawer );
 		document.addEventListener( 'keydown', escClose );
 
 		Promise.all( [

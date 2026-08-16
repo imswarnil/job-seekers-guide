@@ -7,16 +7,21 @@
 // Compiled, then scoped under `.guide-admin` by PostCSS (see postcss.config.js)
 // and written to plugins/guide-lms/admin/assets/css/console.min.css.
 //
-// The scoping is not optional. Bulma's minireset and generic layers style bare
-// `html`, `body`, `a`, `button`, `input`, and `table` — loading that unscoped
-// into wp-admin would restyle the admin menu, the admin bar, every core
-// settings screen, and every other plugin's pages. So the console gets real
-// Bulma inside its own wrapper, and WordPress's own chrome is left alone
-// except for the deliberate colour skin in admin-skin.css.
+// The scoping is not optional. Bulma's minireset styles bare `html`, `body`,
+// `a`, `button`, `input` and `table` — loading that unscoped into wp-admin
+// would restyle the admin menu, the admin bar, every core settings screen, and
+// every other plugin's pages.
 //
-// Because everything here ends up prefixed, this file must not rely on
-// selectors that only make sense at the document root — the custom properties
-// are re-declared on the wrapper instead of on `:root`.
+// What Bulma contributes here is its THEME LAYER only: `utilities` configured
+// with the Guide tokens, plus `themes`, which generates the `--bulma-*` custom
+// properties. None of Bulma's components are imported, because the console app
+// (admin/assets/js/console.js, 1800 lines) has its own class vocabulary —
+// `guide-btn`, `guide-card`, `guide-field`, `guide-drawer` and so on. Pulling
+// in Bulma's components would ship ~390 KB of rules that nothing matches and
+// would collide with the front-end component names besides.
+//
+// The result is that the console shares the front end's exact colours, radii
+// and typography without either side having to be rewritten to suit the other.
 
 @use "tokens" as t;
 
@@ -39,31 +44,6 @@
 );
 
 @use "bulma/sass/themes";
-@use "bulma/sass/base/minireset";
-@use "bulma/sass/base/generic";
-
-@use "bulma/sass/elements/button";
-@use "bulma/sass/elements/content";
-@use "bulma/sass/elements/delete";
-@use "bulma/sass/elements/icon";
-@use "bulma/sass/elements/notification";
-@use "bulma/sass/elements/table";
-@use "bulma/sass/elements/tag";
-@use "bulma/sass/elements/title";
-@use "bulma/sass/form";
-@use "bulma/sass/components/dropdown";
-@use "bulma/sass/components/message";
-@use "bulma/sass/components/modal";
-@use "bulma/sass/components/pagination";
-@use "bulma/sass/components/tabs";
-@use "bulma/sass/grid/columns";
-@use "bulma/sass/helpers/flexbox";
-@use "bulma/sass/helpers/spacing";
-@use "bulma/sass/helpers/typography";
-@use "bulma/sass/helpers/visibility";
-@use "bulma/sass/helpers/position";
-@use "bulma/sass/helpers/other";
 
 @use "css-tokens";
-@use "components";
 @use "console";
