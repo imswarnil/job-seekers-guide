@@ -138,3 +138,144 @@ body.login .language-switcher {
     border-radius: t.$radius-small;
   }
 }
+
+// =============================================================================
+// Two-column shell
+// =============================================================================
+//
+// WordPress gives the login page one centred column. For a site where the
+// sign-up form is a genuine decision point — "is this worth my time?" — a bare
+// form on a coloured background answers nothing. So the form keeps its column
+// and gains a panel beside it saying what the place is.
+//
+// The markup is injected around #login by Admin_Theme::open_shell().
+
+body.login {
+  // The shell handles centring now.
+  display: block;
+  padding: 0;
+}
+
+.guide-login-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+  align-items: center;
+  gap: 4rem;
+  max-width: 68rem;
+  min-height: 100vh;
+  margin-inline: auto;
+  padding: 3rem 2rem;
+
+  // Below a wide screen the panel goes above the form, shortened — nobody
+  // reads a value proposition twice, and on a phone it would push the form
+  // itself below the fold, which is the one thing that must not happen.
+  @media (max-width: 60rem) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+    padding: 2rem 1.25rem;
+    min-height: 0;
+  }
+}
+
+.guide-login-brand {
+  color: rgb(255 255 255 / 92%);
+
+  @media (max-width: 60rem) {
+    text-align: center;
+  }
+}
+
+.guide-login-brand__home {
+  display: inline-block;
+  font-family: #{t.$family-display};
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #fff;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: #fff;
+    text-decoration: underline;
+  }
+}
+
+.guide-login-brand__heading {
+  margin: 1.5rem 0 0;
+  font-family: #{t.$family-display};
+  font-size: clamp(1.6rem, 1.1rem + 1.8vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.guide-login-brand__points {
+  margin: 1.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.6rem;
+
+  li {
+    position: relative;
+    padding-left: 1.6rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: rgb(255 255 255 / 80%);
+
+    // A tick drawn in CSS rather than an icon font: this page loads no
+    // JavaScript and no icon set, and it should stay that way.
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.42em;
+      width: 0.5rem;
+      height: 0.85rem;
+      border-right: 2px solid #{t.$amber-30};
+      border-bottom: 2px solid #{t.$amber-30};
+      transform: rotate(45deg);
+    }
+  }
+
+  @media (max-width: 60rem) {
+    display: none;
+  }
+}
+
+.guide-login-brand__foot {
+  margin: 2rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: rgb(255 255 255 / 62%);
+
+  @media (max-width: 60rem) {
+    display: none;
+  }
+}
+
+.guide-login-main {
+  #login {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  // The WordPress logo/name above the form is redundant now that the brand
+  // panel names the site.
+  h1 {
+    display: none;
+  }
+}
+
+// "Registration confirmation will be emailed to you."
+//
+// It is not. Registration sets the password on the form and signs the person
+// in, and on a site whose mail is not configured this line is the instruction
+// that strands people. There is no filter for it, so it is hidden here.
+#reg_passmail {
+  display: none;
+}

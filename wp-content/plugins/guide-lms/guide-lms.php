@@ -75,6 +75,7 @@ require_once GUIDE_PLUGIN_DIR . 'includes/pwa/class-pwa.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/security/class-hardening.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/security/class-comments-off.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/security/class-login-guard.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/security/class-registration.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/security/class-trim.php';
 require_once GUIDE_PLUGIN_DIR . 'admin/class-lms-admin.php';
 require_once GUIDE_PLUGIN_DIR . 'admin/class-console.php';
@@ -139,6 +140,7 @@ function guide_boot() {
 	Guide\Security\Hardening::init();
 	Guide\Security\Comments_Off::init();
 	Guide\Security\Login_Guard::init();
+	Guide\Security\Registration::init();
 	Guide\Security\Trim::init();
 	Guide\Admin\Lms_Admin::init();
 	Guide\Admin\Console::init();
