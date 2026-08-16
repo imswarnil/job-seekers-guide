@@ -210,9 +210,11 @@ $guide_has_visual = $guide_resume || ! empty( $guide_hero_steps );
 					<p><?php esc_html_e( 'Training institutes are not selling knowledge. They are selling sequence — “learn this, then this” — filtering, and someone expecting you tomorrow. All three can be given away, so here they are.', 'guide-wp-theme' ); ?></p>
 					<p><?php esc_html_e( 'This platform was built by someone who was rejected 33 times, took a ₹13,000-a-month job because the fresher tag is a door you only need opened once, and moved to a real salary three months later by treating the job hunt as a subject worth studying.', 'guide-wp-theme' ); ?></p>
 				</div>
-				<a class="button is-primary mt-4" href="<?php echo esc_url( home_url( '/my-story/' ) ); ?>">
-					<?php esc_html_e( 'Read the whole story', 'guide-wp-theme' ); ?>
-				</a>
+				<?php if ( get_page_by_path( 'my-story' ) ) : ?>
+					<a class="button is-primary mt-4" href="<?php echo esc_url( home_url( '/my-story/' ) ); ?>">
+						<?php esc_html_e( 'Read the whole story', 'guide-wp-theme' ); ?>
+					</a>
+				<?php endif; ?>
 			</div>
 
 			<div class="guide-compare">

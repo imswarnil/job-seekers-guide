@@ -34,13 +34,30 @@ defined( 'ABSPATH' ) || exit;
 				</div>
 			</nav>
 
-			<nav aria-label="<?php esc_attr_e( 'Community', 'guide-wp-theme' ); ?>">
-				<h2 class="guide-footer__heading"><?php esc_html_e( 'Community', 'guide-wp-theme' ); ?></h2>
-				<div class="guide-footer__list">
-					<a href="<?php echo esc_url( home_url( '/my-story/' ) ); ?>"><?php esc_html_e( 'My Story', 'guide-wp-theme' ); ?></a>
-					<a href="<?php echo esc_url( home_url( '/resources/' ) ); ?>"><?php esc_html_e( 'Resources', 'guide-wp-theme' ); ?></a>
-				</div>
-			</nav>
+			<?php
+			// Only linked once the pages actually exist — a footer link to a
+			// 404 is worse than no link. Both are built as regular pages.
+			$guide_community = array_filter(
+				array(
+					'my-story'  => __( 'My Story', 'guide-wp-theme' ),
+					'resources' => __( 'Resources', 'guide-wp-theme' ),
+				),
+				static function ( $label, $slug ) {
+					return (bool) get_page_by_path( $slug );
+				},
+				ARRAY_FILTER_USE_BOTH
+			);
+			?>
+			<?php if ( $guide_community ) : ?>
+				<nav aria-label="<?php esc_attr_e( 'Community', 'guide-wp-theme' ); ?>">
+					<h2 class="guide-footer__heading"><?php esc_html_e( 'Community', 'guide-wp-theme' ); ?></h2>
+					<div class="guide-footer__list">
+						<?php foreach ( $guide_community as $guide_slug => $guide_label ) : ?>
+							<a href="<?php echo esc_url( home_url( '/' . $guide_slug . '/' ) ); ?>"><?php echo esc_html( $guide_label ); ?></a>
+						<?php endforeach; ?>
+					</div>
+				</nav>
+			<?php endif; ?>
 
 			<nav aria-label="<?php esc_attr_e( 'Project', 'guide-wp-theme' ); ?>">
 				<h2 class="guide-footer__heading"><?php esc_html_e( 'Project', 'guide-wp-theme' ); ?></h2>
