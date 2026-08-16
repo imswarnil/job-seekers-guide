@@ -1,0 +1,70 @@
+// =============================================================================
+// Guide tokens exposed as CSS custom properties
+// =============================================================================
+//
+// Bulma generates a `--bulma-*` variable for everything it knows about. These
+// are the few things it has no concept of: the "spark" accent, the shadow
+// scale, and the layout measurements. Registering them here means every
+// component below can reach them without importing SCSS, and means a child
+// theme can retheme Guide by overriding custom properties alone.
+
+@use "sass:color";
+@use "tokens" as t;
+
+:root {
+  --guide-spark: #{t.$spark};
+  --guide-spark-soft: #{t.$spark-soft};
+  --guide-spark-strong: #{t.$spark-strong};
+
+  --guide-shadow-sm: #{t.$shadow-sm};
+  --guide-shadow-md: #{t.$shadow-md};
+  --guide-shadow-lg: #{t.$shadow-lg};
+
+  // Deliberately-dark bands — the course hero, the story hero, the closing
+  // CTA, code blocks. These must NOT follow the theme: they are dark by
+  // design, so pointing them at `scheme-invert` renders dark-on-dark once the
+  // page itself is dark. Fixed values, light text, both themes.
+  --guide-inverse-bg: #{t.$indigo-90};
+  --guide-inverse-ink: #f4f5ff;
+  --guide-inverse-muted: rgba(244, 245, 255, 0.74);
+  --guide-inverse-line: rgba(255, 255, 255, 0.14);
+  --guide-code-bg: #14172f;
+  --guide-code-ink: #e6e8ff;
+
+  --guide-shell-max: #{t.$shell-max};
+  --guide-prose-max: #{t.$prose-max};
+  --guide-sidebar-w: #{t.$sidebar-w};
+  --guide-player-sidebar-w: #{t.$player-sidebar-w};
+  --guide-header-h: #{t.$header-h};
+  --guide-measure: #{t.$measure};
+}
+
+// Dark mode wants a warmer, less saturated amber — the light-mode value
+// vibrates unpleasantly against a dark surface — and shadows with enough
+// opacity to actually read on a dark ground.
+@mixin guide-dark-tokens {
+  --guide-spark: #{t.$amber-30};
+  --guide-spark-soft: #{rgba(t.$amber-50, 0.16)};
+  --guide-spark-strong: #{t.$amber-30};
+  --guide-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --guide-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.45);
+  --guide-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
+
+  // In dark mode the inverse bands sit against an already-dark page, so they
+  // go one step darker to stay distinguishable from the surface behind them.
+  --guide-inverse-bg: #07091a;
+  --guide-code-bg: #0b0e22;
+}
+
+[data-theme="dark"],
+.theme-dark {
+  @include guide-dark-tokens;
+}
+
+// "auto" mode: no data-theme has been resolved yet, or the OS is the source of
+// truth. Mirrors how Bulma itself handles the system preference.
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    @include guide-dark-tokens;
+  }
+}

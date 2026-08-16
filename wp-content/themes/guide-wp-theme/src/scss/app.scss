@@ -1,0 +1,120 @@
+@charset "utf-8";
+
+// =============================================================================
+// Guide WP Theme — front-end stylesheet
+// =============================================================================
+//
+// Build:  npm run build   ->  assets/css/app.min.css  (committed)
+// Watch:  npm run watch
+//
+// The compiled file is committed so production needs no Node toolchain, which
+// is the same arrangement the previous build used.
+//
+// Bulma is imported PIECE BY PIECE rather than as `@use "bulma/sass"`. The
+// full framework is 662 KB minified — most of it the colour-helper matrix and
+// layout components this theme replaces with its own. A large part of this
+// platform's audience is on a cheap phone on a slow connection in a small
+// town; shipping half a megabyte of unused CSS to them is a product decision,
+// not just a build detail. Anything commented "not imported" below is
+// deliberately excluded because the Guide layer already covers it.
+//
+// Structure:
+//   1. utilities   — Bulma's variables, configured with the Guide tokens
+//   2. themes      — light/dark custom-property generation
+//   3. base + the elements/components actually used in templates
+//   4. guide layer — everything Bulma does not ship
+//
+// The Guide layer reads colour from Bulma's generated `--bulma-*` custom
+// properties rather than SCSS values, so light and dark both work from one set
+// of rules. Bulma 1.x switches on `[data-theme="dark"]`, which is what
+// inc/dark-mode.php already sets before first paint.
+
+@use "tokens" as t;
+
+// -- 1. Utilities, configured -------------------------------------------------
+
+@use "bulma/sass/utilities" with (
+  // Type
+  $family-primary: t.$family-body,
+  $family-secondary: t.$family-display,
+  $family-code: t.$family-mono,
+
+  // Brand
+  $primary: t.$primary,
+  $link: t.$link,
+  $info: t.$info,
+  $success: t.$success,
+  $warning: t.$warning,
+  $danger: t.$danger,
+
+  // Neutrals tinted toward the brand hue
+  $scheme-h: t.$scheme-h,
+  $scheme-s: t.$scheme-s,
+
+  // Shape
+  $radius-small: t.$radius-small,
+  $radius: t.$radius,
+  $radius-medium: t.$radius-medium,
+  $radius-large: t.$radius-large
+);
+
+// -- 2. Themes ----------------------------------------------------------------
+
+@use "bulma/sass/themes";
+
+// -- 3. Base ------------------------------------------------------------------
+
+@use "bulma/sass/base/minireset";
+@use "bulma/sass/base/generic";
+@use "bulma/sass/base/animations";
+
+// Elements. Not imported: block, box, image, loader, progress, skeleton —
+// all covered by the Guide layer or unused.
+@use "bulma/sass/elements/button";
+@use "bulma/sass/elements/content";
+@use "bulma/sass/elements/delete";
+@use "bulma/sass/elements/icon";
+@use "bulma/sass/elements/notification";
+@use "bulma/sass/elements/table";
+@use "bulma/sass/elements/tag";
+@use "bulma/sass/elements/title";
+
+// Forms — used throughout: submissions, search, filters, the story editor.
+@use "bulma/sass/form";
+
+// Components. Not imported: breadcrumb, card, menu, navbar, panel — the Guide
+// layer has purpose-built versions (guide-card, guide-header, guide-rail).
+@use "bulma/sass/components/dropdown";
+@use "bulma/sass/components/message";
+@use "bulma/sass/components/modal";
+@use "bulma/sass/components/pagination";
+@use "bulma/sass/components/tabs";
+
+// Layout. Not imported: footer, hero, level, media, container — Guide has its
+// own shell, hero, and footer.
+@use "bulma/sass/layout/section";
+
+// Grid. Not imported: grid — the Guide layer uses purpose-built CSS grids
+// (.guide-grid, .guide-with-rail) sized to real content.
+@use "bulma/sass/grid/columns";
+
+// Helpers. Not imported: color — 300+ rules generating every colour as a text
+// and background helper, none of which templates use now that colour comes
+// from custom properties.
+@use "bulma/sass/helpers/flexbox";
+@use "bulma/sass/helpers/spacing";
+@use "bulma/sass/helpers/typography";
+@use "bulma/sass/helpers/visibility";
+@use "bulma/sass/helpers/position";
+@use "bulma/sass/helpers/other";
+
+// -- 4. Guide layer -----------------------------------------------------------
+
+@use "css-tokens";
+@use "base";
+@use "layout";
+@use "components";
+@use "home";
+@use "course";
+@use "lesson";
+@use "community";

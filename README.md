@@ -1,11 +1,13 @@
 # Job Seekers Guide
 
-A WordPress site (LMS-powered) helping job seekers, built on:
+A structured-learning platform for people trying to get their first job in
+software. The thinking behind it — the problem, the personas, the curriculum,
+and the product flow — lives in [`abstract/`](./abstract/).
 
 - **Hosting:** Hostinger VPS
 - **Runtime:** WordPress running in Docker containers
-- **LMS:** [Tutor LMS](https://tutorlms.com/) plugin
-- **Theme:** [Tutor Starter](https://themeforest.net/item/tutor-starter/) (customized)
+- **LMS:** Guide LMS (`wp-content/plugins/guide-lms`) — custom, no Tutor, no WooCommerce
+- **Theme:** Guide WP Theme (`wp-content/themes/guide-wp-theme`) — classic PHP theme on Bulma
 
 ## Stack
 
@@ -14,8 +16,8 @@ A WordPress site (LMS-powered) helping job seekers, built on:
 | Server     | Hostinger VPS                   |
 | Container  | Docker + Docker Compose         |
 | CMS        | WordPress                       |
-| LMS Plugin | Tutor LMS                       |
-| Theme      | Tutor Starter (customized)      |
+| LMS Plugin | Guide LMS (custom)              |
+| Theme      | Guide WP Theme (custom, Bulma)  |
 | Database   | MySQL / MariaDB (containerized) |
 
 ## Repository Layout
@@ -24,10 +26,11 @@ A WordPress site (LMS-powered) helping job seekers, built on:
 .
 ├── docker/            # Docker Compose files, Dockerfiles, env templates
 ├── wp-content/
-│   ├── themes/         # Tutor Starter (customized child theme)
-│   ├── plugins/        # Custom / must-use plugins
+│   ├── themes/         # guide-wp-theme
+│   ├── plugins/        # guide-lms
 │   └── uploads/        # (gitignored) media, synced separately
 ├── scripts/            # Deploy / backup / sync scripts
+├── abstract/           # Project abstract, personas, flows, curriculum, seed data
 ├── TODO.md
 └── README.md
 ```
@@ -40,7 +43,22 @@ A WordPress site (LMS-powered) helping job seekers, built on:
 
 ## Deployment (Hostinger VPS)
 
-See [TODO.md](./TODO.md) for the step-by-step rollout plan, from provisioning the VPS through going live with Tutor LMS courses.
+See [TODO.md](./TODO.md) for the rollout plan.
+
+## Front-end build
+
+The compiled stylesheet is committed, so production needs no Node toolchain.
+To change styles:
+
+```
+cd wp-content/themes/guide-wp-theme
+npm install
+npm run build     # theme + scoped admin console + wp-admin skin
+npm run watch     # theme only, on change
+```
+
+Design tokens live in `src/scss/_tokens.scss`; the rationale for each is in the
+file and in [`abstract/04-vision-and-principles.md`](./abstract/04-vision-and-principles.md).
 
 ## License
 

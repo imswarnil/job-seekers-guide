@@ -1,0 +1,220 @@
+@charset "utf-8";
+
+// =============================================================================
+// wp-admin skin
+// =============================================================================
+//
+// Deliberately NOT a Bulma build. This file is loaded unscoped across every
+// admin screen — including core settings pages and other plugins' pages — so
+// it restricts itself to colour, type, and radius on WordPress's own chrome.
+// No resets, no layout changes, no bare-element rules. Anything structural
+// belongs in the scoped console stylesheet instead.
+//
+// The values come from the same Guide tokens as the front end, so wp-admin
+// reads as part of the same product rather than a stock WordPress install
+// wearing a different hat.
+
+@use "tokens" as t;
+
+// The admin skin uses fixed light-mode values: wp-admin has its own colour
+// scheme system and no reliable dark-mode signal, so following the front end's
+// theme here produces a half-dark admin that looks broken.
+$ink: #1c1f33;
+$ink-weak: #5a5d71;
+$line: #e2e3ee;
+$surface: #ffffff;
+$surface-alt: #f6f7fb;
+
+// -----------------------------------------------------------------------------
+// Admin menu
+// -----------------------------------------------------------------------------
+
+#adminmenu,
+#adminmenuwrap,
+#adminmenuback {
+  background: t.$indigo-90;
+}
+
+#adminmenu a {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+#adminmenu div.wp-menu-image::before {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+#adminmenu li.menu-top:hover,
+#adminmenu li.opensub > a.menu-top,
+#adminmenu li > a.menu-top:focus {
+  background: t.$indigo-80;
+  color: #fff;
+
+  div.wp-menu-image::before {
+    color: #fff;
+  }
+}
+
+#adminmenu li.current a.menu-top,
+#adminmenu li.wp-has-current-submenu a.wp-has-current-submenu,
+.folded #adminmenu li.current.menu-top {
+  background: t.$primary;
+  color: #fff;
+
+  div.wp-menu-image::before {
+    color: #fff;
+  }
+}
+
+#adminmenu .wp-submenu,
+#adminmenu .wp-has-current-submenu .wp-submenu {
+  background: t.$indigo-80;
+}
+
+#adminmenu .wp-submenu a:hover,
+#adminmenu .wp-submenu a:focus {
+  color: t.$amber-30;
+}
+
+#adminmenu .wp-submenu li.current a {
+  color: #fff;
+  font-weight: 600;
+}
+
+// The collapse control at the bottom, which stock WordPress leaves visually
+// stranded once the menu is recoloured.
+#collapse-button {
+  color: rgba(255, 255, 255, 0.6);
+
+  &:hover {
+    color: t.$amber-30;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Admin bar
+// -----------------------------------------------------------------------------
+
+#wpadminbar {
+  background: t.$indigo-90;
+}
+
+#wpadminbar .ab-top-menu > li:hover > .ab-item,
+#wpadminbar .ab-top-menu > li.hover > .ab-item {
+  background: t.$indigo-80;
+  color: #fff;
+}
+
+#wpadminbar .ab-submenu .ab-item,
+#wpadminbar .quicklinks .menupop ul li a {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+// -----------------------------------------------------------------------------
+// Buttons
+// -----------------------------------------------------------------------------
+
+.wp-core-ui .button-primary {
+  background: t.$primary;
+  border-color: t.$indigo-70;
+  color: #fff;
+  border-radius: t.$radius-small;
+  text-shadow: none;
+  box-shadow: none;
+
+  &:hover,
+  &:focus {
+    background: t.$indigo-70;
+    border-color: t.$indigo-80;
+    color: #fff;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px t.$primary;
+  }
+}
+
+.wp-core-ui .button,
+.wp-core-ui .button-secondary {
+  border-radius: t.$radius-small;
+  border-color: $line;
+  color: t.$indigo-70;
+
+  &:hover {
+    border-color: t.$primary;
+    color: t.$indigo-80;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Links, focus, form controls
+// -----------------------------------------------------------------------------
+
+.wp-core-ui a,
+#wpbody-content a:not(.button):not(.button-primary):not(.page-title-action) {
+  color: t.$indigo-70;
+}
+
+input[type="text"]:focus,
+input[type="search"]:focus,
+input[type="email"]:focus,
+input[type="url"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+  border-color: t.$primary;
+  box-shadow: 0 0 0 1px t.$primary;
+}
+
+input[type="checkbox"]:checked::before {
+  content: "\f147";
+  color: t.$primary;
+}
+
+input[type="radio"]:checked::before {
+  background-color: t.$primary;
+}
+
+// -----------------------------------------------------------------------------
+// Typography
+// -----------------------------------------------------------------------------
+
+body.wp-admin {
+  font-family: #{t.$family-body};
+}
+
+.wp-admin h1,
+.wp-admin h2,
+.wp-admin h3,
+.wp-heading-inline {
+  font-family: #{t.$family-display};
+  letter-spacing: -0.015em;
+  color: $ink;
+}
+
+// -----------------------------------------------------------------------------
+// Notices
+// -----------------------------------------------------------------------------
+
+.notice,
+div.updated,
+div.error {
+  border-radius: t.$radius-small;
+  border-left-width: 4px;
+}
+
+.notice-success {
+  border-left-color: t.$green;
+}
+
+.notice-warning {
+  border-left-color: t.$amber-50;
+}
+
+.notice-error {
+  border-left-color: t.$red;
+}
+
+.notice-info {
+  border-left-color: t.$primary;
+}

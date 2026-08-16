@@ -1,0 +1,880 @@
+// =============================================================================
+// Community — the editor, resources, stories, and discussion
+// =============================================================================
+
+@use "tokens" as t;
+@use "bulma/sass/utilities/mixins" as mx;
+@use "bulma/sass/utilities/initial-variables" as iv;
+
+// -----------------------------------------------------------------------------
+// Rich text editor
+// -----------------------------------------------------------------------------
+//
+// Used for writing a success story and for long-form resource submissions.
+// Deliberately calm: someone writing "here is how I finally got hired after
+// two years" should be looking at their words, not at a toolbar with forty
+// buttons.
+
+.guide-editor {
+  border: 1px solid var(--bulma-border);
+  border-radius: var(--bulma-radius-medium);
+  background: var(--bulma-scheme-main);
+  overflow: hidden;
+
+  &:focus-within {
+    border-color: var(--bulma-primary);
+    box-shadow: 0 0 0 3px var(--bulma-primary-soft);
+  }
+}
+
+.guide-editor__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.4rem;
+  background: var(--bulma-scheme-main-bis);
+  border-bottom: 1px solid var(--bulma-border-weak);
+  position: sticky;
+  top: var(--guide-header-h);
+  z-index: 5;
+}
+
+.guide-editor__tool {
+  display: grid;
+  place-items: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding-inline: 0.4rem;
+  border: 0;
+  border-radius: var(--bulma-radius-small);
+  background: transparent;
+  color: var(--bulma-text);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  &:hover {
+    background: var(--bulma-scheme-main-ter);
+  }
+
+  &.is-active {
+    background: var(--bulma-primary-soft);
+    color: var(--bulma-primary-on-scheme);
+  }
+
+  &[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.guide-editor__divider {
+  width: 1px;
+  height: 1.25rem;
+  margin-inline: 0.3rem;
+  background: var(--bulma-border);
+}
+
+.guide-editor__surface {
+  min-height: 22rem;
+  padding: 1.5rem;
+  outline: none;
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: var(--bulma-text);
+
+  // The editing surface shares the prose rules so what you type looks like
+  // what gets published. A WYSIWYG that lies is worse than a plain textarea.
+  > * + * {
+    margin-top: 1.15em;
+  }
+
+  h2,
+  h3 {
+    font-family: var(--bulma-family-secondary);
+    color: var(--bulma-text-strong);
+    line-height: 1.25;
+    margin-top: 1.6em;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  blockquote {
+    margin-inline: 0;
+    padding: 0.85rem 1.1rem;
+    border-left: 3px solid var(--guide-spark);
+    background: var(--bulma-scheme-main-bis);
+    border-radius: 0 var(--bulma-radius) var(--bulma-radius) 0;
+  }
+
+  ul,
+  ol {
+    padding-left: 1.4em;
+  }
+
+  ul {
+    list-style: disc;
+  }
+
+  ol {
+    list-style: decimal;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--bulma-radius-medium);
+  }
+
+  code {
+    font-family: var(--bulma-family-code);
+    font-size: 0.88em;
+    padding: 0.15em 0.4em;
+    border-radius: var(--bulma-radius-small);
+    background: var(--bulma-scheme-main-ter);
+  }
+
+  pre {
+    padding: 1rem;
+    border-radius: var(--bulma-radius);
+    background: var(--guide-code-bg);
+    color: var(--guide-code-ink);
+    overflow-x: auto;
+    font-family: var(--bulma-family-code);
+    font-size: 0.875rem;
+  }
+
+  a {
+    color: var(--bulma-link-text);
+    text-decoration: underline;
+  }
+
+  &:empty::before,
+  &[data-empty="true"]::before {
+    content: attr(data-placeholder);
+    color: var(--bulma-text-weak);
+    pointer-events: none;
+  }
+}
+
+.guide-editor__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border-top: 1px solid var(--bulma-border-weak);
+  background: var(--bulma-scheme-main-bis);
+  font-size: 0.82rem;
+  color: var(--bulma-text-weak);
+}
+
+.guide-editor__count {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+// Drag-and-drop image target state.
+.guide-editor.is-dropping {
+  border-color: var(--bulma-primary);
+  box-shadow: 0 0 0 3px var(--bulma-primary-soft);
+}
+
+.guide-upload-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--bulma-text-weak);
+}
+
+// -----------------------------------------------------------------------------
+// Resource library
+// -----------------------------------------------------------------------------
+
+.guide-resource {
+  display: flex;
+  gap: 1rem;
+  padding: 1.15rem 1.25rem;
+  border: 1px solid var(--bulma-border-weak);
+  border-radius: var(--bulma-radius-large);
+  background: var(--bulma-scheme-main);
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+  position: relative;
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--bulma-primary) 45%, transparent);
+    box-shadow: var(--guide-shadow-sm);
+  }
+}
+
+.guide-resource__icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--bulma-radius);
+  background: var(--bulma-primary-soft);
+  color: var(--bulma-primary-on-scheme);
+
+  svg {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+}
+
+.guide-resource__body {
+  min-width: 0;
+  flex: 1;
+}
+
+.guide-resource__title {
+  font-family: var(--bulma-family-secondary);
+  font-weight: 700;
+  font-size: 1.02rem;
+  line-height: 1.35;
+  color: var(--bulma-text-strong);
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+  }
+}
+
+.guide-resource__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  margin-top: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--bulma-text-weak);
+}
+
+.guide-resource__desc {
+  margin-top: 0.5rem;
+  font-size: 0.925rem;
+  line-height: 1.55;
+  color: var(--bulma-text-weak);
+}
+
+// Free / paid is the first thing a job seeker with no income looks for, so it
+// gets a colour rather than being buried in the metadata line.
+.guide-price-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 1.55rem;
+  padding-inline: 0.55rem;
+  border-radius: var(--bulma-radius-rounded);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.guide-price-tag--free {
+  background: var(--bulma-success-soft);
+  color: var(--bulma-success-on-scheme);
+}
+
+.guide-price-tag--paid {
+  background: var(--bulma-scheme-main-ter);
+  color: var(--bulma-text-weak);
+}
+
+// Submission moderation states, shown on a contributor's own submissions.
+.guide-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.guide-status--pending {
+  color: var(--guide-spark-strong);
+}
+
+.guide-status--approved {
+  color: var(--bulma-success);
+}
+
+.guide-status--rejected {
+  color: var(--bulma-danger);
+}
+
+// -----------------------------------------------------------------------------
+// Story
+// -----------------------------------------------------------------------------
+
+.guide-story-hero {
+  position: relative;
+  overflow: hidden;
+  padding-block: 4.5rem;
+  background: var(--guide-inverse-bg);
+  color: var(--guide-inverse-ink);
+
+  @include mx.mobile {
+    padding-block: 3rem;
+  }
+}
+
+.guide-story-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      54rem 30rem at 15% 0%,
+      color-mix(in srgb, var(--bulma-primary) 42%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      42rem 24rem at 88% 92%,
+      color-mix(in srgb, var(--guide-spark) 22%, transparent),
+      transparent 62%
+    );
+  pointer-events: none;
+}
+
+.guide-story-hero__inner {
+  position: relative;
+}
+
+// The pull-stat row on the story page: 33 rejections, ₹1.8 LPA, 3 months.
+// These numbers are the argument, so they are typeset as the argument.
+.guide-story-stats {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  margin-top: 2.5rem;
+}
+
+.guide-story-stat__value {
+  font-family: var(--bulma-family-secondary);
+  font-size: clamp(2rem, 4.5vw, 2.9rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--guide-spark);
+}
+
+.guide-story-stat__label {
+  margin-top: 0.5rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  opacity: 0.8;
+}
+
+// Chapter markers down the story.
+.guide-story-chapter {
+  position: relative;
+  padding-left: 2.5rem;
+  padding-block: 2rem;
+
+  @include mx.mobile {
+    padding-left: 0;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0.5rem;
+    top: 3.2rem;
+    bottom: -2rem;
+    width: 2px;
+    background: var(--bulma-border-weak);
+
+    @include mx.mobile {
+      display: none;
+    }
+  }
+
+  &:last-child::before {
+    display: none;
+  }
+}
+
+.guide-story-chapter__dot {
+  position: absolute;
+  left: 0;
+  top: 2.35rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: var(--guide-spark);
+  border: 3px solid var(--bulma-scheme-main);
+
+  @include mx.mobile {
+    display: none;
+  }
+}
+
+.guide-story-chapter__year {
+  font-family: var(--bulma-family-code);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--guide-spark-strong);
+}
+
+.guide-story-chapter__title {
+  margin-top: 0.4rem;
+  font-family: var(--bulma-family-secondary);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--bulma-text-strong);
+}
+
+// A full-bleed quote used as a beat between chapters.
+.guide-pullquote {
+  margin-block: 2.5rem;
+  padding: 2rem 2.25rem;
+  border-radius: var(--bulma-radius-large);
+  background: var(--bulma-scheme-main-bis);
+  border-left: 4px solid var(--guide-spark);
+  font-family: var(--bulma-family-secondary);
+  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+  font-weight: 650;
+  line-height: 1.45;
+  letter-spacing: -0.015em;
+  color: var(--bulma-text-strong);
+
+  @include mx.mobile {
+    padding: 1.5rem;
+  }
+}
+
+// Learner-submitted story cards on the wall.
+.guide-story-card__quote {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--bulma-text);
+
+  &::before {
+    content: "\201C";
+    color: var(--guide-spark);
+    font-weight: 700;
+  }
+
+  &::after {
+    content: "\201D";
+    color: var(--guide-spark);
+    font-weight: 700;
+  }
+}
+
+.guide-story-card__author {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--bulma-border-weak);
+}
+
+.guide-story-card__name {
+  font-weight: 650;
+  font-size: 0.9rem;
+  color: var(--bulma-text-strong);
+}
+
+.guide-story-card__role {
+  font-size: 0.8rem;
+  color: var(--bulma-text-weak);
+}
+
+// The transition line: "Mechanical graduate → Backend Developer".
+.guide-transition {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--bulma-text-weak);
+
+  svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    color: var(--guide-spark);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Discussion
+// -----------------------------------------------------------------------------
+
+.guide-comments {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--bulma-border-weak);
+}
+
+.guide-comments__title {
+  font-family: var(--bulma-family-secondary);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--bulma-text-strong);
+  margin-bottom: 1.5rem;
+}
+
+.guide-comment {
+  display: flex;
+  gap: 0.85rem;
+  padding-block: 1.15rem;
+
+  & + & {
+    border-top: 1px solid var(--bulma-border-weak);
+  }
+}
+
+.guide-comment__body {
+  min-width: 0;
+  flex: 1;
+}
+
+.guide-comment__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.guide-comment__author {
+  font-weight: 650;
+  font-size: 0.925rem;
+  color: var(--bulma-text-strong);
+}
+
+.guide-comment__date {
+  font-size: 0.78rem;
+  color: var(--bulma-text-weak);
+}
+
+// Marks the course author / staff so a learner can tell an official answer
+// from a peer guess.
+.guide-comment__badge {
+  display: inline-flex;
+  align-items: center;
+  height: 1.3rem;
+  padding-inline: 0.45rem;
+  border-radius: var(--bulma-radius-rounded);
+  background: var(--bulma-primary-soft);
+  color: var(--bulma-primary-on-scheme);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.guide-comment__text {
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: var(--bulma-text);
+
+  > * + * {
+    margin-top: 0.8em;
+  }
+}
+
+.guide-comment__actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.guide-comment__action {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--bulma-text-weak);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--bulma-link-text);
+  }
+}
+
+// Replies, one level only. Deeper nesting is unreadable on a phone.
+.guide-comment__replies {
+  margin-top: 1rem;
+  margin-left: 0;
+  padding-left: 1rem;
+  border-left: 2px solid var(--bulma-border-weak);
+}
+
+.guide-comment-form {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--bulma-border-weak);
+  border-radius: var(--bulma-radius-large);
+  background: var(--bulma-scheme-main-bis);
+}
+
+.guide-comment-form__note {
+  margin-top: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--bulma-text-weak);
+}
+
+// -----------------------------------------------------------------------------
+// Leaderboard
+// -----------------------------------------------------------------------------
+
+.guide-board {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--bulma-border-weak);
+  border-radius: var(--bulma-radius-large);
+  background: var(--bulma-scheme-main);
+  overflow: hidden;
+}
+
+.guide-board__row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1.15rem;
+
+  & + & {
+    border-top: 1px solid var(--bulma-border-weak);
+  }
+
+  &.is-me {
+    background: var(--bulma-primary-soft);
+  }
+}
+
+.guide-board__rank {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  font-family: var(--bulma-family-code);
+  font-size: 0.85rem;
+  font-weight: 700;
+  background: var(--bulma-scheme-main-ter);
+  color: var(--bulma-text-weak);
+}
+
+// The podium. Gold/silver/bronze are fixed values rather than theme colours —
+// they mean the same thing in light and dark.
+.guide-board__rank--1 {
+  background: #ffd34d;
+  color: #3d2f00;
+}
+
+.guide-board__rank--2 {
+  background: #d7dce5;
+  color: #2b2f38;
+}
+
+.guide-board__rank--3 {
+  background: #e4a672;
+  color: #3a2412;
+}
+
+.guide-board__name {
+  display: block;
+  font-weight: 650;
+  color: var(--bulma-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.guide-board__you {
+  margin-left: 0.4rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.guide-board__meta {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  color: var(--bulma-text-weak);
+}
+
+.guide-board__score {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.guide-board__lessons {
+  display: block;
+  font-family: var(--bulma-family-secondary);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--bulma-text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.guide-board__unit {
+  display: block;
+  font-size: 0.63rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bulma-text-weak);
+}
+
+// -----------------------------------------------------------------------------
+// Switch
+// -----------------------------------------------------------------------------
+
+.guide-switch {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  cursor: pointer;
+
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+  }
+}
+
+.guide-switch__track {
+  display: block;
+  width: 3.1rem;
+  height: 1.75rem;
+  border-radius: var(--bulma-radius-rounded);
+  background: var(--bulma-scheme-main-ter);
+  border: 1px solid var(--bulma-border);
+  transition: background-color 160ms ease, border-color 160ms ease;
+
+  &::after {
+    content: "";
+    display: block;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0.19rem;
+    border-radius: 50%;
+    background: var(--bulma-scheme-main);
+    box-shadow: var(--guide-shadow-sm);
+    transition: transform 160ms cubic-bezier(0.2, 0, 0, 1);
+  }
+}
+
+.guide-switch input:checked + .guide-switch__track {
+  background: var(--bulma-primary);
+  border-color: var(--bulma-primary);
+
+  &::after {
+    transform: translateX(1.35rem);
+  }
+}
+
+.guide-switch input:focus-visible + .guide-switch__track {
+  outline: 2px solid var(--bulma-primary);
+  outline-offset: 2px;
+}
+
+// -----------------------------------------------------------------------------
+// Story detail
+// -----------------------------------------------------------------------------
+
+.guide-story-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 17rem;
+  gap: 3rem;
+  align-items: start;
+  max-width: 62rem;
+  margin-inline: auto;
+
+  @include mx.until(iv.$desktop) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+}
+
+.guide-facts {
+  position: sticky;
+  top: calc(var(--guide-header-h) + 1.5rem);
+  padding: 1.35rem;
+  border: 1px solid var(--bulma-border-weak);
+  border-radius: var(--bulma-radius-large);
+  background: var(--bulma-scheme-main-bis);
+
+  @include mx.until(iv.$desktop) {
+    position: static;
+  }
+
+  dl {
+    margin: 0;
+  }
+
+  dt {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--bulma-text-weak);
+  }
+
+  dd {
+    margin: 0.2rem 0 0;
+    font-weight: 650;
+    color: var(--bulma-text-strong);
+  }
+
+  dd + dt {
+    margin-top: 1rem;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Share-your-story form
+// -----------------------------------------------------------------------------
+
+.guide-share {
+  max-width: 44rem;
+  margin: 4rem auto 0;
+  scroll-margin-top: calc(var(--guide-header-h) + 1.5rem);
+}
+
+.guide-field-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 1rem;
+
+  @include mx.mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,123 @@
+// =============================================================================
+// Guide — design tokens
+// =============================================================================
+//
+// The tone these encode is set out in abstract/04-vision-and-principles.md:
+// honest, structured, warm, anti-hype. This is a platform someone opens after
+// their thirty-third rejection, so the visual language has to read as
+// "somebody has thought this through and is on your side" — not as a bootcamp
+// sales page and not as a childish gamified toy.
+//
+// Concretely that means:
+//   · Indigo carries everything structural. It is the colour of study — used
+//     for navigation, progress, and every primary action, so the interface
+//     feels like one continuous path rather than a pile of features.
+//   · Amber is the encouragement colour and is deliberately rationed. It marks
+//     streaks, milestones, and the "you are further than you think" moments.
+//     If amber is everywhere it stops meaning anything.
+//   · Neutrals are tinted very slightly toward the indigo hue so greys never
+//     look like a different design system bolted on.
+//   · Type is sized for long-form reading first. This is a teaching platform;
+//     lesson prose is the product, not a secondary concern.
+//
+// These SCSS values feed Bulma's configuration in app.scss. Anything that has
+// to change between light and dark is consumed at runtime through Bulma's
+// generated `--bulma-*` custom properties instead of being hard-coded here.
+
+@use "sass:color";
+
+// -----------------------------------------------------------------------------
+// Brand palette
+// -----------------------------------------------------------------------------
+
+// Indigo — the brand. Carried over from the previous token set so the site
+// does not change identity, only framework.
+$indigo-05: #f2f3fd;
+$indigo-10: #e0e2ff;
+$indigo-20: #b4baf0;
+$indigo-30: #8892e0;
+$indigo-40: #6e79ce;
+$indigo-50: #5560b8;
+$indigo-60: #414ba0;
+$indigo-70: #2e3782;
+$indigo-80: #1e2465;
+$indigo-90: #101340;
+
+// Amber — encouragement, streaks, milestones. Rationed on purpose.
+$amber-10: #fdf3d9;
+$amber-30: #f6cf65;
+$amber-50: #e9a92a;
+$amber-70: #b47b11;
+
+// Supporting status colours.
+$green: #2f9e64;
+$red: #d0413c;
+$teal: #2b7f9e;
+
+// -----------------------------------------------------------------------------
+// Semantic assignments consumed by Bulma
+// -----------------------------------------------------------------------------
+
+$primary: $indigo-60;
+$link: $indigo-60;
+$info: $teal;
+$success: $green;
+$warning: $amber-50;
+$danger: $red;
+
+// The "spark" accent. Not a Bulma status colour — Guide-specific, exposed as a
+// custom property so components can reach it without importing this file.
+$spark: $amber-50;
+$spark-soft: $amber-10;
+$spark-strong: $amber-70;
+
+// -----------------------------------------------------------------------------
+// Neutral scheme
+// -----------------------------------------------------------------------------
+//
+// Bulma builds every grey from a single hue + saturation, so tinting the
+// neutrals toward indigo is a two-value change rather than a palette rewrite.
+
+$scheme-h: 232;
+$scheme-s: 13%;
+
+// -----------------------------------------------------------------------------
+// Typography
+// -----------------------------------------------------------------------------
+//
+// Plus Jakarta Sans for headings (geometric, confident without shouting),
+// Inter for body and UI (drawn for screen legibility at small sizes),
+// JetBrains Mono for code — and there is a lot of code on this platform.
+
+$family-display: '"Plus Jakarta Sans", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif';
+$family-body: '"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+$family-mono: '"JetBrains Mono", "SF Mono", Menlo, Consolas, monospace';
+
+// Long-form reading measure. Lesson prose is capped at this so lines never run
+// past the ~75 characters beyond which readers start losing their place.
+$measure: 68ch;
+
+// -----------------------------------------------------------------------------
+// Shape and depth
+// -----------------------------------------------------------------------------
+
+$radius-small: 0.375rem;
+$radius: 0.625rem;
+$radius-medium: 0.875rem;
+$radius-large: 1.125rem;
+
+// Borders do the structural work; shadows stay subtle. A teaching interface
+// that floats everything reads as a marketing site.
+$shadow-sm: 0 1px 2px rgba(16, 19, 64, 0.06);
+$shadow-md: 0 2px 8px rgba(16, 19, 64, 0.08), 0 1px 2px rgba(16, 19, 64, 0.04);
+$shadow-lg: 0 12px 32px rgba(16, 19, 64, 0.12), 0 2px 8px rgba(16, 19, 64, 0.06);
+
+// -----------------------------------------------------------------------------
+// Layout
+// -----------------------------------------------------------------------------
+
+$shell-max: 1200px;
+$prose-max: 760px;
+$sidebar-w: 280px;
+$player-sidebar-w: 320px;
+$header-h: 4rem;

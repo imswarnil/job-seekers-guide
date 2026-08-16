@@ -1,0 +1,529 @@
+// =============================================================================
+// Course catalogue, filter rail, and course detail
+// =============================================================================
+
+@use "tokens" as t;
+@use "bulma/sass/utilities/mixins" as mx;
+@use "bulma/sass/utilities/initial-variables" as iv;
+
+// -----------------------------------------------------------------------------
+// Filter rail
+// -----------------------------------------------------------------------------
+//
+// The rail is a progressive disclosure, matching how the abstract describes
+// choosing: pick a broad category first, and only then are you shown the
+// options inside it. Selecting "Programming languages" reveals every language;
+// selecting "Computer Science" reveals the subjects. Showing all of it at once
+// is the paralysis this platform exists to prevent.
+
+.guide-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--bulma-border-weak);
+  border-radius: var(--bulma-radius-large);
+  background: var(--bulma-scheme-main);
+}
+
+.guide-filters__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.guide-filters__title {
+  font-family: var(--bulma-family-secondary);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--bulma-text-strong);
+}
+
+.guide-filters__reset {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--bulma-link-text);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.guide-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.guide-filter-group__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bulma-text-weak);
+}
+
+.guide-filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.55rem;
+  margin-inline: -0.55rem;
+  border-radius: var(--bulma-radius);
+  font-size: 0.925rem;
+  color: var(--bulma-text);
+  cursor: pointer;
+  transition: background-color 120ms ease;
+
+  &:hover {
+    background: var(--bulma-scheme-main-ter);
+  }
+
+  input {
+    accent-color: var(--bulma-primary);
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+}
+
+.guide-filter-option__count {
+  margin-left: auto;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--bulma-text-weak);
+}
+
+.guide-filter-option.is-active {
+  color: var(--bulma-text-strong);
+  font-weight: 600;
+}
+
+// The nested set revealed once a parent category is chosen.
+.guide-filter-children {
+  display: none;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-left: 1.6rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--bulma-border-weak);
+
+  &.is-open {
+    display: flex;
+  }
+}
+
+// Collapsed on small screens behind a disclosure — a filter rail that eats the
+// first screenful on a phone is a filter rail nobody scrolls past.
+.guide-filters-toggle {
+  display: none;
+  width: 100%;
+
+  @include mx.until(iv.$desktop) {
+    display: flex;
+  }
+}
+
+@include mx.until(iv.$desktop) {
+  .guide-filters {
+    display: none;
+
+    &.is-open {
+      display: flex;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Catalogue toolbar
+// -----------------------------------------------------------------------------
+
+.guide-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.guide-toolbar__count {
+  font-size: 0.9rem;
+  color: var(--bulma-text-weak);
+}
+
+.guide-toolbar__spacer {
+  margin-left: auto;
+}
+
+// Active filter pills, so a learner can always see (and undo) what narrowed
+// the list. Filters you cannot see are filters you forget you applied.
+.guide-active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.guide-active-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 1.85rem;
+  padding-inline: 0.7rem;
+  border-radius: var(--bulma-radius-rounded);
+  background: var(--bulma-primary-soft);
+  color: var(--bulma-primary-on-scheme);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+
+  svg {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Course card extras
+// -----------------------------------------------------------------------------
+
+.guide-course-code {
+  font-family: var(--bulma-family-code);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--bulma-text-weak);
+}
+
+// Generated placeholder art, when a course has no featured image.
+.guide-course-art {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 1.25rem;
+  text-align: center;
+  background: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--bulma-primary) 16%, var(--bulma-scheme-main)),
+    color-mix(in srgb, var(--guide-spark) 10%, var(--bulma-scheme-main))
+  );
+}
+
+// -----------------------------------------------------------------------------
+// Course detail
+// -----------------------------------------------------------------------------
+
+.guide-course-hero {
+  padding-block: 3rem;
+  background: var(--guide-inverse-bg);
+  color: var(--guide-inverse-ink);
+
+  .guide-eyebrow {
+    color: var(--guide-spark);
+  }
+
+  .title,
+  h1,
+  .guide-display {
+    color: var(--guide-inverse-ink);
+  }
+}
+
+.guide-course-hero__lede {
+  margin-top: 1rem;
+  max-width: 58ch;
+  font-size: 1.075rem;
+  line-height: 1.62;
+  opacity: 0.82;
+}
+
+.guide-course-hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.guide-course-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 21rem;
+  gap: 3rem;
+  align-items: start;
+
+  @include mx.until(iv.$desktop) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+}
+
+// Sticky enrol card.
+.guide-enroll-card {
+  position: sticky;
+  top: calc(var(--guide-header-h) + 1.5rem);
+  padding: 1.5rem;
+  border: 1px solid var(--bulma-border-weak);
+  border-radius: var(--bulma-radius-large);
+  background: var(--bulma-scheme-main);
+  box-shadow: var(--guide-shadow-md);
+
+  @include mx.until(iv.$desktop) {
+    position: static;
+  }
+}
+
+.guide-enroll-card__price {
+  font-family: var(--bulma-family-secondary);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--bulma-text-strong);
+}
+
+// -----------------------------------------------------------------------------
+// Curriculum accordion
+// -----------------------------------------------------------------------------
+
+.guide-curriculum {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.guide-module {
+  border: 1px solid var(--bulma-border-weak);
+  border-radius: var(--bulma-radius-medium);
+  overflow: hidden;
+  background: var(--bulma-scheme-main);
+}
+
+.guide-module__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 1rem 1.15rem;
+  background: var(--bulma-scheme-main-bis);
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--bulma-text-strong);
+
+  // Hide the native marker; the chevron below is the affordance.
+  &::-webkit-details-marker {
+    display: none;
+  }
+}
+
+.guide-module__index {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--bulma-radius-small);
+  background: var(--bulma-primary-soft);
+  color: var(--bulma-primary-on-scheme);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.guide-module__title {
+  font-family: var(--bulma-family-secondary);
+  font-weight: 650;
+  flex: 1;
+}
+
+.guide-module__count {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--bulma-text-weak);
+  white-space: nowrap;
+}
+
+.guide-module__chevron {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--bulma-text-weak);
+  transition: transform 160ms ease;
+}
+
+[open] > .guide-module__summary .guide-module__chevron {
+  transform: rotate(180deg);
+}
+
+.guide-lesson-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.15rem;
+  border-top: 1px solid var(--bulma-border-weak);
+  color: var(--bulma-text);
+  text-decoration: none;
+  font-size: 0.94rem;
+
+  &:hover {
+    background: var(--bulma-scheme-main-bis);
+    color: var(--bulma-text-strong);
+  }
+}
+
+.guide-lesson-row__icon {
+  flex-shrink: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+  color: var(--bulma-text-weak);
+}
+
+.guide-lesson-row.is-complete .guide-lesson-row__icon {
+  color: var(--bulma-success);
+}
+
+.guide-lesson-row__title {
+  flex: 1;
+  min-width: 0;
+}
+
+.guide-lesson-row__duration {
+  font-size: 0.82rem;
+  color: var(--bulma-text-weak);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+// Locked lessons stay visible but unclickable — showing what is behind the
+// enrol wall is more motivating than hiding it.
+.guide-lesson-row.is-locked {
+  color: var(--bulma-text-weak);
+  cursor: not-allowed;
+
+  &:hover {
+    background: none;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Course hero extras
+// -----------------------------------------------------------------------------
+
+.guide-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-top: 0.5rem;
+  font-size: 0.85rem;
+  opacity: 0.75;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.guide-course-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 21rem;
+  gap: 2.5rem;
+  align-items: start;
+
+  @include mx.until(iv.$desktop) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.75rem;
+  }
+}
+
+// The enrol card sits inside the dark hero, so it keeps light-mode surface
+// colours regardless of theme — a dark card on a dark hero disappears.
+.guide-course-hero .guide-enroll-card {
+  color: var(--bulma-text);
+}
+
+// "or" divider between the buy and subscribe actions.
+.guide-or {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-block: 0.85rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bulma-text-weak);
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--bulma-border-weak);
+  }
+}
+
+// Two-column outcome list on wide screens; the items are short.
+.guide-check-list--two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem 2rem;
+
+  li + li {
+    margin-top: 0;
+  }
+
+  @include mx.mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Tabs
+// -----------------------------------------------------------------------------
+
+.tabs {
+  margin-bottom: 1.75rem;
+
+  a {
+    font-weight: 600;
+    border-bottom-width: 2px;
+  }
+
+  li.is-active a {
+    color: var(--bulma-primary);
+    border-bottom-color: var(--bulma-primary);
+  }
+}
+
+// The disclosure button is hidden on desktop. It needs two classes to beat
+// Bulma's `.button.is-fullwidth { display: flex }`, which is more specific than
+// a single class would be.
+.guide-filters-toggle.guide-filters-toggle {
+  display: none;
+
+  @include mx.until(iv.$desktop) {
+    display: inline-flex;
+  }
+}
+
+// Chips sitting on the dark hero inherit its text colour. Without this they
+// use the page's normal ink and vanish against the dark ground.
+.guide-course-hero,
+.guide-story-hero {
+  .guide-chip--outline {
+    color: inherit;
+    border-color: rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .guide-eyebrow {
+    color: var(--guide-spark);
+  }
+}

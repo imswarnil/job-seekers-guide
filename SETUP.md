@@ -300,8 +300,8 @@ their old caches.
 
 Tokens live in **one place per side**:
 
-- front end: `wp-content/themes/job-seekers-theme/assets/css/tokens.css`
-- admin: `wp-content/plugins/job-seekers-lms/admin/assets/css/md3-tokens.css`
+- design tokens: `wp-content/themes/guide-wp-theme/src/scss/_tokens.scss`
+- these feed both the front end and the (scoped) admin console build
 
 Both are Material 3: tonal reference palettes → system roles
 (`--md-sys-primary`, `--md-sys-surface-container-*`, `--md-sys-outline`, …) →
@@ -312,7 +312,7 @@ login — means editing the palettes in those two files.
 After editing CSS:
 
 ```bash
-cd wp-content/themes/job-seekers-theme
+cd wp-content/themes/guide-wp-theme
 npm run build        # compiles src/app.css -> assets/css/app.css (committed)
 ```
 

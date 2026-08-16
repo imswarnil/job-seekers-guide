@@ -1,0 +1,439 @@
+// =============================================================================
+// Front page
+// =============================================================================
+
+@use "tokens" as t;
+@use "bulma/sass/utilities/mixins" as mx;
+@use "bulma/sass/utilities/initial-variables" as iv;
+
+// -----------------------------------------------------------------------------
+// Hero
+// -----------------------------------------------------------------------------
+
+.guide-hero__grid {
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+
+  &.has-visual {
+    grid-template-columns: 1.05fr 1fr;
+
+    @include mx.until(iv.$desktop) {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2.5rem;
+    }
+  }
+}
+
+.guide-hero__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  margin-top: 2.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--bulma-border-weak);
+  color: var(--bulma-text-weak);
+  font-size: 0.925rem;
+
+  strong {
+    font-family: var(--bulma-family-secondary);
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--bulma-text-strong);
+    margin-right: 0.35rem;
+  }
+}
+
+// The card in the hero's right column: the resume card or the path preview.
+.guide-hero-card {
+  padding: 1.75rem;
+  border: 1px solid var(--bulma-border-weak);
+  border-radius: var(--bulma-radius-large);
+  background: var(--bulma-scheme-main);
+  box-shadow: var(--guide-shadow-lg);
+
+  @include mx.mobile {
+    padding: 1.25rem;
+  }
+}
+
+.guide-hero-card__title {
+  font-family: var(--bulma-family-secondary);
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--bulma-text-strong);
+}
+
+.guide-hero-card__next {
+  padding: 0.9rem 1rem;
+  border-radius: var(--bulma-radius);
+  background: var(--bulma-scheme-main-ter);
+}
+
+.guide-hero-card__foot {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--bulma-border-weak);
+  font-size: 0.82rem;
+  color: var(--bulma-text-weak);
+}
+
+.guide-hero-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  font-weight: 700;
+  color: var(--bulma-link-text);
+  text-decoration: none;
+  white-space: nowrap;
+
+  svg {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// The numbered path preview.
+.guide-step-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.guide-step {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem 0;
+  font-size: 0.925rem;
+
+  & + & {
+    border-top: 1px solid var(--bulma-border-weak);
+  }
+}
+
+.guide-step__index {
+  font-family: var(--bulma-family-code);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--bulma-text-weak);
+  flex-shrink: 0;
+}
+
+.guide-step__icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: var(--bulma-radius-small);
+  background: var(--bulma-primary-soft);
+  color: var(--bulma-primary-on-scheme);
+
+  svg {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+}
+
+.guide-step__title {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 550;
+  color: var(--bulma-text-strong);
+}
+
+.guide-step--more {
+  border-top: 1px solid var(--bulma-border-weak);
+  padding-top: 0.75rem;
+  font-size: 0.82rem;
+  color: var(--bulma-text-weak);
+}
+
+// -----------------------------------------------------------------------------
+// The problem section
+// -----------------------------------------------------------------------------
+
+.guide-problem {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+
+  @include mx.until(iv.$desktop) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+}
+
+// The side-by-side comparison. The institute column is deliberately drawn as
+// the drab one — not with mockery, just without the emphasis.
+.guide-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @include mx.mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.guide-compare__col {
+  padding: 1.35rem;
+  border-radius: var(--bulma-radius-large);
+  border: 1px solid var(--bulma-border-weak);
+  background: var(--bulma-scheme-main);
+
+  h3 {
+    font-family: var(--bulma-family-secondary);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--bulma-text-strong);
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid var(--bulma-border-weak);
+  }
+
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  li {
+    padding-block: 0.5rem;
+
+    & + li {
+      border-top: 1px solid var(--bulma-border-weak);
+    }
+  }
+}
+
+.guide-compare__col--them {
+  color: var(--bulma-text-weak);
+
+  li::before {
+    content: "×";
+    display: inline-block;
+    width: 1.1em;
+    font-weight: 700;
+    opacity: 0.6;
+  }
+}
+
+.guide-compare__col--us {
+  border-color: color-mix(in srgb, var(--bulma-primary) 40%, transparent);
+  background: var(--bulma-primary-soft);
+  color: var(--bulma-primary-on-scheme);
+
+  h3 {
+    border-bottom-color: color-mix(in srgb, var(--bulma-primary) 30%, transparent);
+  }
+
+  li {
+    & + li {
+      border-top-color: color-mix(in srgb, var(--bulma-primary) 22%, transparent);
+    }
+
+    &::before {
+      content: "✓";
+      display: inline-block;
+      width: 1.1em;
+      font-weight: 700;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// How it works
+// -----------------------------------------------------------------------------
+
+.guide-how {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2rem;
+
+  @include mx.until(iv.$desktop) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+.guide-how__item {
+  display: flex;
+  gap: 1rem;
+}
+
+.guide-how__icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--bulma-radius-medium);
+  background: var(--bulma-primary-soft);
+  color: var(--bulma-primary-on-scheme);
+
+  svg {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+}
+
+.guide-how__title {
+  font-family: var(--bulma-family-secondary);
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--bulma-text-strong);
+}
+
+.guide-how__text {
+  margin-top: 0.4rem;
+  font-size: 0.925rem;
+  line-height: 1.6;
+  color: var(--bulma-text-weak);
+}
+
+// -----------------------------------------------------------------------------
+// Path sections
+// -----------------------------------------------------------------------------
+
+.guide-path-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+
+  .title a {
+    color: var(--bulma-text-strong);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--bulma-link-text);
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Pricing
+// -----------------------------------------------------------------------------
+
+.guide-pricing {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  max-width: 56rem;
+  margin-inline: auto;
+
+  @include mx.mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.guide-card--featured {
+  position: relative;
+  border-color: var(--bulma-primary);
+  border-width: 2px;
+  box-shadow: var(--guide-shadow-md);
+}
+
+.guide-card__ribbon {
+  position: absolute;
+  top: -0.75rem;
+  left: 1.5rem;
+  padding: 0.15rem 0.7rem;
+  border-radius: var(--bulma-radius-rounded);
+  background: var(--bulma-primary);
+  color: var(--bulma-primary-invert);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.guide-check-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9rem;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    line-height: 1.5;
+
+    & + li {
+      margin-top: 0.65rem;
+    }
+  }
+
+  svg {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.18rem;
+    color: var(--bulma-primary);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Closing call to action
+// -----------------------------------------------------------------------------
+
+.guide-cta {
+  position: relative;
+  overflow: hidden;
+  margin-block: 4rem 5rem;
+  padding: 3.5rem 2rem;
+  border-radius: var(--bulma-radius-large);
+  background: var(--guide-inverse-bg);
+  color: var(--guide-inverse-ink);
+  text-align: center;
+
+  @include mx.mobile {
+    padding: 2.5rem 1.25rem;
+    margin-block: 2.5rem 3rem;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      42rem 24rem at 50% 0%,
+      color-mix(in srgb, var(--bulma-primary) 48%, transparent),
+      transparent 68%
+    );
+    pointer-events: none;
+  }
+
+  .title {
+    color: var(--guide-inverse-ink);
+  }
+
+  p {
+    max-width: 54ch;
+    margin-inline: auto;
+    opacity: 0.82;
+    line-height: 1.6;
+  }
+}
+
+.guide-cta__inner {
+  position: relative;
+}

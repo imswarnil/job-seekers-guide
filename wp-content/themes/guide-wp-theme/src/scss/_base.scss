@@ -1,0 +1,371 @@
+// =============================================================================
+// Base — typography, prose, and WordPress core classes
+// =============================================================================
+//
+// Lesson prose is the actual product of this platform, so it gets more care
+// than a utility layer usually would: a capped measure, generous line height,
+// and headings that establish hierarchy without shouting.
+
+@use "tokens" as t;
+@use "bulma/sass/utilities/mixins" as mx;
+@use "bulma/sass/utilities/initial-variables" as iv;
+
+// -----------------------------------------------------------------------------
+// Document
+// -----------------------------------------------------------------------------
+
+html {
+  scroll-behavior: smooth;
+  // Anchored links (lesson headings, in-page nav) must not slide under the
+  // sticky header.
+  scroll-padding-top: calc(var(--guide-header-h) + 1rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+// -----------------------------------------------------------------------------
+// Headings
+// -----------------------------------------------------------------------------
+
+.title,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--bulma-family-secondary);
+  letter-spacing: -0.015em;
+}
+
+.title {
+  font-weight: 700;
+}
+
+// A display size for hero headlines, one step above Bulma's `is-1`.
+.guide-display {
+  font-family: var(--bulma-family-secondary);
+  font-size: clamp(2.1rem, 5.2vw, 3.4rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+// The small uppercase label that introduces a section. Used a lot — it is how
+// the interface says "you are here" without spending a heading on it.
+.guide-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--bulma-primary);
+}
+
+// -----------------------------------------------------------------------------
+// Links
+// -----------------------------------------------------------------------------
+
+a {
+  transition: color 120ms ease;
+}
+
+// Focus rings are non-negotiable on a platform whose users are often on
+// borrowed or shared machines and lean on the keyboard.
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--bulma-primary);
+  outline-offset: 2px;
+  border-radius: var(--bulma-radius-small);
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background: var(--bulma-primary);
+  color: var(--bulma-primary-invert);
+  border-radius: 0 0 var(--bulma-radius) 0;
+  font-weight: 600;
+
+  &:focus {
+    left: 0;
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Prose — lesson bodies, story bodies, page content
+// -----------------------------------------------------------------------------
+
+.guide-prose {
+  max-width: var(--guide-measure);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: var(--bulma-text);
+
+  > * + * {
+    margin-top: 1.25em;
+  }
+
+  h2,
+  h3,
+  h4 {
+    font-family: var(--bulma-family-secondary);
+    color: var(--bulma-text-strong);
+    line-height: 1.25;
+    margin-top: 2.25em;
+    margin-bottom: 0.6em;
+    scroll-margin-top: calc(var(--guide-header-h) + 1rem);
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+
+  h3 {
+    font-size: 1.28rem;
+    font-weight: 700;
+  }
+
+  h4 {
+    font-size: 1.08rem;
+    font-weight: 600;
+  }
+
+  a {
+    color: var(--bulma-link-text);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 1px;
+
+    &:hover {
+      text-decoration-thickness: 2px;
+    }
+  }
+
+  strong {
+    color: var(--bulma-text-strong);
+    font-weight: 650;
+  }
+
+  ul,
+  ol {
+    padding-left: 1.4em;
+
+    li + li {
+      margin-top: 0.4em;
+    }
+  }
+
+  ul {
+    list-style: disc;
+  }
+
+  ol {
+    list-style: decimal;
+  }
+
+  // Blockquote is how the author speaks directly to the reader — the "I took
+  // the ₹13,000 job" asides. It should feel like a hand on the shoulder, not a
+  // pull quote in a magazine.
+  blockquote {
+    margin-inline: 0;
+    padding: 1.1rem 1.3rem;
+    border-left: 3px solid var(--guide-spark);
+    background: var(--bulma-scheme-main-bis);
+    border-radius: 0 var(--bulma-radius) var(--bulma-radius) 0;
+    color: var(--bulma-text-strong);
+
+    > * + * {
+      margin-top: 0.75em;
+    }
+  }
+
+  code {
+    font-family: var(--bulma-family-code);
+    font-size: 0.875em;
+    padding: 0.15em 0.4em;
+    border-radius: var(--bulma-radius-small);
+    background: var(--bulma-scheme-main-ter);
+    color: var(--bulma-text-strong);
+  }
+
+  pre {
+    padding: 1rem 1.15rem;
+    border-radius: var(--bulma-radius);
+    background: var(--guide-code-bg);
+    color: var(--guide-code-ink);
+    overflow-x: auto;
+    font-size: 0.875rem;
+    line-height: 1.65;
+
+    code {
+      background: none;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+  }
+
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--bulma-radius-medium);
+  }
+
+  figure {
+    margin-inline: 0;
+
+    figcaption {
+      margin-top: 0.6rem;
+      font-size: 0.85rem;
+      color: var(--bulma-text-weak);
+    }
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--bulma-border-weak);
+    margin-block: 2.5em;
+  }
+
+  // Tables carry real teaching weight here — the SQL course is largely tables.
+  // They must stay readable on a phone, which means scrolling inside their own
+  // container rather than pushing the page sideways.
+  .guide-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.94rem;
+
+    th,
+    td {
+      padding: 0.6rem 0.8rem;
+      border: 1px solid var(--bulma-border-weak);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--bulma-scheme-main-bis);
+      font-weight: 650;
+      color: var(--bulma-text-strong);
+      white-space: nowrap;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// WordPress core classes
+// -----------------------------------------------------------------------------
+//
+// Content authored in the editor arrives with these. Without them, aligned and
+// captioned images look broken in lesson bodies.
+
+.guide-prose {
+  .alignleft {
+    float: left;
+    margin: 0.4rem 1.5rem 1rem 0;
+  }
+
+  .alignright {
+    float: right;
+    margin: 0.4rem 0 1rem 1.5rem;
+  }
+
+  .aligncenter {
+    display: block;
+    margin-inline: auto;
+  }
+
+  .alignwide,
+  .alignfull {
+    max-width: none;
+    width: 100%;
+  }
+
+  .wp-caption {
+    max-width: 100%;
+
+    .wp-caption-text {
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--bulma-text-weak);
+    }
+  }
+
+  .screen-reader-text {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    white-space: nowrap;
+  }
+}
+
+@include mx.mobile {
+  .guide-prose {
+    .alignleft,
+    .alignright {
+      float: none;
+      margin-inline: 0;
+    }
+  }
+}
+
+// Screen-reader-only, available outside prose too.
+.is-sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// -----------------------------------------------------------------------------
+// Icons
+// -----------------------------------------------------------------------------
+//
+// guide_icon() emits a bare <svg> with a 256×256 viewBox and no dimensions, so
+// without this every icon renders at its intrinsic size. Sizing in `em` means
+// an icon scales with whatever text it sits beside; component rules override
+// it where a specific size is wanted.
+
+.guide-icon {
+  width: 1.15em;
+  height: 1.15em;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: -0.18em;
+}

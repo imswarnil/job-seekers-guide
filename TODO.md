@@ -3,17 +3,19 @@
 Custom, open-source LMS for job seekers: structured learning paths, a visual
 course builder, in-browser code practice, Dodo Payments checkout, and a
 hand-rolled design-token system (no block theme, no theme.json — see
-`assets/css/tokens.css`). No Tutor LMS, no WooCommerce.
+`wp-content/themes/guide-wp-theme/src/scss/`). No Tutor LMS, no WooCommerce.
 
 ## 1. VPS & Infrastructure — done
 - [x] VPS provisioned, Docker installed, SSH key auth set up
-- [x] `job-seekers-lms` Docker stack live (`wordpress` + `db`, wp-content bind-mounted)
+- [x] `guide-lms` Docker stack live (`wordpress` + `db`, wp-content bind-mounted)
 - [x] Domain `jobseekers.imswarnil.com` on Traefik + Let's Encrypt HTTPS
 - [x] GitHub Actions deploy pipeline (push to `main` → SSH → `git pull` → restart)
 - [ ] `wp db export`/`import` scripts for staging↔prod DB parity when needed
 
-## 2. Design System & Theme (`wp-content/themes/job-seekers-theme`) — done
-- [x] Hand-rolled token system (`tokens.css`) now compiled through Tailwind CSS v4 (`src/app.css` → committed `assets/css/app.css`, rebuild with `npm run build`)
+## 2. Design System & Theme (`wp-content/themes/guide-wp-theme`) — done
+- [x] Bulma 1.x, compiled from `src/scss/app.scss` → committed `assets/css/app.min.css` (`npm run build`). Bulma is imported piece by piece — the full framework is 662 KB minified and most of it is unused; the build ships 26 KB brotli
+- [x] Guide design tokens (`src/scss/_tokens.scss`) feed Bulma's SCSS configuration; components read `--bulma-*` custom properties so light/dark need one set of rules
+- [x] Scoped Bulma for the LMS console (`postcss.config.js` prefixes everything with `.guide-admin` so it cannot reach wp-admin), plus a colour-only wp-admin skin and login screen
 - [x] Dark mode: FOUC-safe inline bootstrap + toggle, overrides the semantic token layer only
 - [x] Classic PHP templates: `front-page`, `single`, `page`, `archive`, `404`, `index`
 - [x] LMS templates: `single-course` (dark hero, sticky enroll card, accordion curriculum with duration/preview/completion state), `single-lesson` (full lesson player: video embed, progress sidebar, mark-complete, prev/next), `single-learning_path` (milestone steps)
@@ -27,7 +29,7 @@ hand-rolled design-token system (no block theme, no theme.json — see
 - [x] Asset cache-busting by file mtime
 - [ ] Accessible keyboard-nav pass (current nav/focus states are baseline, not audited)
 
-## 3. Core LMS Plugin (`wp-content/plugins/job-seekers-lms`)
+## 3. Core LMS Plugin (`wp-content/plugins/guide-lms`)
 - [x] Plugin bootstrap, activation/deactivation hooks, capability + rewrite flush
 - [x] CPTs: `Course`, `Lesson`, `Learning Path` + `Module` taxonomy
 - [x] Custom DB tables: `wp_jsl_enrollments`, `wp_jsl_progress`, `wp_jsl_modules`
