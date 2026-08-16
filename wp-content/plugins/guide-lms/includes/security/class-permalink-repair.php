@@ -33,9 +33,17 @@ class Permalink_Repair {
 
 	const OPTION_DONE = 'jsl_permalink_repaired';
 
+	/**
+	 * Bump to let the repair try again on sites where it previously gave up.
+	 *
+	 * Stored rather than a bare flag, so improving the probe can be retried
+	 * without an operator having to clear anything by hand.
+	 */
+	const ATTEMPT = '2';
+
 	/** Called from the upgrade routine, so it runs on deploy and not per request. */
 	public static function maybe_repair() {
-		if ( get_option( self::OPTION_DONE ) ) {
+		if ( get_option( self::OPTION_DONE ) === self::ATTEMPT ) {
 			return;
 		}
 
@@ -43,7 +51,7 @@ class Permalink_Repair {
 
 		// Nothing to do unless the structure actually carries the prefix.
 		if ( false === strpos( $current, 'index.php' ) ) {
-			update_option( self::OPTION_DONE, 1, false );
+			update_option( self::OPTION_DONE, self::ATTEMPT, false );
 			return;
 		}
 
@@ -53,7 +61,7 @@ class Permalink_Repair {
 		// Without a writable .htaccess the rules cannot be published, so the
 		// clean structure would 404 everything.
 		if ( ! is_writable( ABSPATH . '.htaccess' ) && ! is_writable( ABSPATH ) ) {
-			update_option( self::OPTION_DONE, 1, false );
+			update_option( self::OPTION_DONE, self::ATTEMPT, false );
 			return;
 		}
 
@@ -71,7 +79,7 @@ class Permalink_Repair {
 
 		// Try it once, and only once, whatever the outcome — a repair that
 		// retries on every deploy is a repair that flaps.
-		update_option( self::OPTION_DONE, 1, false );
+		update_option( self::OPTION_DONE, self::ATTEMPT, false );
 
 		$candidate = str_replace( '/index.php', '', $current );
 
@@ -113,24 +121,83 @@ class Permalink_Repair {
 	 * on every install of this plugin and is public.
 	 */
 	private static function pretty_urls_work(): bool {
-		$url = home_url( '/courses/' );
+		$path = '/courses/';
+		$home = home_url( $path );
 
-		$response = wp_remote_get(
-			$url,
-			array(
-				'timeout'   => 10,
-				'sslverify' => false, // A loopback to ourselves; the certificate is not the thing being tested.
-				'headers'   => array( 'Cache-Control' => 'no-cache' ),
-			)
+		// First the ordinary way.
+		if ( self::fetch_ok( $home ) ) {
+			return true;
+		}
+
+		// Then a true loopback: straight at the local web server, with the Host
+		// header the site expects.
+		//
+		// A container behind a reverse proxy usually cannot resolve its own
+		// public hostname — the DNS record points at the proxy, which is
+		// outside. So the first attempt can fail on a server where rewriting
+		// works perfectly, and taking that as a verdict means the repair never
+		// succeeds anywhere it is actually needed.
+		$host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+
+		foreach ( array( 'http://127.0.0.1', 'http://localhost' ) as $origin ) {
+			if ( self::fetch_ok( $origin . $path, $host ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * One probe request.
+	 *
+	 * Redirects are not followed, but a redirect is not automatically a
+	 * failure. Probing over plain http against a site whose home URL is https
+	 * produces a canonical 301 — and that redirect is itself the proof we
+	 * want, because WordPress only got far enough to issue it by resolving the
+	 * clean URL. A rewrite that did not work produces a 404 instead.
+	 *
+	 * So: success is a 2xx, or a redirect that still points at the same path.
+	 * A redirect to /index.php/courses/ is a failure, which is exactly the
+	 * case being guarded against.
+	 */
+	private static function fetch_ok( string $url, string $host = '' ): bool {
+		$args = array(
+			'timeout'     => 10,
+			'redirection' => 0,
+			'sslverify'   => false, // Talking to ourselves; the certificate is not what is under test.
+			'headers'     => array( 'Cache-Control' => 'no-cache' ),
 		);
 
+		if ( '' !== $host ) {
+			$args['headers']['Host'] = $host;
+		}
+
+		$response = wp_remote_get( $url, $args );
+
 		if ( is_wp_error( $response ) ) {
-			// No answer at all is not evidence that rewriting is broken — the
-			// host may simply block loopback requests. Treat it as a failure
-			// anyway: the safe outcome is the state we started in.
 			return false;
 		}
 
-		return 200 === (int) wp_remote_retrieve_response_code( $response );
+		$code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( $code >= 200 && $code < 300 ) {
+			return true;
+		}
+
+		if ( $code < 300 || $code >= 400 ) {
+			return false;
+		}
+
+		$location = (string) wp_remote_retrieve_header( $response, 'location' );
+
+		if ( '' === $location ) {
+			return false;
+		}
+
+		$wanted = (string) wp_parse_url( $url, PHP_URL_PATH );
+		$got    = (string) wp_parse_url( $location, PHP_URL_PATH );
+
+		return untrailingslashit( $wanted ) === untrailingslashit( $got );
 	}
 }
