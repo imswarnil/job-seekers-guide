@@ -52,6 +52,13 @@ $guide_nav = guide_primary_destinations();
 		</nav>
 
 		<div class="guide-header__actions">
+			<?php // A star is the cheapest way for someone who found this useful to help. ?>
+			<a class="guide-star" href="https://github.com/imswarnil/job-seekers-guide" target="_blank" rel="noopener"
+				aria-label="<?php esc_attr_e( 'Star this project on GitHub', 'guide-wp-theme' ); ?>">
+				<?php echo guide_icon( 'star' ); ?>
+				<span><?php esc_html_e( 'Star', 'guide-wp-theme' ); ?></span>
+			</a>
+
 			<button type="button" class="guide-icon-button" data-theme-toggle
 				data-label-auto="<?php esc_attr_e( 'Theme: follow system', 'guide-wp-theme' ); ?>"
 				data-label-light="<?php esc_attr_e( 'Theme: light', 'guide-wp-theme' ); ?>"

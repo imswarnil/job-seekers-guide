@@ -210,6 +210,87 @@
 		} );
 	} );
 
+
+	/* ---------------------------------------------------------------------
+	 * Table of contents
+	 *
+	 * Built from the headings already in the content rather than authored
+	 * separately, so it can never drift out of sync with the article. Headings
+	 * without an id get one, because an anchor link needs a target.
+	 * ------------------------------------------------------------------ */
+
+	document.addEventListener( 'DOMContentLoaded', function () {
+		var source = document.querySelector( '[data-toc-source]' );
+		var host   = document.querySelector( '[data-toc]' );
+		var list   = document.querySelector( '[data-toc-list]' );
+
+		if ( ! source || ! host || ! list ) {
+			return;
+		}
+
+		var headings = Array.prototype.slice.call( source.querySelectorAll( 'h2, h3' ) );
+
+		// One or two headings is not a document worth a contents list.
+		if ( headings.length < 3 ) {
+			host.hidden = true;
+			return;
+		}
+
+		var used = {};
+
+		headings.forEach( function ( heading ) {
+			if ( ! heading.id ) {
+				var slug = heading.textContent
+					.toLowerCase()
+					.replace( /[^a-z0-9\s-]/g, '' )
+					.trim()
+					.replace( /\s+/g, '-' )
+					.slice( 0, 60 ) || 'section';
+
+				// Two headings with the same words must not collide.
+				used[ slug ] = ( used[ slug ] || 0 ) + 1;
+				heading.id = used[ slug ] > 1 ? slug + '-' + used[ slug ] : slug;
+			}
+
+			var link = document.createElement( 'a' );
+			link.href = '#' + heading.id;
+			link.textContent = heading.textContent;
+			if ( heading.tagName === 'H3' ) {
+				link.classList.add( 'is-sub' );
+			}
+			list.appendChild( link );
+		} );
+
+		// Highlight whichever heading is currently on screen.
+		if ( ! ( 'IntersectionObserver' in window ) ) {
+			return;
+		}
+
+		var links = {};
+		Array.prototype.forEach.call( list.children, function ( link ) {
+			links[ link.getAttribute( 'href' ).slice( 1 ) ] = link;
+		} );
+
+		var observer = new IntersectionObserver( function ( entries ) {
+			entries.forEach( function ( entry ) {
+				var link = links[ entry.target.id ];
+				if ( ! link ) {
+					return;
+				}
+				if ( entry.isIntersecting ) {
+					Object.keys( links ).forEach( function ( key ) {
+						links[ key ].classList.remove( 'is-current' );
+					} );
+					link.classList.add( 'is-current' );
+				}
+			} );
+		}, { rootMargin: '-80px 0px -70% 0px' } );
+
+		headings.forEach( function ( heading ) {
+			observer.observe( heading );
+		} );
+	} );
+
 	/* ---------------------------------------------------------------------
 	 * Filter rail disclosure (small screens)
 	 * ------------------------------------------------------------------ */

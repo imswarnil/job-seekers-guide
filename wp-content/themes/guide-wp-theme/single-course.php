@@ -333,6 +333,8 @@ while ( have_posts() ) :
 				<?php endif; ?>
 			</section>
 
+			<?php get_template_part( 'template-parts/feedback', null, array( 'object_type' => 'course' ) ); ?>
+
 			<?php guide_ad( 'page' ); ?>
 
 			<?php if ( $guide_has_about ) : ?>

@@ -294,6 +294,8 @@ $guide_duration = (int) get_post_meta( $guide_lesson->ID, 'jsl_duration_minutes'
 					</div>
 				<?php endif; ?>
 
+				<?php get_template_part( 'template-parts/feedback', null, array( 'object_type' => 'lesson', 'object_id' => (int) $guide_lesson->ID ) ); ?>
+
 				<?php guide_ad( 'page' ); ?>
 
 				<nav class="guide-lesson-nav" aria-label="<?php esc_attr_e( 'Path navigation', 'guide-wp-theme' ); ?>">

@@ -1,0 +1,432 @@
+// =============================================================================
+// Help centre, changelog, roadmap, feedback, table of contents
+// =============================================================================
+
+@use "tokens" as t;
+@use "bulma/sass/utilities/mixins" as mx;
+@use "bulma/sass/utilities/initial-variables" as iv;
+
+// -----------------------------------------------------------------------------
+// Help centre
+// -----------------------------------------------------------------------------
+
+.guide-help-search {
+  max-width: 30rem;
+}
+
+.guide-help-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+  gap: 1.25rem;
+}
+
+.guide-help-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 44rem;
+}
+
+.guide-help-row {
+  display: block;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--bulma-border-weak);
+  border-radius: var(--bulma-radius-medium);
+  background: var(--bulma-scheme-main);
+  text-decoration: none;
+
+  &:hover {
+    border-color: var(--bulma-primary);
+  }
+}
+
+.guide-help-row__title {
+  display: block;
+  font-weight: 650;
+  color: var(--bulma-text-strong);
+}
+
+.guide-help-row__excerpt {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.875rem;
+  color: var(--bulma-text-weak);
+}
+
+// -----------------------------------------------------------------------------
+// Document layout with a table of contents
+// -----------------------------------------------------------------------------
+
+.guide-doc-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 15rem;
+  gap: 3rem;
+  align-items: start;
+
+  @include mx.until(iv.$desktop) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+.guide-toc {
+  position: sticky;
+  top: calc(var(--guide-header-h) + 1.5rem);
+  padding-left: 1rem;
+  border-left: 1px solid var(--bulma-border-weak);
+
+  // On narrow screens it moves above the article and stops being sticky —
+  // a sticky sidebar on a phone is just a thing covering the text.
+  @include mx.until(iv.$desktop) {
+    position: static;
+    order: -1;
+    padding: 1rem 1.15rem;
+    border-left: 0;
+    border: 1px solid var(--bulma-border-weak);
+    border-radius: var(--bulma-radius-medium);
+    background: var(--bulma-scheme-main-bis);
+  }
+
+  // Nothing to link to: hide rather than show an empty box.
+  &:empty,
+  &[hidden] {
+    display: none;
+  }
+}
+
+.guide-toc__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+
+  a {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--bulma-text-weak);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--bulma-link-text);
+    }
+
+    &.is-current {
+      color: var(--bulma-primary);
+      font-weight: 650;
+    }
+
+    &.is-sub {
+      padding-left: 0.75rem;
+      font-size: 0.8rem;
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Changelog
+// -----------------------------------------------------------------------------
+
+.guide-changelog {
+  max-width: 46rem;
+}
+
+.guide-release {
+  padding-bottom: 2.5rem;
+
+  & + & {
+    border-top: 1px solid var(--bulma-border-weak);
+    padding-top: 2.5rem;
+  }
+}
+
+.guide-release__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.guide-release__version {
+  font-family: var(--bulma-family-secondary);
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--bulma-text-strong);
+}
+
+.guide-release__date {
+  font-size: 0.85rem;
+  color: var(--bulma-text-weak);
+}
+
+.guide-release__entries {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.guide-release__entry {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+
+  @include mx.mobile {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.4rem;
+  }
+}
+
+.guide-release__title {
+  font-weight: 650;
+  line-height: 1.45;
+  color: var(--bulma-text-strong);
+}
+
+.guide-release__body {
+  margin-top: 0.35rem;
+  font-size: 0.925rem;
+}
+
+// Kind badges. Colour carries meaning here, so each kind is distinct rather
+// than all of them being brand-indigo.
+.guide-kind {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.5rem;
+  padding-inline: 0.5rem;
+  border-radius: var(--bulma-radius-small);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--bulma-scheme-main-ter);
+  color: var(--bulma-text-weak);
+}
+
+.guide-kind--added {
+  background: var(--bulma-success-soft);
+  color: var(--bulma-success-on-scheme);
+}
+
+.guide-kind--changed {
+  background: var(--bulma-primary-soft);
+  color: var(--bulma-primary-on-scheme);
+}
+
+.guide-kind--fixed {
+  background: var(--guide-spark-soft);
+  color: var(--guide-spark-strong);
+}
+
+.guide-kind--removed,
+.guide-kind--security {
+  background: var(--bulma-danger-soft);
+  color: var(--bulma-danger-on-scheme);
+}
+
+// -----------------------------------------------------------------------------
+// Roadmap
+// -----------------------------------------------------------------------------
+
+.guide-roadmap {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+
+  @include mx.until(iv.$widescreen) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include mx.mobile {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.guide-roadmap__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.65rem;
+  margin-bottom: 0.85rem;
+  border-bottom: 2px solid var(--bulma-border);
+  font-family: var(--bulma-family-secondary);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--bulma-text-strong);
+}
+
+.guide-roadmap__count {
+  display: grid;
+  place-items: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding-inline: 0.35rem;
+  border-radius: var(--bulma-radius-rounded);
+  background: var(--bulma-scheme-main-ter);
+  font-size: 0.7rem;
+  color: var(--bulma-text-weak);
+}
+
+.guide-roadmap__col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.guide-rm-card {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--bulma-border-weak);
+  border-radius: var(--bulma-radius-medium);
+  background: var(--bulma-scheme-main);
+}
+
+.guide-rm-card__title {
+  font-size: 0.925rem;
+  font-weight: 650;
+  line-height: 1.4;
+  color: var(--bulma-text-strong);
+}
+
+.guide-rm-card__body {
+  margin-top: 0.3rem;
+  font-size: 0.825rem;
+  line-height: 1.5;
+  color: var(--bulma-text-weak);
+}
+
+// The vote control. Deliberately the most prominent thing on the card — it is
+// the only action, and the count is the point of the page.
+.guide-vote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  flex-shrink: 0;
+  // Pinned to the top rather than centred: in a tall card a centred button
+  // floats in the middle of the description and reads as unrelated to it.
+  align-self: flex-start;
+  width: 2.6rem;
+  padding: 0.35rem 0;
+  border: 1px solid var(--bulma-border);
+  border-radius: var(--bulma-radius);
+  background: var(--bulma-scheme-main);
+  color: var(--bulma-text-weak);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 120ms ease, background-color 120ms ease,
+    color 120ms ease;
+
+  &:hover:not([disabled]) {
+    border-color: var(--bulma-primary);
+    color: var(--bulma-primary);
+  }
+
+  &.is-voted {
+    background: var(--bulma-primary-soft);
+    border-color: var(--bulma-primary);
+    color: var(--bulma-primary-on-scheme);
+  }
+
+  &[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.guide-vote__caret {
+  font-size: 0.7rem;
+  line-height: 1;
+}
+
+.guide-vote__count {
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.guide-suggest {
+  max-width: 40rem;
+  padding: 1.5rem;
+  border: 1px solid var(--bulma-border-weak);
+  border-radius: var(--bulma-radius-large);
+  background: var(--bulma-scheme-main-bis);
+}
+
+// -----------------------------------------------------------------------------
+// Feedback
+// -----------------------------------------------------------------------------
+
+.guide-feedback {
+  margin-top: 3rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--bulma-border-weak);
+}
+
+.guide-feedback__head {
+  font-family: var(--bulma-family-secondary);
+  font-weight: 700;
+  color: var(--bulma-text-strong);
+  margin-bottom: 0.75rem;
+}
+
+.guide-feedback__buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.guide-react {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2.25rem;
+  padding-inline: 0.9rem;
+  border: 1px solid var(--bulma-border);
+  border-radius: var(--bulma-radius-rounded);
+  background: var(--bulma-scheme-main);
+  color: var(--bulma-text);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--bulma-primary);
+  }
+
+  &.is-on {
+    background: var(--bulma-success-soft);
+    border-color: var(--bulma-success);
+    color: var(--bulma-success-on-scheme);
+  }
+
+  // A thumbs-down is not a failure state, so it is neutral rather than red —
+  // red would make people hesitate to give the most useful signal there is.
+  &.is-on.is-down {
+    background: var(--bulma-scheme-main-ter);
+    border-color: var(--bulma-border-strong, var(--bulma-border));
+    color: var(--bulma-text-strong);
+  }
+}
+
+.guide-feedback__status {
+  font-size: 0.82rem;
+  color: var(--bulma-text-weak);
+}
+
+.guide-feedback__note-box {
+  margin-top: 0.85rem;
+  max-width: 34rem;
+}
+
+.guide-feedback__note {
+  font-size: 0.9rem;
+  color: var(--bulma-text-weak);
+}

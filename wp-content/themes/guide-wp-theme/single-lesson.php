@@ -239,6 +239,8 @@ while ( have_posts() ) :
 				<?php endif; ?>
 
 				<?php // Below the lesson, never inside it: an ad between two paragraphs of an explanation is the worst possible interruption. ?>
+				<?php get_template_part( 'template-parts/feedback', null, array( 'object_type' => 'lesson' ) ); ?>
+
 				<?php guide_ad( 'page' ); ?>
 
 				<nav class="guide-lesson-nav" aria-label="<?php esc_attr_e( 'Lesson navigation', 'guide-wp-theme' ); ?>">

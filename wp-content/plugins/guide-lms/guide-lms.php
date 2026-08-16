@@ -3,7 +3,7 @@
  * Plugin Name: Guide LMS
  * Plugin URI: https://github.com/imswarnil/job-seekers-guide
  * Description: Structured-learning-path LMS. Courses, lessons, learning paths, a visual course builder, enrollment and progress tracking, quizzes, a community resource library, learner discussion, and checkout.
- * Version: 0.9.0
+ * Version: 0.10.0
  * Requires at least: 6.4
  * Requires PHP: 8.0
  * Author: Guide
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'GUIDE_VERSION', '0.9.0' );
+define( 'GUIDE_VERSION', '0.10.0' );
 define( 'GUIDE_PLUGIN_FILE', __FILE__ );
 define( 'GUIDE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GUIDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -49,6 +49,8 @@ require_once GUIDE_PLUGIN_DIR . 'includes/payments/class-subscription.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/payments/class-webhook.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/analytics/class-analytics.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/auth/class-google-auth.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/community/class-community-types.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/community/class-feedback.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/success/class-success-stories.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/leaderboard/class-leaderboard.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/seo/class-seo.php';
@@ -102,6 +104,8 @@ function guide_boot() {
 	Guide\Account\Account::init();
 	Guide\Ads\Ads::init();
 	Guide\Auth\Google_Auth::init();
+	Guide\Community\Community_Types::init();
+	Guide\Community\Feedback::init();
 	Guide\Success\Success_Stories::init();
 	Guide\Leaderboard\Leaderboard::init();
 	Guide\Seo\Seo::init();
@@ -130,6 +134,7 @@ function guide_maybe_upgrade_schema() {
 
 	Guide\Enrollment\Tables::create();
 	Guide\Billing\Billing::create_table();
+	Guide\Community\Feedback::create_table();
 	Guide\Builder\Tables::create();
 	Guide\Builder\Path_Tables::create();
 	Guide\Builder\Path_Tables::migrate_legacy_course_links();
@@ -150,11 +155,13 @@ add_action( 'admin_init', 'guide_maybe_upgrade_schema' );
  */
 function guide_activate() {
 	Guide\Post_Types::register();
+	Guide\Community\Community_Types::register();
 	Guide\Permalinks::add_rewrite_rules();
 	Guide\Account\Account::add_rewrite_rules();
 	Guide\Structure\Path_Player::add_rewrite_rules();
 	Guide\Enrollment\Tables::create();
 	Guide\Billing\Billing::create_table();
+	Guide\Community\Feedback::create_table();
 	Guide\Builder\Tables::create();
 	Guide\Builder\Path_Tables::create();
 	Guide\Structure\Structure_Tables::create();
