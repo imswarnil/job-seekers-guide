@@ -28,10 +28,50 @@ class Success_Stories {
 	const META_PREVIOUS = 'jsl_story_previous';
 	const META_WEEKS    = 'jsl_story_weeks';
 	const META_LINKEDIN = 'jsl_story_linkedin';
+	const META_SALARY   = 'jsl_story_salary';
+
+	/** Archive filter parameters. See filter_archive() for why they are prefixed. */
+	const QUERY_COMPANY = 'story_company';
+	const QUERY_ROLE    = 'story_role';
+	const QUERY_BAND    = 'story_band';
+
+	/**
+	 * Salary bands, in lakhs per annum.
+	 *
+	 * Bands rather than exact figures, and optional. Three reasons, in order of
+	 * how much they matter:
+	 *
+	 *   · A named person, their employer and their exact salary together are
+	 *     enough to identify and embarrass someone. A band is not.
+	 *   · Nobody at the bottom of the range wants to publish the number, and
+	 *     those are exactly the stories this site needs most. The founder's own
+	 *     first job was ₹1.8 LPA; a wall where everybody posts 12 LPA would
+	 *     have made him feel worse, not better.
+	 *   · A range is more honest anyway. "₹4.2 LPA" implies a precision that
+	 *     variable pay and joining bonuses do not survive.
+	 *
+	 * Narrow at the bottom because that is where this audience actually lands
+	 * and a lakh is a big difference there; wider at the top where it is not.
+	 */
+	const SALARY_BANDS = array(
+		'1-2'   => '₹1–2 LPA',
+		'2-3'   => '₹2–3 LPA',
+		'3-4'   => '₹3–4 LPA',
+		'4-5'   => '₹4–5 LPA',
+		'5-6'   => '₹5–6 LPA',
+		'6-8'   => '₹6–8 LPA',
+		'8-10'  => '₹8–10 LPA',
+		'10-12' => '₹10–12 LPA',
+		'12-15' => '₹12–15 LPA',
+		'15-20' => '₹15–20 LPA',
+		'20-25' => '₹20–25 LPA',
+		'25+'   => '₹25 LPA and above',
+	);
 
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register' ) );
 		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
+		add_action( 'pre_get_posts', array( __CLASS__, 'filter_archive' ) );
 	}
 
 	public static function is_enabled(): bool {
@@ -123,6 +163,7 @@ class Success_Stories {
 					'story'   => array( 'required' => true, 'type' => 'string' ),
 					'company' => array( 'required' => true, 'type' => 'string' ),
 					'role'    => array( 'required' => true, 'type' => 'string' ),
+					'salary'  => array( 'required' => false, 'type' => 'string' ),
 				),
 			)
 		);
@@ -205,6 +246,7 @@ class Success_Stories {
 		update_post_meta( $story_id, self::META_PREVIOUS, sanitize_text_field( (string) $request->get_param( 'previous' ) ) );
 		update_post_meta( $story_id, self::META_WEEKS, absint( $request->get_param( 'weeks' ) ) );
 		update_post_meta( $story_id, self::META_LINKEDIN, esc_url_raw( (string) $request->get_param( 'linkedin' ) ) );
+		update_post_meta( $story_id, self::META_SALARY, self::sanitize_band( (string) $request->get_param( 'salary' ) ) );
 
 		do_action( 'jsl_story_submitted', $story_id, $user_id );
 
@@ -304,6 +346,8 @@ class Success_Stories {
 			'previous' => (string) get_post_meta( $story_id, self::META_PREVIOUS, true ),
 			'weeks'    => (int) get_post_meta( $story_id, self::META_WEEKS, true ),
 			'linkedin' => (string) get_post_meta( $story_id, self::META_LINKEDIN, true ),
+			'salary'   => self::salary_band( $story_id ),
+			'salary_label' => self::salary_label( $story_id ),
 		);
 	}
 
@@ -331,5 +375,141 @@ class Success_Stories {
 		);
 
 		return $existing ? $existing[0]->post_status : '';
+	}
+
+	/**
+	 * Keep only a band we actually offer.
+	 *
+	 * Anything else becomes an empty string, which reads as "preferred not to
+	 * say" everywhere it is displayed — the safe default for a field nobody is
+	 * obliged to answer.
+	 */
+	public static function sanitize_band( string $value ): string {
+		$value = trim( $value );
+
+		return isset( self::SALARY_BANDS[ $value ] ) ? $value : '';
+	}
+
+	public static function salary_band( int $story_id ): string {
+		return self::sanitize_band( (string) get_post_meta( $story_id, self::META_SALARY, true ) );
+	}
+
+	public static function salary_label( int $story_id ): string {
+		$band = self::salary_band( $story_id );
+
+		return $band ? self::SALARY_BANDS[ $band ] : '';
+	}
+
+	/**
+	 * The distinct companies and roles that published stories mention, for the
+	 * archive filters.
+	 *
+	 * Built from the stories themselves rather than a taxonomy: these are free
+	 * text typed by learners, and a filter listing options that match nothing
+	 * is worse than no filter.
+	 *
+	 * @return array{companies: string[], roles: string[], bands: string[]}
+	 */
+	public static function filter_options(): array {
+		global $wpdb;
+
+		$out = array(
+			'companies' => array(),
+			'roles'     => array(),
+			'bands'     => array(),
+		);
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT m.meta_key, m.meta_value
+				   FROM {$wpdb->postmeta} m
+				   INNER JOIN {$wpdb->posts} p ON p.ID = m.post_id
+				  WHERE p.post_type = %s
+				    AND p.post_status = 'publish'
+				    AND m.meta_key IN ( %s, %s, %s )
+				    AND m.meta_value <> ''",
+				self::POST_TYPE,
+				self::META_COMPANY,
+				self::META_ROLE,
+				self::META_SALARY
+			)
+		);
+
+		foreach ( (array) $rows as $row ) {
+			if ( self::META_COMPANY === $row->meta_key ) {
+				$out['companies'][] = $row->meta_value;
+			} elseif ( self::META_ROLE === $row->meta_key ) {
+				$out['roles'][] = $row->meta_value;
+			} else {
+				$out['bands'][] = $row->meta_value;
+			}
+		}
+
+		$out['companies'] = array_values( array_unique( $out['companies'] ) );
+		$out['roles']     = array_values( array_unique( $out['roles'] ) );
+		sort( $out['companies'] );
+		sort( $out['roles'] );
+
+		// Bands are ordered by the constant, not alphabetically — "10-12"
+		// sorting before "2-3" would be nonsense.
+		$out['bands'] = array_values(
+			array_intersect( array_keys( self::SALARY_BANDS ), array_unique( $out['bands'] ) )
+		);
+
+		return $out;
+	}
+
+	/**
+	 * Apply the archive filters to the main query.
+	 *
+	 * Every value is matched against the known set or an exact meta compare —
+	 * never interpolated — so a crafted query string cannot widen the result
+	 * set or reach another post type.
+	 */
+	public static function filter_archive( $query ) {
+		if ( is_admin() || ! $query->is_main_query() || ! $query->is_post_type_archive( self::POST_TYPE ) ) {
+			return;
+		}
+
+		$meta = array();
+
+		// The parameters are namespaced deliberately. A bare ?company= collides
+		// with the query var WordPress registers for the `company` post type,
+		// which quietly turns this request into a single-company lookup — the
+		// story archive stops running and the filter silently returns nothing.
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $_GET[ self::QUERY_COMPANY ] ) ) {
+			$meta[] = array(
+				'key'     => self::META_COMPANY,
+				'value'   => sanitize_text_field( wp_unslash( $_GET[ self::QUERY_COMPANY ] ) ),
+				'compare' => '=',
+			);
+		}
+
+		if ( ! empty( $_GET[ self::QUERY_ROLE ] ) ) {
+			$meta[] = array(
+				'key'     => self::META_ROLE,
+				'value'   => sanitize_text_field( wp_unslash( $_GET[ self::QUERY_ROLE ] ) ),
+				'compare' => '=',
+			);
+		}
+
+		if ( ! empty( $_GET[ self::QUERY_BAND ] ) ) {
+			$band = self::sanitize_band( sanitize_text_field( wp_unslash( $_GET[ self::QUERY_BAND ] ) ) );
+
+			if ( $band ) {
+				$meta[] = array(
+					'key'     => self::META_SALARY,
+					'value'   => $band,
+					'compare' => '=',
+				);
+			}
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		if ( $meta ) {
+			$meta['relation'] = 'AND';
+			$query->set( 'meta_query', $meta );
+		}
 	}
 }

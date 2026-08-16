@@ -24,11 +24,9 @@ jobs:
             # recreates only what actually changed.
             docker compose -f docker/docker-compose.prod.yml --env-file docker/.env up -d wordpress
 
-            # The plugin's upgrade routine runs on the first admin request, but
-            # waiting for a human to load a page means new tables, roles and
-            # rewrite rules land at an unpredictable time. Do it here instead.
-            docker compose -f docker/docker-compose.prod.yml --env-file docker/.env \
-              exec -T wordpress wp --allow-root --path=/var/www/html eval 'guide_maybe_upgrade_schema();' || true
-
-            docker compose -f docker/docker-compose.prod.yml --env-file docker/.env \
-              exec -T wordpress wp --allow-root --path=/var/www/html rewrite flush || true
+            # Warm the site so the plugin's upgrade routine runs immediately —
+            # it is hooked on `init`, so any request triggers it. Deliberately
+            # not wp-cli: it is not in the WordPress image, and a deploy step
+            # that silently does nothing is worse than no deploy step.
+            sleep 5
+            curl -fsS -o /dev/null --max-time 30 https://jobseekers.imswarnil.com/ || true

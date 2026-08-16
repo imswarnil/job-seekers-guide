@@ -331,3 +331,168 @@ function guide_ad( $which = 'page', $upsell = true ) {
 		\Guide\Ads\Ads::render_upsell();
 	}
 }
+
+/**
+ * Render one comment.
+ *
+ * Hand-rolled rather than using WordPress's default walker output, which emits
+ * markup shaped for a blog and classes this theme does not style.
+ *
+ * @param WP_Comment $comment
+ * @param array      $args
+ * @param int        $depth
+ */
+function guide_render_comment( $comment, $args, $depth ) {
+	$is_staff = class_exists( 'Guide\\Community\\Discussion' )
+		&& \Guide\Community\Discussion::is_staff_comment( $comment );
+	?>
+	<li id="comment-<?php comment_ID(); ?>" <?php comment_class( 'guide-comment' ); ?>>
+		<?php echo guide_avatar( (int) $comment->user_id, 40 ); ?>
+
+		<div class="guide-comment__body">
+			<div class="guide-comment__head">
+				<span class="guide-comment__author"><?php echo esc_html( get_comment_author( $comment ) ); ?></span>
+
+				<?php if ( $is_staff ) : ?>
+					<span class="guide-comment__badge"><?php esc_html_e( 'Staff', 'guide-wp-theme' ); ?></span>
+				<?php endif; ?>
+
+				<time class="guide-comment__date" datetime="<?php comment_time( 'c' ); ?>">
+					<?php
+					printf(
+						/* translators: %s: human-readable time difference. */
+						esc_html__( '%s ago', 'guide-wp-theme' ),
+						esc_html( human_time_diff( get_comment_time( 'U' ) ) )
+					);
+					?>
+				</time>
+			</div>
+
+			<?php if ( '0' === $comment->comment_approved ) : ?>
+				<p class="guide-comment__pending"><?php esc_html_e( 'Waiting to be reviewed — only you can see this.', 'guide-wp-theme' ); ?></p>
+			<?php endif; ?>
+
+			<div class="guide-comment__text"><?php comment_text(); ?></div>
+
+			<?php if ( is_user_logged_in() && $depth < (int) $args['max_depth'] ) : ?>
+				<div class="guide-comment__actions">
+					<?php
+					comment_reply_link(
+						array_merge(
+							$args,
+							array(
+								'depth'      => $depth,
+								'max_depth'  => $args['max_depth'],
+								'reply_text' => esc_html__( 'Reply', 'guide-wp-theme' ),
+								'before'     => '<span class="guide-comment__action">',
+								'after'      => '</span>',
+							),
+							array( 'add_below' => 'comment' )
+						)
+					);
+					?>
+				</div>
+			<?php endif; ?>
+	<?php
+}
+
+/** Close the element guide_render_comment() opened. */
+function guide_render_comment_end() {
+	echo '</div></li>';
+}
+
+/**
+ * Inline a decorative illustration from assets/svg/.
+ *
+ * Inlined rather than served as an <img> for three reasons: the artwork
+ * inherits currentColor so it themes itself in light and dark without a second
+ * file; CSS can animate its individual parts, which an <img> cannot; and it
+ * costs no extra request on a connection where every request is the expensive
+ * part.
+ *
+ * These are decorations, never information. Everything they depict is also
+ * stated in text nearby, so each is marked aria-hidden and a screen reader
+ * skips it entirely rather than being read a shape.
+ *
+ * @param string $name  File name without the extension.
+ * @param string $class Extra classes for the wrapper.
+ */
+function guide_illustration( $name, $class = '' ) {
+	static $cache = array();
+
+	// Never let a caller reach outside the illustration directory.
+	$name = preg_replace( '/[^a-z0-9-]/', '', strtolower( (string) $name ) );
+
+	if ( '' === $name ) {
+		return '';
+	}
+
+	if ( ! isset( $cache[ $name ] ) ) {
+		$file = get_theme_file_path( '/assets/svg/' . $name . '.svg' );
+
+		$cache[ $name ] = ( $file && file_exists( $file ) )
+			? trim( (string) file_get_contents( $file ) ) // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			: '';
+	}
+
+	if ( '' === $cache[ $name ] ) {
+		return '';
+	}
+
+	$svg = $cache[ $name ];
+
+	if ( '' !== $class ) {
+		$svg = preg_replace( '/class="/', 'class="' . esc_attr( $class ) . ' ', $svg, 1 );
+	}
+
+	// The files are ours, committed to the repository, and never user-supplied
+	// — the sanitiser exists so that stays true if that ever changes.
+	return wp_kses( $svg, guide_svg_allowed_html() );
+}
+
+/**
+ * The tag and attribute set our own illustrations use.
+ *
+ * Deliberately no <script>, no <foreignObject>, no event handlers and no
+ * <use> — the elements that turn an SVG from a picture into a program.
+ *
+ * @return array<string, array<string, bool>>
+ */
+function guide_svg_allowed_html() {
+	$shared = array(
+		'class'            => true,
+		'style'            => true,
+		'fill'             => true,
+		'stroke'           => true,
+		'stroke-width'     => true,
+		'stroke-linecap'   => true,
+		'stroke-linejoin'  => true,
+		'stroke-dasharray' => true,
+		'opacity'          => true,
+		'transform'        => true,
+	);
+
+	return array(
+		'svg'      => array_merge(
+			$shared,
+			array(
+				'viewbox'             => true,
+				'xmlns'               => true,
+				'width'               => true,
+				'height'              => true,
+				'aria-hidden'         => true,
+				'focusable'           => true,
+				'role'                => true,
+				'preserveaspectratio' => true,
+			)
+		),
+		'g'        => $shared,
+		'path'     => array_merge( $shared, array( 'd' => true ) ),
+		'circle'   => array_merge( $shared, array( 'cx' => true, 'cy' => true, 'r' => true ) ),
+		'rect'     => array_merge( $shared, array( 'x' => true, 'y' => true, 'width' => true, 'height' => true, 'rx' => true, 'ry' => true ) ),
+		'line'     => array_merge( $shared, array( 'x1' => true, 'y1' => true, 'x2' => true, 'y2' => true ) ),
+		'polyline' => array_merge( $shared, array( 'points' => true ) ),
+		'polygon'  => array_merge( $shared, array( 'points' => true ) ),
+		'ellipse'  => array_merge( $shared, array( 'cx' => true, 'cy' => true, 'rx' => true, 'ry' => true ) ),
+	);
+}

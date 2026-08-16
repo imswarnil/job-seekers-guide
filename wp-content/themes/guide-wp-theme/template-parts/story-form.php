@@ -66,8 +66,33 @@ defined( 'ABSPATH' ) || exit;
 			</div>
 
 			<div class="field">
-				<label class="label" for="guide-story-body"><?php esc_html_e( 'Your story', 'guide-wp-theme' ); ?></label>
+				<label class="label" for="guide-story-salary"><?php esc_html_e( 'Starting package', 'guide-wp-theme' ); ?></label>
 				<div class="control">
+					<div class="select is-fullwidth">
+						<select id="guide-story-salary" name="salary">
+							<option value=""><?php esc_html_e( 'Prefer not to say', 'guide-wp-theme' ); ?></option>
+							<?php foreach ( \Guide\Success\Success_Stories::SALARY_BANDS as $guide_band_key => $guide_band_label ) : ?>
+								<option value="<?php echo esc_attr( $guide_band_key ); ?>"><?php echo esc_html( $guide_band_label ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+				</div>
+				<p class="help">
+					<?php esc_html_e( 'A range, never an exact figure, and entirely optional. Low numbers are the most useful ones on this wall — a first job at ₹1.8 LPA is how a lot of careers start, including this one.', 'guide-wp-theme' ); ?>
+				</p>
+			</div>
+
+			<div class="field">
+				<label class="label" id="guide-story-body-label" for="guide-story-body"><?php esc_html_e( 'Your story', 'guide-wp-theme' ); ?></label>
+				<div class="control">
+					<?php
+					// The editor is built over this textarea by story.js and the
+					// textarea is then hidden. If the script fails to load, or
+					// the browser is old, what remains is a working plain-text
+					// box that still submits — the form never depends on the
+					// enhancement.
+					?>
+					<div id="guide-story-rte"></div>
 					<textarea class="textarea" id="guide-story-body" name="story" rows="10" required
 						placeholder="<?php esc_attr_e( 'Where you started, what you tried, what failed, what finally worked…', 'guide-wp-theme' ); ?>"></textarea>
 				</div>

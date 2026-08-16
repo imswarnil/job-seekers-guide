@@ -241,3 +241,89 @@
 .guide-ad--feed {
   grid-column: 1 / -1;
 }
+
+/* -------------------------------------------------------------------------
+   Profile picture
+   ------------------------------------------------------------------------- */
+
+.guide-avatar-edit {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.guide-avatar-edit__img {
+  flex: 0 0 auto;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--bulma-scheme-main-bis);
+  border: 2px solid var(--bulma-border-weak);
+}
+
+.guide-avatar-edit__controls {
+  min-width: 0;
+
+  /* The file input is hidden, so its <label> is the visible control. Without
+     this it would not look clickable. */
+  label[for] {
+    cursor: pointer;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Resetting progress
+   ------------------------------------------------------------------------- */
+
+.guide-reset-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.guide-reset-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--bulma-border-weak);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Public profile links
+   ------------------------------------------------------------------------- */
+
+.guide-profile-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  list-style: none;
+  padding: 0;
+}
+
+.guide-profile-links__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 650;
+  border-radius: 999px;
+  border: 1px solid var(--bulma-border-weak);
+  color: var(--bulma-text);
+
+  &:hover {
+    border-color: var(--guide-primary);
+    color: var(--guide-primary);
+  }
+}

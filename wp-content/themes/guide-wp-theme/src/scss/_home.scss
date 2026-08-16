@@ -437,3 +437,194 @@
 .guide-cta__inner {
   position: relative;
 }
+
+/* -------------------------------------------------------------------------
+   Illustrations
+   -------------------------------------------------------------------------
+   All decorative, all aria-hidden, all inheriting currentColor so they theme
+   themselves. Every animation below sits inside a
+   `prefers-reduced-motion: no-preference` block — motion is the enhancement,
+   never the baseline. With motion off, each drawing is simply present in its
+   finished state, which is the state that carries the meaning anyway.
+   ------------------------------------------------------------------------- */
+
+.guide-illus {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.guide-illus--block {
+  margin-top: 1.75rem;
+}
+
+/* --- Hero backdrop: a slowly drifting constellation --------------------- */
+
+.guide-hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.guide-hero__backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.5;
+
+  .hb__links line {
+    stroke: currentcolor;
+    stroke-width: 1;
+    opacity: 0.13;
+  }
+
+  .hb__nodes circle {
+    fill: currentcolor;
+    opacity: 0.22;
+  }
+}
+
+// Keep the hero's real content above the artwork.
+.guide-hero__inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Rejection arc: 33 crosses, then the one that landed ---------------- */
+
+.guide-illus--rejection-arc {
+  width: 100%;
+  max-width: 30rem;
+
+  .ra__x line {
+    stroke: var(--bulma-text-weak);
+    opacity: 0.35;
+  }
+
+  .ra__check {
+    polyline {
+      stroke: var(--guide-primary);
+      stroke-width: 3;
+    }
+
+    .ra__halo {
+      fill: var(--guide-primary);
+      opacity: 0.12;
+      stroke: none;
+    }
+  }
+}
+
+/* --- The route from orientation to offer -------------------------------- */
+
+.guide-illus--climb-wrap {
+  width: 100%;
+  max-width: 34rem;
+  margin: 0 auto 2rem;
+
+  .pc__route {
+    stroke: var(--bulma-border);
+  }
+
+  .pc__stop {
+    circle {
+      stroke: var(--bulma-text-weak);
+      fill: var(--bulma-scheme-main);
+    }
+
+    line {
+      stroke: var(--bulma-border);
+    }
+  }
+
+  .pc__goal-dot {
+    fill: var(--guide-primary);
+  }
+
+  .pc__goal-halo {
+    fill: var(--guide-primary);
+    opacity: 0.15;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  // Constellation drift. Very slow and very small: enough to feel alive,
+  // not enough to pull the eye away from the headline next to it.
+  .guide-hero__backdrop {
+    animation: guide-drift 60s ease-in-out infinite alternate;
+  }
+
+  .guide-hero__backdrop .hb__nodes circle {
+    animation: guide-twinkle 6s ease-in-out infinite;
+    animation-delay: calc(var(--i) * 0.4s);
+  }
+
+  // The crosses appear in sequence and the tick arrives last, which is the
+  // whole point of the drawing: the thirty-fourth one is only meaningful
+  // because you watched the other thirty-three go by.
+  .guide-illus--rejection-arc .ra__x {
+    opacity: 0;
+    animation: guide-fade-in 0.3s ease-out forwards;
+    animation-delay: calc(var(--i) * 0.045s);
+  }
+
+  .guide-illus--rejection-arc .ra__check {
+    opacity: 0;
+    animation: guide-land 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation-delay: 1.6s;
+  }
+
+  // The route draws itself, then the stops land on it in order.
+  .guide-illus--climb-wrap .pc__route {
+    stroke-dasharray: 400;
+    stroke-dashoffset: 400;
+    animation: guide-draw 2.2s ease-out forwards;
+  }
+
+  .guide-illus--climb-wrap .pc__stop {
+    opacity: 0;
+    animation: guide-fade-in 0.4s ease-out forwards;
+    animation-delay: calc(0.6s + var(--i) * 0.5s);
+  }
+
+  .guide-illus--climb-wrap .pc__goal {
+    opacity: 0;
+    animation: guide-land 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation-delay: 2.2s;
+  }
+
+  .guide-illus--climb-wrap .pc__goal-halo {
+    transform-origin: 306px 22px;
+    animation: guide-pulse 2.8s ease-in-out 2.8s infinite;
+  }
+}
+
+@keyframes guide-fade-in {
+  to { opacity: 1; }
+}
+
+@keyframes guide-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes guide-land {
+  0%   { opacity: 0; transform: scale(0.4); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes guide-pulse {
+  0%, 100% { transform: scale(1);   opacity: 0.15; }
+  50%      { transform: scale(1.5); opacity: 0.05; }
+}
+
+@keyframes guide-twinkle {
+  0%, 100% { opacity: 0.22; }
+  50%      { opacity: 0.4; }
+}
+
+@keyframes guide-drift {
+  from { transform: translate3d(0, 0, 0) scale(1.02); }
+  to   { transform: translate3d(-2%, -1.5%, 0) scale(1.06); }
+}

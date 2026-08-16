@@ -32,6 +32,8 @@ while ( have_posts() ) :
 				<div class="guide-prose mt-5" data-toc-source><?php the_content(); ?></div>
 
 				<?php get_template_part( 'template-parts/feedback', null, array( 'object_type' => 'help_article' ) ); ?>
+
+				<?php comments_template(); ?>
 			</article>
 
 			<aside class="guide-toc" data-toc aria-label="<?php esc_attr_e( 'On this page', 'guide-wp-theme' ); ?>">

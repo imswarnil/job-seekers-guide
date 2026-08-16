@@ -17,6 +17,28 @@ class Course_Meta {
 	/** Difficulty levels a course can be tagged with. */
 	const LEVELS = array( 'beginner', 'intermediate', 'advanced' );
 
+	/**
+	 * Header treatments for the course landing page.
+	 *
+	 * Same content in every one — the same title, chips, progress bar and
+	 * enrol card — only the presentation differs. That is the point: a course
+	 * page should never have to choose between looking right and carrying the
+	 * information a learner needs to decide.
+	 *
+	 * They exist because a catalogue of twenty courses in one identical dark
+	 * slab reads as a content farm, and this platform's whole claim is that it
+	 * is not one.
+	 */
+	const HEADERS = array(
+		'classic'   => 'Classic — dark slab, title left, enrol card right',
+		'split'     => 'Split — course artwork alongside the title',
+		'centred'   => 'Centred — title centred, enrol card beneath',
+		'minimal'   => 'Minimal — light and compact, for short courses',
+		'spotlight' => 'Spotlight — deep gradient with the course code behind the title',
+	);
+
+	const DEFAULT_HEADER = 'classic';
+
 	public static function register_meta() {
 		$can_edit = function () {
 			return current_user_can( 'edit_posts' );
@@ -46,6 +68,19 @@ class Course_Meta {
 			)
 		);
 
+		register_post_meta(
+			'course',
+			'jsl_course_header',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'default'           => self::DEFAULT_HEADER,
+				'show_in_rest'      => true,
+				'sanitize_callback' => array( __CLASS__, 'sanitize_header' ),
+				'auth_callback'     => $can_edit,
+			)
+		);
+
 		// "What you'll learn" and "Requirements" are lists of short lines.
 		// Stored as arrays so the console can edit them as repeatable rows
 		// rather than asking authors to hand-write markup.
@@ -68,6 +103,25 @@ class Course_Meta {
 				)
 			);
 		}
+	}
+
+	public static function sanitize_header( $value ): string {
+		$value = sanitize_key( (string) $value );
+
+		return isset( self::HEADERS[ $value ] ) ? $value : self::DEFAULT_HEADER;
+	}
+
+	/**
+	 * The header treatment for a course, always one of the known set.
+	 *
+	 * Falls back rather than trusting the stored value, so a variant removed in
+	 * a later release degrades to the classic header instead of emitting a
+	 * class with no styles behind it.
+	 */
+	public static function get_header( int $course_id ): string {
+		$value = sanitize_key( (string) get_post_meta( $course_id, 'jsl_course_header', true ) );
+
+		return isset( self::HEADERS[ $value ] ) ? $value : self::DEFAULT_HEADER;
 	}
 
 	public static function sanitize_level( $value ): string {

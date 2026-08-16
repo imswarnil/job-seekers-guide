@@ -59,6 +59,85 @@ $guide_my_status  = $guide_stories_on ? \Guide\Success\Success_Stories::user_sto
 </section>
 
 <div class="guide-shell guide-section">
+
+	<?php
+	$guide_opts    = \Guide\Success\Success_Stories::filter_options();
+	$guide_qc      = \Guide\Success\Success_Stories::QUERY_COMPANY;
+	$guide_qr      = \Guide\Success\Success_Stories::QUERY_ROLE;
+	$guide_qb      = \Guide\Success\Success_Stories::QUERY_BAND;
+	$guide_company = isset( $_GET[ $guide_qc ] ) ? sanitize_text_field( wp_unslash( $_GET[ $guide_qc ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$guide_role    = isset( $_GET[ $guide_qr ] ) ? sanitize_text_field( wp_unslash( $_GET[ $guide_qr ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$guide_band    = isset( $_GET[ $guide_qb ] ) ? sanitize_text_field( wp_unslash( $_GET[ $guide_qb ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$guide_any     = $guide_opts['companies'] || $guide_opts['roles'] || $guide_opts['bands'];
+	?>
+
+	<?php if ( $guide_any ) : ?>
+		<?php
+		// A plain GET form, submitted by the browser. No JavaScript involved,
+		// so every filtered view is a real URL somebody can bookmark, share,
+		// or land on from a search engine — "stories from people who got into
+		// Accenture" is a page worth existing.
+		?>
+		<form class="guide-story-filters" method="get" action="<?php echo esc_url( get_post_type_archive_link( 'success_story' ) ); ?>">
+			<?php if ( $guide_opts['companies'] ) : ?>
+				<div class="guide-story-filters__field">
+					<label class="label is-small" for="guide-f-company"><?php esc_html_e( 'Company', 'guide-wp-theme' ); ?></label>
+					<div class="select is-small is-fullwidth">
+						<select id="guide-f-company" name="<?php echo esc_attr( $guide_qc ); ?>">
+							<option value=""><?php esc_html_e( 'Any company', 'guide-wp-theme' ); ?></option>
+							<?php foreach ( $guide_opts['companies'] as $guide_opt ) : ?>
+								<option value="<?php echo esc_attr( $guide_opt ); ?>" <?php selected( $guide_company, $guide_opt ); ?>>
+									<?php echo esc_html( $guide_opt ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( $guide_opts['roles'] ) : ?>
+				<div class="guide-story-filters__field">
+					<label class="label is-small" for="guide-f-role"><?php esc_html_e( 'Role', 'guide-wp-theme' ); ?></label>
+					<div class="select is-small is-fullwidth">
+						<select id="guide-f-role" name="<?php echo esc_attr( $guide_qr ); ?>">
+							<option value=""><?php esc_html_e( 'Any role', 'guide-wp-theme' ); ?></option>
+							<?php foreach ( $guide_opts['roles'] as $guide_opt ) : ?>
+								<option value="<?php echo esc_attr( $guide_opt ); ?>" <?php selected( $guide_role, $guide_opt ); ?>>
+									<?php echo esc_html( $guide_opt ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( $guide_opts['bands'] ) : ?>
+				<div class="guide-story-filters__field">
+					<label class="label is-small" for="guide-f-band"><?php esc_html_e( 'Package', 'guide-wp-theme' ); ?></label>
+					<div class="select is-small is-fullwidth">
+						<select id="guide-f-band" name="<?php echo esc_attr( $guide_qb ); ?>">
+							<option value=""><?php esc_html_e( 'Any package', 'guide-wp-theme' ); ?></option>
+							<?php foreach ( $guide_opts['bands'] as $guide_opt ) : ?>
+								<option value="<?php echo esc_attr( $guide_opt ); ?>" <?php selected( $guide_band, $guide_opt ); ?>>
+									<?php echo esc_html( \Guide\Success\Success_Stories::SALARY_BANDS[ $guide_opt ] ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<div class="guide-story-filters__actions">
+				<button class="button is-small is-primary" type="submit"><?php esc_html_e( 'Filter', 'guide-wp-theme' ); ?></button>
+				<?php if ( $guide_company || $guide_role || $guide_band ) : ?>
+					<a class="button is-small is-ghost" href="<?php echo esc_url( get_post_type_archive_link( 'success_story' ) ); ?>">
+						<?php esc_html_e( 'Clear', 'guide-wp-theme' ); ?>
+					</a>
+				<?php endif; ?>
+			</div>
+		</form>
+	<?php endif; ?>
+
 	<?php if ( have_posts() ) : ?>
 		<div class="guide-grid guide-grid--wide">
 			<?php
@@ -94,6 +173,10 @@ $guide_my_status  = $guide_stories_on ? \Guide\Success\Success_Stories::user_sto
 						<p class="guide-card__excerpt"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 34 ) ); ?></p>
 
 						<div class="guide-card__meta">
+							<?php if ( ! empty( $guide_d['salary_label'] ) ) : ?>
+								<span class="guide-chip guide-chip--primary"><?php echo esc_html( $guide_d['salary_label'] ); ?></span>
+							<?php endif; ?>
+
 							<?php if ( $guide_d['weeks'] ) : ?>
 								<span class="guide-chip guide-chip--spark">
 									<?php

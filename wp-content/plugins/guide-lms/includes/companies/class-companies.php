@@ -298,6 +298,17 @@ class Companies {
 			<div>
 				<label for="jsl_company_website"><?php esc_html_e( 'Careers page', 'guide-lms' ); ?></label>
 				<input type="url" id="jsl_company_website" name="jsl_company_website" value="<?php echo esc_attr( (string) get_post_meta( $post->ID, 'jsl_company_website', true ) ); ?>" placeholder="https://">
+
+				<?php // One click instead of "find a logo, crop it, upload it" — the step most likely to stop a company guide being written at all. ?>
+				<p style="margin:6px 0 0">
+					<button type="button" class="button button-small" id="guide-fetch-logo"
+						data-post="<?php echo esc_attr( (string) $post->ID ); ?>"
+						data-nonce="<?php echo esc_attr( wp_create_nonce( 'guide_company_logo' ) ); ?>">
+						<?php esc_html_e( 'Fetch logo from website', 'guide-lms' ); ?>
+					</button>
+					<span id="guide-fetch-logo-state" style="margin-left:8px" aria-live="polite"></span>
+				</p>
+				<p class="description"><?php esc_html_e( 'Reads the site’s own icon and saves it as the featured image.', 'guide-lms' ); ?></p>
 			</div>
 			<div>
 				<label for="jsl_company_hq"><?php esc_html_e( 'Headquarters', 'guide-lms' ); ?></label>
@@ -331,6 +342,56 @@ class Companies {
 				<p class="description"><?php esc_html_e( 'Shown publicly. Salary data goes stale fast and an unmarked old number is worse than none.', 'guide-lms' ); ?></p>
 			</div>
 		</div>
+
+		<script>
+		( function () {
+			var btn = document.getElementById( 'guide-fetch-logo' );
+			if ( ! btn ) { return; }
+
+			btn.addEventListener( 'click', function () {
+				var state = document.getElementById( 'guide-fetch-logo-state' );
+				var site  = document.getElementById( 'jsl_company_website' ).value.trim();
+
+				if ( ! site ) {
+					state.textContent = <?php echo wp_json_encode( __( 'Add the website address first.', 'guide-lms' ) ); ?>;
+					return;
+				}
+
+				btn.disabled = true;
+				state.textContent = <?php echo wp_json_encode( __( 'Fetching…', 'guide-lms' ) ); ?>;
+
+				var body = new FormData();
+				body.append( 'action', 'guide_fetch_company_logo' );
+				body.append( '_wpnonce', btn.getAttribute( 'data-nonce' ) );
+				body.append( 'post_id', btn.getAttribute( 'data-post' ) );
+				body.append( 'website', site );
+
+				fetch( ajaxurl, { method: 'POST', body: body, credentials: 'same-origin' } )
+					.then( function ( r ) { return r.json(); } )
+					.then( function ( res ) {
+						if ( res.success ) {
+							state.textContent = res.data.message;
+
+							// Repaint the featured image box so the result is
+							// visible without a reload.
+							var box = document.getElementById( 'postimagediv' );
+							if ( box && res.data.url ) {
+								var inner = box.querySelector( '.inside' );
+								if ( inner ) {
+									inner.innerHTML = '<img src="' + res.data.url + '" style="max-width:100%;height:auto">';
+								}
+							}
+							return;
+						}
+						state.textContent = ( res.data && res.data.message ) || <?php echo wp_json_encode( __( 'That did not work.', 'guide-lms' ) ); ?>;
+					} )
+					.catch( function () {
+						state.textContent = <?php echo wp_json_encode( __( 'That did not work.', 'guide-lms' ) ); ?>;
+					} )
+					.then( function () { btn.disabled = false; } );
+			} );
+		} )();
+		</script>
 
 		<p style="margin-top:14px"><strong><?php esc_html_e( 'How they hire', 'guide-lms' ); ?></strong></p>
 		<?php foreach ( self::HIRING_MODES as $key => $label ) : ?>

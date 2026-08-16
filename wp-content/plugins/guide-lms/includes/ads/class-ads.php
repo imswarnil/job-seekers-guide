@@ -19,6 +19,7 @@
 namespace Guide\Ads;
 
 use Guide\Access\Access;
+use Guide\Account\Account;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -97,7 +98,21 @@ class Ads {
 			return false;
 		}
 
+		// The account area is routed by the plugin, not backed by a WordPress
+		// page, so is_page( 'account' ) is *always* false there and checking it
+		// silently protected nothing — including the receipt view, which shows
+		// somebody's payment history.
+		if ( class_exists( 'Guide\\Account\\Account' ) && get_query_var( Account::QUERY_VAR ) ) {
+			return false;
+		}
+
 		if ( function_exists( 'is_page' ) && is_page( array( 'account', 'my-learning', 'checkout' ) ) ) {
+			return false;
+		}
+
+		// The sponsor console is where somebody is buying a placement. An ad
+		// next to that is absurd, and it is another routed view.
+		if ( class_exists( 'Guide\\Sponsors\\Sponsorship' ) && get_query_var( 'guide_sponsor' ) ) {
 			return false;
 		}
 
@@ -157,6 +172,18 @@ class Ads {
 		// would be indefensible to sell a placement and then let AdSense
 		// compete with it for the same space.
 		if ( self::render_sponsor( $which, $label ) ) {
+			return;
+		}
+
+		// No sponsor took it, so this would be an AdSense unit — which is only
+		// legitimate when AdSense is actually switched on and configured.
+		//
+		// should_show() deliberately returns true for a sponsor-only request
+		// (the two revenue streams are independent), so without this check a
+		// site running sponsors with AdSense disabled would still emit an empty
+		// <ins> and an adsbygoogle.push() against a script that was never
+		// loaded: a grey gap on the page and an error in the console.
+		if ( ! self::is_enabled() || '' === self::client() ) {
 			return;
 		}
 

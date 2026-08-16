@@ -238,11 +238,34 @@ while ( have_posts() ) :
 						<?php endif; ?>
 					</div>
 				<?php else : ?>
-					<div class="guide-prose mt-4"><?php the_content(); ?></div>
+					<?php
+					// Contents for a long lesson.
+					//
+					// A <details> rather than a fixed rail: the player already spends
+					// a column on course navigation, and a second permanent list of
+					// links either crowds the writing or vanishes on a phone — which
+					// is what most of this audience reads on. Closed by default,
+					// because a lesson is meant to be read top to bottom; this is for
+					// the person coming back to find one specific thing.
+					//
+					// The shared script hides it when there are fewer than three
+					// headings, so short lessons show nothing at all.
+					?>
+					<details class="guide-toc guide-toc--inline" data-toc>
+						<summary class="guide-toc__summary">
+							<?php esc_html_e( 'In this lesson', 'guide-wp-theme' ); ?>
+						</summary>
+						<nav class="guide-toc__list" data-toc-list
+							aria-label="<?php esc_attr_e( 'Lesson contents', 'guide-wp-theme' ); ?>"></nav>
+					</details>
+
+					<div class="guide-prose mt-4" data-toc-source><?php the_content(); ?></div>
 				<?php endif; ?>
 
 				<?php // Below the lesson, never inside it: an ad between two paragraphs of an explanation is the worst possible interruption. ?>
 				<?php get_template_part( 'template-parts/feedback', null, array( 'object_type' => 'lesson' ) ); ?>
+
+				<?php comments_template(); ?>
 
 				<?php guide_ad( 'page' ); ?>
 

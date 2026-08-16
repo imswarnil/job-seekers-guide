@@ -235,6 +235,8 @@ while ( have_posts() ) :
 					<?php endif; ?>
 
 					<?php get_template_part( 'template-parts/feedback', null, array( 'object_type' => 'company' ) ); ?>
+
+					<?php comments_template(); ?>
 				</div>
 
 				<aside class="guide-toc" data-toc aria-label="<?php esc_attr_e( 'On this page', 'guide-wp-theme' ); ?>">

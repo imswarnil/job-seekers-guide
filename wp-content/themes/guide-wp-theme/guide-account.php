@@ -11,6 +11,9 @@ defined( 'ABSPATH' ) || exit;
 $guide_user_id = get_current_user_id();
 $guide_data    = \Guide\Account\Account::overview( $guide_user_id );
 $guide_user    = $guide_data['user'];
+$guide_avatar  = \Guide\Account\Profile::avatar_url( $guide_user_id, 'thumbnail' );
+$guide_links   = \Guide\Account\Profile::links( $guide_user_id );
+$guide_resets  = \Guide\Account\Profile::courses_with_progress( $guide_user_id );
 
 get_header();
 ?>
@@ -143,7 +146,31 @@ get_header();
 			<section class="guide-card" style="padding:1.5rem" aria-labelledby="guide-profile-head">
 				<h2 id="guide-profile-head" class="guide-card__title"><?php esc_html_e( 'Your details', 'guide-wp-theme' ); ?></h2>
 
-				<form id="guide-profile-form" class="mt-3">
+				<div class="guide-avatar-edit mt-3">
+					<img id="guide-avatar-preview"
+						src="<?php echo esc_url( $guide_avatar ?: get_avatar_url( $guide_user_id, array( 'size' => 160 ) ) ); ?>"
+						alt="" width="80" height="80" class="guide-avatar-edit__img">
+
+					<div class="guide-avatar-edit__controls">
+						<label class="button is-small" for="guide-avatar-file">
+							<?php esc_html_e( 'Change picture', 'guide-wp-theme' ); ?>
+						</label>
+						<input type="file" id="guide-avatar-file" accept="image/jpeg,image/png,image/webp" hidden>
+
+						<?php if ( $guide_avatar ) : ?>
+							<button type="button" class="button is-small is-ghost" id="guide-avatar-remove">
+								<?php esc_html_e( 'Remove', 'guide-wp-theme' ); ?>
+							</button>
+						<?php endif; ?>
+
+						<p class="is-size-7 mt-1" style="color:var(--bulma-text-weak)">
+							<?php esc_html_e( 'JPEG, PNG or WebP, up to 2 MB.', 'guide-wp-theme' ); ?>
+						</p>
+						<p class="is-size-7" id="guide-avatar-status" aria-live="polite"></p>
+					</div>
+				</div>
+
+				<form id="guide-profile-form" class="mt-4">
 					<div class="field">
 						<label class="label" for="guide-display-name"><?php esc_html_e( 'Display name', 'guide-wp-theme' ); ?></label>
 						<div class="control">
@@ -175,6 +202,71 @@ get_header();
 				</form>
 			</section>
 
+			<section class="guide-card mt-5" style="padding:1.5rem" aria-labelledby="guide-links-head">
+				<h2 id="guide-links-head" class="guide-card__title"><?php esc_html_e( 'Your links', 'guide-wp-theme' ); ?></h2>
+				<p class="is-size-7 mt-1" style="color:var(--bulma-text-weak)">
+					<?php esc_html_e( 'Shown on your stories. Leave anything blank to hide it.', 'guide-wp-theme' ); ?>
+				</p>
+
+				<form id="guide-links-form" class="mt-3">
+					<?php foreach ( \Guide\Account\Profile::LINKS as $guide_key => $guide_label ) : ?>
+						<div class="field">
+							<label class="label is-small" for="guide-link-<?php echo esc_attr( $guide_key ); ?>">
+								<?php echo esc_html( $guide_label ); ?>
+							</label>
+							<div class="control">
+								<input class="input is-small" type="url" inputmode="url"
+									id="guide-link-<?php echo esc_attr( $guide_key ); ?>"
+									name="<?php echo esc_attr( $guide_key ); ?>"
+									placeholder="<?php echo esc_attr( 'website' === $guide_key ? 'https://yoursite.com' : 'https://' . strtolower( $guide_label ) . '.com/you' ); ?>"
+									value="<?php echo esc_attr( $guide_links[ $guide_key ]['url'] ?? '' ); ?>">
+							</div>
+						</div>
+					<?php endforeach; ?>
+
+					<div class="is-flex is-align-items-center mt-3" style="gap:1rem;flex-wrap:wrap">
+						<button class="button is-primary is-small" type="submit"><?php esc_html_e( 'Save links', 'guide-wp-theme' ); ?></button>
+						<p class="is-size-7" style="color:var(--bulma-text-weak)" id="guide-links-status" aria-live="polite"></p>
+					</div>
+				</form>
+			</section>
+
+			<section class="guide-card mt-5" style="padding:1.5rem" aria-labelledby="guide-reset-head">
+				<h2 id="guide-reset-head" class="guide-card__title"><?php esc_html_e( 'Start a course again', 'guide-wp-theme' ); ?></h2>
+				<p class="is-size-7 mt-1" style="color:var(--bulma-text-weak)">
+					<?php esc_html_e( 'Clears your ticks so you can work through it fresh — useful when you are revising before an interview. Your access is not affected.', 'guide-wp-theme' ); ?>
+				</p>
+
+				<?php if ( empty( $guide_resets ) ) : ?>
+					<p class="is-size-7 mt-3"><?php esc_html_e( 'Nothing to reset yet — complete a lesson first.', 'guide-wp-theme' ); ?></p>
+				<?php else : ?>
+					<ul class="guide-reset-list mt-3">
+						<?php foreach ( $guide_resets as $guide_reset ) : ?>
+							<li class="guide-reset-list__item">
+								<span>
+									<strong><?php echo esc_html( $guide_reset['title'] ); ?></strong><br>
+									<span class="is-size-7" style="color:var(--bulma-text-weak)">
+										<?php
+										printf(
+											/* translators: %d: number of lessons completed. */
+											esc_html( _n( '%d lesson completed', '%d lessons completed', $guide_reset['completed'], 'guide-wp-theme' ) ),
+											(int) $guide_reset['completed']
+										);
+										?>
+									</span>
+								</span>
+								<button type="button" class="button is-small is-ghost guide-reset-course"
+									data-course="<?php echo esc_attr( (string) $guide_reset['id'] ); ?>"
+									data-title="<?php echo esc_attr( $guide_reset['title'] ); ?>">
+									<?php esc_html_e( 'Reset', 'guide-wp-theme' ); ?>
+								</button>
+							</li>
+						<?php endforeach; ?>
+					</ul>
+					<p class="is-size-7 mt-2" id="guide-reset-status" aria-live="polite"></p>
+				<?php endif; ?>
+			</section>
+
 			<section class="guide-card mt-5" style="padding:1.5rem">
 				<h2 class="guide-card__title"><?php esc_html_e( 'Your learning', 'guide-wp-theme' ); ?></h2>
 				<div class="guide-footer__list mt-3">
@@ -199,7 +291,13 @@ wp_localize_script(
 			'saving'  => __( 'Saving…', 'guide-wp-theme' ),
 			'saved'   => __( 'Saved.', 'guide-wp-theme' ),
 			'failed'  => __( 'Could not save — try again.', 'guide-wp-theme' ),
-			'opening' => __( 'Opening checkout…', 'guide-wp-theme' ),
+			'opening'     => __( 'Opening checkout…', 'guide-wp-theme' ),
+			'uploading'   => __( 'Uploading…', 'guide-wp-theme' ),
+			'tooBig'      => __( 'That image is over 2 MB.', 'guide-wp-theme' ),
+			'resetting'   => __( 'Resetting…', 'guide-wp-theme' ),
+			'resetDone'   => __( 'Progress cleared.', 'guide-wp-theme' ),
+			/* translators: %s: course title. */
+			'resetAsk'    => __( 'Clear your progress for %s? This cannot be undone.', 'guide-wp-theme' ),
 		),
 	)
 );

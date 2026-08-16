@@ -96,7 +96,15 @@ class Discussion {
 			}
 		}
 
-		return (bool) $open;
+		// Deliberately ignore the stored comment_status.
+		//
+		// Every post on this site was created while comments were switched off
+		// site-wide, so they all carry comment_status = 'closed' — and anything
+		// the console creates would inherit the same default. Honouring it would
+		// mean discussion never opened on a single existing lesson, and the
+		// per-post toggle is not where this policy belongs anyway: it is by post
+		// type, with one global switch in LMS → Settings.
+		return true;
 	}
 
 	/**

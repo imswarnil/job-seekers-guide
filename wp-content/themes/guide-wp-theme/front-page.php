@@ -58,6 +58,13 @@ $guide_has_visual = $guide_resume || ! empty( $guide_hero_steps );
 
 <!-- ============================= Hero ============================= -->
 <section class="guide-hero">
+	<?php
+	// Ambient artwork behind the hero. Purely decorative and aria-hidden — the
+	// hero's right column still carries the real content, because a homepage
+	// that shows a drawing instead of the actual product is an advertisement.
+	echo guide_illustration( 'hero-backdrop', 'guide-hero__backdrop' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	?>
+
 	<div class="guide-shell guide-hero__inner">
 		<div class="guide-hero__grid <?php echo $guide_has_visual ? 'has-visual' : ''; ?>">
 
@@ -210,6 +217,14 @@ $guide_has_visual = $guide_resume || ! empty( $guide_hero_steps );
 					<p><?php esc_html_e( 'Training institutes are not selling knowledge. They are selling sequence — “learn this, then this” — filtering, and someone expecting you tomorrow. All three can be given away, so here they are.', 'guide-wp-theme' ); ?></p>
 					<p><?php esc_html_e( 'This platform was built by someone who was rejected 33 times, took a ₹13,000-a-month job because the fresher tag is a door you only need opened once, and moved to a real salary three months later by treating the job hunt as a subject worth studying.', 'guide-wp-theme' ); ?></p>
 				</div>
+				<?php
+				// Thirty-three crosses and one tick. The number is not decorative
+				// — it is the actual count, and it is stated in the paragraph
+				// directly above, so the drawing adds emphasis rather than
+				// information.
+				echo guide_illustration( 'rejection-arc', 'guide-illus--block' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				?>
+
 				<?php if ( get_page_by_path( 'my-story' ) ) : ?>
 					<a class="button is-primary mt-4" href="<?php echo esc_url( home_url( '/my-story/' ) ); ?>">
 						<?php esc_html_e( 'Read the whole story', 'guide-wp-theme' ); ?>
@@ -247,6 +262,9 @@ $guide_has_visual = $guide_resume || ! empty( $guide_hero_steps );
 <section class="guide-section guide-section--tight" aria-labelledby="guide-how">
 	<div class="guide-shell">
 		<h2 id="guide-how" class="is-sr-only"><?php esc_html_e( 'How it works', 'guide-wp-theme' ); ?></h2>
+
+		<?php echo guide_illustration( 'path-climb', 'guide-illus--climb-wrap' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+
 		<div class="guide-how">
 			<?php
 			$guide_steps_how = array(

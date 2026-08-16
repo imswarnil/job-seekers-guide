@@ -3,7 +3,7 @@
  * Plugin Name: Guide LMS
  * Plugin URI: https://github.com/imswarnil/job-seekers-guide
  * Description: Structured-learning-path LMS. Courses, lessons, learning paths, a visual course builder, enrollment and progress tracking, quizzes, a community resource library, learner discussion, and checkout.
- * Version: 0.11.0
+ * Version: 0.12.0
  * Requires at least: 6.4
  * Requires PHP: 8.0
  * Author: Guide
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'GUIDE_VERSION', '0.11.0' );
+define( 'GUIDE_VERSION', '0.12.0' );
 define( 'GUIDE_PLUGIN_FILE', __FILE__ );
 define( 'GUIDE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GUIDE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -31,7 +31,10 @@ require_once GUIDE_PLUGIN_DIR . 'includes/enrollment/class-tables.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/billing/class-billing.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/enrollment/class-enrollment.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/access/class-access.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/email/class-mailer.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/email/class-notifications.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/account/class-account.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/account/class-profile.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/sponsors/class-sponsorship.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/sponsors/class-sponsor-stats.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/sponsors/class-sponsor-portal.php';
@@ -53,6 +56,7 @@ require_once GUIDE_PLUGIN_DIR . 'includes/payments/class-webhook.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/analytics/class-analytics.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/auth/class-google-auth.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/companies/class-companies.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/companies/class-company-logo.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/community/class-community-types.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/community/class-feedback.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/community/class-discussion.php';
@@ -62,6 +66,8 @@ require_once GUIDE_PLUGIN_DIR . 'includes/seo/class-seo.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/pwa/class-pwa.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/security/class-hardening.php';
 require_once GUIDE_PLUGIN_DIR . 'includes/security/class-comments-off.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/security/class-login-guard.php';
+require_once GUIDE_PLUGIN_DIR . 'includes/security/class-trim.php';
 require_once GUIDE_PLUGIN_DIR . 'admin/class-lms-admin.php';
 require_once GUIDE_PLUGIN_DIR . 'admin/class-console.php';
 require_once GUIDE_PLUGIN_DIR . 'admin/class-settings-page.php';
@@ -107,13 +113,16 @@ function guide_boot() {
 	Guide\Payments\Subscription::init();
 	Guide\Payments\Webhook::init();
 	Guide\Access\Access::init();
+	Guide\Email\Notifications::init();
 	Guide\Account\Account::init();
+	Guide\Account\Profile::init();
 	Guide\Sponsors\Sponsorship::init();
 	Guide\Sponsors\Sponsor_Stats::init();
 	Guide\Sponsors\Sponsor_Portal::init();
 	Guide\Ads\Ads::init();
 	Guide\Auth\Google_Auth::init();
 	Guide\Companies\Companies::init();
+	Guide\Companies\Company_Logo::init();
 	Guide\Community\Community_Types::init();
 	Guide\Community\Feedback::init();
 	Guide\Community\Discussion::init();
@@ -124,6 +133,8 @@ function guide_boot() {
 	Guide\Analytics\Analytics::init();
 	Guide\Security\Hardening::init();
 	Guide\Security\Comments_Off::init();
+	Guide\Security\Login_Guard::init();
+	Guide\Security\Trim::init();
 	Guide\Admin\Lms_Admin::init();
 	Guide\Admin\Console::init();
 	Guide\Admin\Settings_Page::init();
@@ -135,9 +146,15 @@ function guide_boot() {
 add_action( 'plugins_loaded', 'guide_boot' );
 
 /**
- * Apply schema changes on upgrade, not just on activation — an existing
- * install updated in place (git pull / plugin update) never re-fires the
- * activation hook, so new columns would otherwise never appear.
+ * Apply schema changes on upgrade, not just on activation.
+ *
+ * An install updated in place — which is how this deploys: git pull, restart —
+ * never re-fires the activation hook, so tables, roles and rewrite rules would
+ * otherwise never appear.
+ *
+ * Hooked on `init` rather than `admin_init` so the first request from anybody
+ * heals the deploy, instead of it waiting for an administrator to happen to log
+ * in. When the version already matches this is a single autoloaded option read.
  */
 function guide_maybe_upgrade_schema() {
 	if ( get_option( 'jsl_db_version' ) === GUIDE_VERSION ) {
@@ -174,7 +191,7 @@ function guide_maybe_upgrade_schema() {
 
 	update_option( 'jsl_db_version', GUIDE_VERSION, false );
 }
-add_action( 'admin_init', 'guide_maybe_upgrade_schema' );
+add_action( 'init', 'guide_maybe_upgrade_schema', 20 );
 
 /**
  * Activation: register post types/taxonomies so rewrite rules are known,

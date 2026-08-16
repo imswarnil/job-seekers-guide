@@ -94,6 +94,61 @@
   }
 }
 
+// Inside the lesson player, where the left column is already the course
+// navigation. Collapsible and in the flow rather than sticky at the side.
+.guide-toc--inline {
+  position: static;
+  order: 0;
+  margin-top: 1.25rem;
+  padding: 0.85rem 1.15rem;
+  border: 1px solid var(--bulma-border-weak);
+  border-left: 1px solid var(--bulma-border-weak);
+  border-radius: var(--bulma-radius-medium);
+  background: var(--bulma-scheme-main-bis);
+
+  .guide-toc__list {
+    margin-top: 0.75rem;
+  }
+}
+
+.guide-toc__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bulma-text-weak);
+  list-style: none;
+
+  // Safari draws its own triangle through ::-webkit-details-marker.
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  // Our own marker, so the open/closed state is legible on every browser.
+  &::after {
+    content: "";
+    width: 0.45rem;
+    height: 0.45rem;
+    margin-left: auto;
+    border-right: 2px solid currentcolor;
+    border-bottom: 2px solid currentcolor;
+    transform: rotate(45deg) translate(-2px, -2px);
+    transition: transform 0.15s ease;
+  }
+
+  [open] > &::after {
+    transform: rotate(-135deg) translate(-2px, -2px);
+  }
+
+  &:hover {
+    color: var(--bulma-text);
+  }
+}
+
 .guide-toc__list {
   display: flex;
   flex-direction: column;

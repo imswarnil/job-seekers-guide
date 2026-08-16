@@ -1385,6 +1385,17 @@
 						'<option value="advanced">Advanced</option>' +
 					'</select></div>' +
 
+				'<div class="guide-field"><label for="guide-cd-header">Header style</label>' +
+					'<select class="guide-input" id="guide-cd-header" style="max-width:340px">' +
+						'<option value="classic">Classic — dark slab, enrol card right</option>' +
+						'<option value="split">Split — artwork beside the title</option>' +
+						'<option value="centred">Centred — title centred, card beneath</option>' +
+						'<option value="minimal">Minimal — light and compact</option>' +
+						'<option value="spotlight">Spotlight — gradient with the code behind the title</option>' +
+					'</select>' +
+					'<span class="guide-help">Every style shows the same information — only the layout changes. ' +
+						'Split and Spotlight use the course image, so set one above first.</span></div>' +
+
 				'<div class="guide-field"><label>Full description</label>' +
 					'<div id="guide-cd-editor"></div>' +
 					'<span class="guide-help">Shown on the course page under the “About” tab.</span></div>' +
@@ -1415,6 +1426,7 @@
 		document.getElementById( 'guide-cd-title' ).value = ( course.title && course.title.raw ) || '';
 		document.getElementById( 'guide-cd-excerpt' ).value = ( course.excerpt && course.excerpt.raw ) || '';
 		document.getElementById( 'guide-cd-level' ).value = meta.jsl_course_level || '';
+		document.getElementById( 'guide-cd-header' ).value = meta.jsl_course_header || 'classic';
 
 		var editor = richEditor(
 			document.getElementById( 'guide-cd-editor' ),
@@ -1501,6 +1513,7 @@
 				featured_media: imageId,
 				meta: {
 					jsl_course_level: document.getElementById( 'guide-cd-level' ).value,
+					jsl_course_header: document.getElementById( 'guide-cd-header' ).value,
 					jsl_course_outcomes: outcomes.getValues(),
 					jsl_course_requirements: reqs.getValues(),
 					jsl_pricing_type: tier,

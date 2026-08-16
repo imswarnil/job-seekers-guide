@@ -64,9 +64,24 @@ while ( have_posts() ) :
 
 	$guide_code  = class_exists( 'Guide\\Course_Meta' ) ? \Guide\Course_Meta::get_code( $guide_course_id ) : '';
 	$guide_level = class_exists( 'Guide\\Course_Meta' ) ? \Guide\Course_Meta::get_level( $guide_course_id ) : '';
+
+	// Header treatment. Every variant carries identical information — only the
+	// arrangement changes — so choosing one can never cost a learner a fact
+	// they needed in order to decide.
+	$guide_header = class_exists( 'Guide\\Course_Meta' )
+		? \Guide\Course_Meta::get_header( $guide_course_id )
+		: 'classic';
+
+	// Two of the treatments put the course artwork in the header itself.
+	$guide_hero_art = in_array( $guide_header, array( 'split', 'spotlight' ), true )
+		? get_the_post_thumbnail_url( $guide_course_id, 'large' )
+		: '';
 	?>
 
-	<section class="guide-course-hero">
+	<section class="guide-course-hero guide-course-hero--<?php echo esc_attr( $guide_header ); ?>"
+		<?php if ( 'spotlight' === $guide_header && $guide_code ) : ?>
+			data-watermark="<?php echo esc_attr( $guide_code ); ?>"
+		<?php endif; ?>>
 		<div class="guide-shell">
 			<nav class="guide-breadcrumb" aria-label="<?php esc_attr_e( 'Breadcrumb', 'guide-wp-theme' ); ?>">
 				<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php esc_html_e( 'Home', 'guide-wp-theme' ); ?></a>
@@ -166,6 +181,13 @@ while ( have_posts() ) :
 						</div>
 					<?php endif; ?>
 				</div>
+
+					<?php if ( $guide_hero_art ) : ?>
+						<figure class="guide-course-hero__art">
+							<img src="<?php echo esc_url( $guide_hero_art ); ?>" alt=""
+								loading="eager" decoding="async" width="640" height="360">
+						</figure>
+					<?php endif; ?>
 
 				<aside class="guide-enroll-card" id="guide-enroll-box" data-course-id="<?php echo esc_attr( (string) $guide_course_id ); ?>">
 					<?php if ( $guide_via_plan ) : ?>

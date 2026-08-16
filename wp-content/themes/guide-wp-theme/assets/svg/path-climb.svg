@@ -1,0 +1,28 @@
+<svg class="guide-illus guide-illus--climb" viewBox="0 0 320 130" fill="none" aria-hidden="true" focusable="false" stroke-linecap="round" stroke-linejoin="round">
+	<!-- The route: understand, build, then hunt. Drawn as one continuous line
+	     because that is the argument — these are not three products, they are
+	     one road, and the reason people stall is that nobody drew it. -->
+	<path class="pc__route" d="M14 112 C 62 112, 74 82, 108 82 S 168 52, 196 52 S 262 22, 306 22" stroke-width="2.5" stroke-dasharray="6 7"/>
+
+	<g class="pc__stop" style="--i:0">
+		<line x1="14" y1="112" x2="14" y2="96" stroke-width="2"/>
+		<circle cx="14" cy="112" r="7" stroke-width="2.5"/>
+	</g>
+
+	<g class="pc__stop" style="--i:1">
+		<line x1="108" y1="82" x2="108" y2="62" stroke-width="2"/>
+		<circle cx="108" cy="82" r="7" stroke-width="2.5"/>
+	</g>
+
+	<g class="pc__stop" style="--i:2">
+		<line x1="196" y1="52" x2="196" y2="32" stroke-width="2"/>
+		<circle cx="196" cy="52" r="7" stroke-width="2.5"/>
+	</g>
+
+	<!-- The offer. Filled rather than outlined, so the end of the road is the
+	     one shape on the page that reads as solid. -->
+	<g class="pc__goal">
+		<circle cx="306" cy="22" r="10" class="pc__goal-halo"/>
+		<circle cx="306" cy="22" r="6.5" class="pc__goal-dot"/>
+	</g>
+</svg>

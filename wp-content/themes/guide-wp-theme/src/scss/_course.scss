@@ -527,3 +527,171 @@
     color: var(--guide-spark);
   }
 }
+
+/* -------------------------------------------------------------------------
+   Course header treatments
+   -------------------------------------------------------------------------
+   Five arrangements of the same information. The classic one is the base
+   style above; these four override it.
+
+   Each carries the identical set of facts — title, code, tier, module and
+   lesson counts, duration, level, progress and the enrol card. Only the
+   arrangement changes. A "prettier" header that dropped the lesson count
+   would be a worse header, because deciding whether to start a course is the
+   only job this page has.
+   ------------------------------------------------------------------------- */
+
+.guide-course-hero__art {
+  margin: 0;
+  border-radius: var(--bulma-radius-large);
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 12%);
+  line-height: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    aspect-ratio: 16 / 9;
+  }
+}
+
+/* --- Split: artwork beside the title, enrol card below it --------------- */
+
+.guide-course-hero--split {
+  .guide-course-hero__grid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+
+    @include mx.until(iv.$desktop) {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .guide-course-hero__art {
+    margin-top: 1rem;
+  }
+
+  .guide-enroll-card {
+    margin-top: 1.25rem;
+  }
+}
+
+/* --- Centred: for a course that is a statement rather than a catalogue
+       entry — the flagship, an announcement, a single-topic intensive ---- */
+
+.guide-course-hero--centred {
+  text-align: center;
+
+  .guide-course-hero__grid {
+    grid-template-columns: minmax(0, 46rem);
+    justify-content: center;
+    gap: 2rem;
+  }
+
+  .guide-course-hero__meta {
+    justify-content: center;
+  }
+
+  .guide-course-hero__lede {
+    margin-inline: auto;
+  }
+
+  /* The progress bar is inline-styled to a max width in the template; centring
+     it needs the auto margins that a bare max-width does not give. */
+  .guide-progress-label,
+  .guide-progress {
+    text-align: left;
+  }
+
+  .guide-course-hero__grid > div > .mt-5 {
+    margin-inline: auto;
+  }
+
+  .guide-enroll-card {
+    max-width: 24rem;
+    margin-inline: auto;
+    text-align: left;
+  }
+}
+
+/* --- Minimal: light, compact, no dark slab ------------------------------ */
+
+.guide-course-hero--minimal {
+  padding-block: 2rem;
+  background: var(--bulma-scheme-main-bis);
+  color: var(--bulma-text);
+  border-bottom: 1px solid var(--bulma-border-weak);
+
+  .title,
+  h1,
+  .guide-display {
+    color: var(--bulma-text-strong);
+  }
+
+  .guide-eyebrow {
+    color: var(--bulma-text-weak);
+  }
+
+  .guide-display {
+    font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  }
+
+  .guide-course-hero__lede {
+    opacity: 1;
+    color: var(--bulma-text-weak);
+  }
+
+  /* On a light hero the chips need the ordinary border colour — the inverse
+     one is tuned for white-on-dark and would be nearly invisible here. */
+  .guide-chip--outline {
+    border-color: var(--bulma-border);
+    color: var(--bulma-text-weak);
+  }
+
+  .guide-enroll-card {
+    border: 1px solid var(--bulma-border-weak);
+  }
+}
+
+/* --- Spotlight: deep gradient, course code set large behind the title --- */
+
+.guide-course-hero--spotlight {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 100% at 15% 0%, rgb(255 255 255 / 10%) 0%, transparent 55%),
+    linear-gradient(155deg, var(--guide-inverse-bg) 25%, var(--guide-primary-deep, #1b2a4a) 100%);
+
+  /* The course code, oversized and very faint. Decorative only — the code is
+     also printed as a readable chip, so nothing here is load-bearing, and
+     aria-hidden keeps it out of the accessibility tree. */
+  &::before {
+    content: attr(data-watermark);
+    position: absolute;
+    top: 50%;
+    right: -0.15em;
+    transform: translateY(-50%);
+    font-size: clamp(6rem, 18vw, 14rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: rgb(255 255 255 / 5%);
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .guide-shell {
+    position: relative;
+    z-index: 1;
+  }
+
+  .guide-course-hero__art {
+    margin-top: 1.25rem;
+    box-shadow: 0 1.5rem 3rem rgb(0 0 0 / 35%);
+  }
+
+  .guide-enroll-card {
+    margin-top: 1.25rem;
+  }
+}
