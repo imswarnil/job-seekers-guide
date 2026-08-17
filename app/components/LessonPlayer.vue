@@ -111,6 +111,8 @@ const toc = computed(() => props.page.body?.toc?.links || [])
           />
         </div>
 
+        <AdSlot placement="lesson-footer" />
+
         <USeparator class="my-10" />
 
         <ClientOnly>

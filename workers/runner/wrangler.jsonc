@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "jsg-runner",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-06-30",
+  "observability": {
+    "enabled": true
+  },
+  // Holds both the result cache and the per-IP rate counters. Create it with:
+  //   npx wrangler kv namespace create RUNNER_CACHE
+  // then paste the id here.
+  "kv_namespaces": [
+    {
+      "binding": "RUNNER_CACHE",
+      "id": "REPLACE_WITH_KV_NAMESPACE_ID"
+    }
+  ],
+  "vars": {
+    "ALLOWED_ORIGINS": "https://jobseekersguide.in,http://localhost:3000"
+  }
+  // PISTON_URL and PISTON_TOKEN are secrets, set with:
+  //   npx wrangler secret put PISTON_TOKEN
+  // Leave them unset to use the free public Piston instance.
+}
