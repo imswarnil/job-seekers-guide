@@ -1,0 +1,9 @@
+Tells GitHub Pages not to run the build output through Jekyll.
+
+Without this, Jekyll strips every directory whose name begins with an
+underscore — which on this site is `_nuxt/`, i.e. all of the JavaScript and CSS.
+The page would load and then be entirely unstyled and inert.
+
+The Actions deployment used here uploads an artifact rather than letting Pages
+build the branch, so Jekyll should not run anyway. This file costs nothing and
+removes the failure mode completely.

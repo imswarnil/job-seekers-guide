@@ -16,7 +16,6 @@ import type { RunnerAdapter, RunResult } from './types'
  * than a spinner that never resolves.
  */
 
-const ENDPOINT = 'https://runner.jobseekersguide.in/run'
 const TIMEOUT_MS = 15000
 
 export default {
@@ -24,11 +23,25 @@ export default {
 
   async run(source, stdin): Promise<RunResult> {
     const started = performance.now()
+
+    // The endpoint is configuration, not a constant: the site is static and can
+    // be hosted anywhere, while the Worker lives wherever it was deployed.
+    const endpoint = useRuntimeConfig().public.runnerUrl
+
+    if (!endpoint) {
+      return {
+        stdout: '',
+        stderr: 'The Java runner is not configured for this deployment. Every other language on this page runs in your browser and still works — Java needs a server, because compiling it needs javac.',
+        ok: false,
+        ms: 0
+      }
+    }
+
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS)
 
     try {
-      const response = await fetch(ENDPOINT, {
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ language: 'java', source, stdin: stdin || '' }),

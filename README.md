@@ -186,10 +186,47 @@ Editing content in the browser is supported through
 lesson edited in an editor and a lesson edited in a pull request are the same
 change. The files in `.studio/` are the context it reads.
 
-Old `/courses/**` and `/docs/**` URLs still resolve. The fixed ones are route
-rules; the per-lesson rewrite needs a splat and lives in
-[`public/_redirects`](./public/_redirects), which Cloudflare honours. Testing
-those needs `wrangler pages dev .output/public` — `pnpm preview` will not.
+## Deployment
+
+Deployed to **GitHub Pages** at <https://jobseekers.imswarnil.com>, by
+[`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml) on every push to
+`main`. The workflow lints, typechecks and builds before it uploads, and refuses
+to deploy a build with fewer than twenty pages in it — a crawler that fails to
+reach the path produces a landing page and nothing else, which would otherwise
+deploy green and 404 everywhere.
+
+Two files exist purely for Pages:
+
+- `public/CNAME` — the custom domain. Pages drops the domain on every deploy
+  without it.
+- `public/.nojekyll` — stops Jekyll stripping `_nuxt/`, i.e. all the JavaScript
+  and CSS.
+
+`NUXT_PUBLIC_SITE_URL` in the workflow drives canonicals, `og:url`, the sitemap
+and absolute OG image URLs. Nothing hardcodes the domain.
+
+### Redirects, and why there are three of them
+
+Old `/courses/**`, `/docs/**`, `/blog/**` and `/path` URLs all still resolve.
+Three mechanisms cover three hosts, which looks like duplication and is not:
+
+| | Handles | Where it works |
+| --- | --- | --- |
+| `routeRules` in `nuxt.config.ts` | Fixed paths, real 301s | A host running Nitro |
+| [`public/_redirects`](./public/_redirects) | Everything, including the `/courses/*` → `/*` splat | Cloudflare only |
+| [`app/middleware/legacy.global.ts`](./app/middleware/legacy.global.ts) | Everything, client-side | **GitHub Pages**, and anywhere else |
+
+Pages honours neither of the first two. It serves `404.html` for any path it has
+no file for and leaves the URL in the address bar, so the app boots, the
+middleware reads where the reader actually asked to go, and sends them on. That
+is a client-side redirect rather than a 301 — the right trade for URLs that were
+never published under this domain.
+
+### The Java runner
+
+`NUXT_PUBLIC_RUNNER_URL` points at the deployed `workers/runner` Worker. Leave it
+unset and the Java runner says so plainly; every other language runs in the
+browser and is unaffected. Set it as a repository variable named `RUNNER_URL`.
 
 ## Licence
 

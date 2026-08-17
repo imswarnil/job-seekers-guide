@@ -1,0 +1,83 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # So a broken build can be redeployed, or a content-only fix pushed, without
+  # having to make an empty commit.
+  workflow_dispatch:
+
+# Pages needs these; the default GITHUB_TOKEN has none of them.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time. `cancel-in-progress: false` because cancelling a
+# half-finished deploy can leave the site serving a partial upload.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      # Canonicals, og:url, the sitemap and absolute OG image URLs are all
+      # derived from this. Wrong here means every social preview 404s.
+      NUXT_PUBLIC_SITE_URL: https://jobseekers.imswarnil.com
+      # Set once workers/runner is deployed; empty disables the Java runner
+      # cleanly and leaves every other language working.
+      NUXT_PUBLIC_RUNNER_URL: ${{ vars.RUNNER_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # These run before the build rather than in a separate job on purpose: a
+      # type error or a subject folder that collides with a reserved slug should
+      # stop the deploy, not appear next to a green tick.
+      - run: pnpm lint
+      - run: pnpm typecheck
+
+      - run: pnpm generate
+
+      # Every page must be a real file. If prerendering silently produced only
+      # the landing page, the site would deploy and 404 everywhere else.
+      - name: Check the build is not empty
+        run: |
+          pages=$(find .output/public -name index.html | wc -l | tr -d ' ')
+          echo "Prerendered $pages pages."
+          if [ "$pages" -lt 20 ]; then
+            echo "::error::Only $pages pages were prerendered — expected at least 20. The crawler probably failed to reach the path."
+            exit 1
+          fi
+          test -f .output/public/CNAME || { echo "::error::CNAME missing — the custom domain will be dropped."; exit 1; }
+          test -f .output/public/404.html || { echo "::error::404.html missing — legacy URL redirects rely on it."; exit 1; }
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .output/public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

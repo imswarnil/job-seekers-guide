@@ -33,7 +33,10 @@ export default defineNuxtConfig({
 
   site: {
     name: 'Job Seekers Guide',
-    url: 'https://jobseekersguide.in'
+    // Drives canonicals, og:url, the sitemap and absolute OG image URLs.
+    // `NUXT_PUBLIC_SITE_URL` overrides it, which is what the deploy workflow
+    // and any preview environment should set rather than editing this.
+    url: 'https://jobseekers.imswarnil.com'
   },
 
   content: {
@@ -55,6 +58,17 @@ export default defineNuxtConfig({
     },
     experimental: {
       sqliteConnector: 'native'
+    }
+  },
+
+  runtimeConfig: {
+    public: {
+      /**
+       * The Java runner Worker. Empty means the Java code runner is off and
+       * says so — every other language runs in the browser and is unaffected.
+       * Set `NUXT_PUBLIC_RUNNER_URL` once `workers/runner` is deployed.
+       */
+      runnerUrl: ''
     }
   },
 
@@ -121,7 +135,8 @@ export default defineNuxtConfig({
     identity: {
       type: 'Organization',
       name: 'Job Seekers Guide',
-      url: 'https://jobseekersguide.in',
+      // No `url` on purpose — it is derived from `site.url` above, so moving
+      // the site does not leave a stale domain buried in the structured data.
       description: 'A free, ordered learning path from no experience to a first software job.'
     }
   },
