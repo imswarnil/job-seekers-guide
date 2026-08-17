@@ -20,6 +20,10 @@ export const navLinks: NavigationMenuItem[] = [{
   icon: 'i-lucide-clapperboard',
   to: '/series'
 }, {
+  label: 'Run code',
+  icon: 'i-lucide-terminal',
+  to: '/run'
+}, {
   label: 'About',
   icon: 'i-lucide-info',
   to: '/about'

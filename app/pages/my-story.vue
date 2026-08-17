@@ -80,6 +80,8 @@ const open = ref(false)
           <ContentRenderer :value="page" />
         </div>
 
+        <AdSlot placement="in-article" />
+
         <USeparator class="my-12" />
 
         <UPageCard

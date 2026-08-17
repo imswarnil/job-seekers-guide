@@ -44,38 +44,72 @@ useSchemaOrg([
 
 <template>
   <div v-if="page">
-    <UPageHero
-      :title="page.title"
-      :description="page.description"
-      :headline="page.hero.headline"
-      :links="page.hero.links"
-    >
-      <template #top>
-        <div class="absolute inset-0 guide-contour pointer-events-none" />
-        <HeroBackground />
-      </template>
+    <!-- Two columns: the claim on the left, the route on the right. Somebody
+         arriving here has been told to "learn to code" a hundred times and has
+         never been shown the whole thing as one object with an end. -->
+    <section class="relative overflow-hidden">
+      <div class="absolute inset-0 guide-contour pointer-events-none" />
+      <HeroBackground />
 
-      <template #title>
-        <MDC
-          :value="page.title"
-          unwrap="p"
-        />
-      </template>
+      <UContainer class="relative py-14 lg:py-20">
+        <div class="lg:grid lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:items-center">
+          <div>
+            <p class="text-sm font-medium text-primary">
+              {{ page.hero.headline }}
+            </p>
 
-      <!-- The argument, animated: every opening is already on the page and
-           always was. What moves is the glass. -->
-      <template #description>
-        <div class="lg:grid lg:grid-cols-[1fr_auto] lg:gap-12 lg:items-center">
-          <p class="text-balance">
-            {{ page.description }}
-          </p>
+            <h1 class="font-display text-4xl sm:text-5xl xl:text-6xl font-bold text-highlighted tracking-tight text-balance mt-4">
+              <MDC
+                :value="page.title"
+                unwrap="p"
+              />
+            </h1>
 
-          <IllustrationJobSearch class="mx-auto mt-8 lg:mt-0 w-full max-w-[19rem] shrink-0" />
+            <p class="mt-5 text-lg text-muted text-balance max-w-xl">
+              {{ page.description }}
+            </p>
+
+            <div class="mt-8 flex flex-wrap items-center gap-3">
+              <UButton
+                v-for="(link, index) in page.hero.links"
+                :key="index"
+                v-bind="link"
+              />
+            </div>
+
+            <div class="mt-10">
+              <p class="text-xs uppercase tracking-wider text-dimmed mb-3">
+                What you will actually learn
+              </p>
+              <div class="flex flex-wrap gap-2.5">
+                <TechThumb
+                  v-for="name in ['os', 'sql', 'java', 'oops', 'dsa', 'networks', 'html', 'css', 'git', 'system-design']"
+                  :key="name"
+                  :name="name"
+                  size="sm"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-14 lg:mt-0">
+            <UPageCard
+              variant="subtle"
+              :ui="{ body: 'p-6 sm:p-7' }"
+            >
+              <p class="text-xs uppercase tracking-wider text-dimmed mb-5">
+                The whole route
+              </p>
+              <HeroTrail />
+            </UPageCard>
+          </div>
         </div>
-      </template>
+      </UContainer>
+    </section>
 
-      <!-- The start of the path, on the front page. The fastest possible answer
-           to "where do I start" is the first subject, visible without a click. -->
+    <!-- The start of the path, on the front page. The fastest possible answer
+         to "where do I start" is the first subject, visible without a click. -->
+    <UContainer class="pb-4">
       <UPageGrid class="lg:grid-cols-3">
         <SubjectCard
           v-for="(subject, index) in path.subjects.slice(0, 3)"
@@ -85,21 +119,11 @@ useSchemaOrg([
         />
       </UPageGrid>
 
-      <!-- What the path is made of, without a paragraph about it. -->
-      <div class="mt-10 flex flex-col items-center gap-3">
-        <p class="text-xs uppercase tracking-wider text-dimmed">
-          What you will actually learn
-        </p>
-        <div class="flex flex-wrap justify-center gap-2.5">
-          <TechThumb
-            v-for="name in ['os', 'sql', 'java', 'oops', 'dsa', 'networks', 'html', 'css', 'git', 'system-design']"
-            :key="name"
-            :name="name"
-            size="sm"
-          />
-        </div>
-      </div>
-    </UPageHero>
+      <AdSlot
+        placement="in-article"
+        class="mx-auto"
+      />
+    </UContainer>
 
     <!-- The story sits between the pitch and the detail, because it is the
          evidence for the pitch. Tighter than a normal section: it belongs to the

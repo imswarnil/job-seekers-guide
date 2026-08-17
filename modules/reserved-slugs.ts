@@ -18,6 +18,7 @@ const RESERVED = [
   'about',
   'my-story',
   'series',
+  'run',
   'faq',
   'changelog',
   'login',

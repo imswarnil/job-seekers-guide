@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { logoCard, logoColors, logoLens, logoLineHeight, logoLines } from '~/utils/logo'
+import { logoColors, logoTrail } from '~/utils/logo'
 
 defineOptions({
   inheritAttrs: false
@@ -56,55 +56,32 @@ defineProps<{
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <rect
-            width="32"
-            height="32"
-            rx="9"
-            :fill="logoColors.plate"
-          />
-          <rect
-            :x="logoCard.x"
-            :y="logoCard.y"
-            :width="logoCard.width"
-            :height="logoCard.height"
-            :rx="logoCard.radius"
-            :fill="logoColors.card"
-            fill-opacity="0.16"
-          />
-          <rect
-            v-for="(line, index) in logoLines"
-            :key="index"
-            :x="line.x"
-            :y="line.y"
-            :width="line.width"
-            :height="logoLineHeight"
-            :rx="logoLineHeight / 2"
-            :fill="line.accent ? logoColors.accent : logoColors.line"
-            :fill-opacity="line.accent ? 1 : 0.62"
-          />
-          <circle
-            :cx="logoLens.cx"
-            :cy="logoLens.cy"
-            :r="logoLens.r"
-            :fill="logoColors.plate"
-            fill-opacity="0.55"
-          />
-          <circle
-            :cx="logoLens.cx"
-            :cy="logoLens.cy"
-            :r="logoLens.r"
-            fill="none"
-            stroke="#ffffff"
-            stroke-width="2"
-          />
-          <line
-            :x1="logoLens.handle.x1"
-            :y1="logoLens.handle.y1"
-            :x2="logoLens.handle.x2"
-            :y2="logoLens.handle.y2"
-            stroke="#ffffff"
-            stroke-width="2.4"
+          <path
+            :d="logoTrail.path"
+            :stroke="logoColors.trail"
+            stroke-width="2.75"
             stroke-linecap="round"
+            fill="none"
+          />
+          <circle
+            v-for="(stop, index) in logoTrail.stops"
+            :key="index"
+            :cx="stop.cx"
+            :cy="stop.cy"
+            :r="stop.r"
+            :fill="logoColors.stop"
+          />
+          <circle
+            :cx="logoTrail.start.cx"
+            :cy="logoTrail.start.cy"
+            :r="logoTrail.start.r"
+            :fill="logoColors.trail"
+          />
+          <circle
+            :cx="logoTrail.end.cx"
+            :cy="logoTrail.end.cy"
+            :r="logoTrail.end.r"
+            :fill="logoColors.end"
           />
         </svg>
         <div class="h-px flex-1 bg-border" />

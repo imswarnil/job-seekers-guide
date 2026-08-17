@@ -100,9 +100,14 @@ const filmed = computed(() => episodes.value?.filter(e => e.muxPlaybackId).lengt
         />
       </UPageGrid>
 
+      <AdSlot
+        placement="in-article"
+        class="mx-auto"
+      />
+
       <UPageCard
         variant="naked"
-        class="mt-14"
+        class="mt-8"
         title="The series is the why. The path is the how."
         description="Everything I learned the slow way, in the order it should have been given to me."
       >

@@ -86,6 +86,8 @@ usePageSeo({
           </p>
         </div>
 
+        <AdSlot placement="lesson-footer" />
+
         <div class="grid sm:grid-cols-2 gap-4 mt-10">
           <UPageCard
             v-if="previous"

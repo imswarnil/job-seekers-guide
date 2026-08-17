@@ -102,6 +102,7 @@ export default defineNuxtConfig({
         '/start',
         '/my-story',
         '/series',
+        '/run',
         '/about',
         '/faq',
         '/changelog',

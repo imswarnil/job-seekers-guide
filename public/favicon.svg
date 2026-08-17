@@ -1,12 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <!-- Keep in step with app/utils/logo.ts. A favicon is rendered at 16px, so
-       this is the same mark with the strokes thickened and the card lines
-       dropped to two — three lines turn to mush at that size. -->
-  <rect width="32" height="32" rx="9" fill="#4338ca"/>
-  <rect x="6" y="5.5" width="17" height="17" rx="3" fill="#ffffff" fill-opacity="0.2"/>
-  <rect x="9" y="10" width="11" height="2.2" rx="1.1" fill="#ffffff" fill-opacity="0.7"/>
-  <rect x="9" y="15" width="9.5" height="2.2" rx="1.1" fill="#2dd4bf"/>
-  <circle cx="20.5" cy="19" r="6" fill="#4338ca" fill-opacity="0.75"/>
-  <circle cx="20.5" cy="19" r="6" fill="none" stroke="#ffffff" stroke-width="2.4"/>
-  <line x1="24.9" y1="23.4" x2="27.6" y2="26.1" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+  <!-- Keep in step with app/utils/logo.ts. Transparent background, and the
+       strokes are thicker than the site mark because a favicon renders at 16px
+       and hairlines disappear there. The two waypoints are dropped for the same
+       reason — at that size they read as noise on the line. -->
+  <path d="M5.5 25.5C5.5 25.5 9 17.5 16 16C23 14.5 26 7 26 7"
+        stroke="#4338ca" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <circle cx="5.5" cy="25.5" r="4" fill="#4338ca"/>
+  <circle cx="26" cy="7" r="6" fill="#2dd4bf"/>
 </svg>

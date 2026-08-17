@@ -113,6 +113,11 @@ const positions = computed(() => {
         </UPageGrid>
       </div>
 
+      <AdSlot
+        placement="in-article"
+        class="mx-auto"
+      />
+
       <UPageCard
         variant="naked"
         title="The rest of the path"
