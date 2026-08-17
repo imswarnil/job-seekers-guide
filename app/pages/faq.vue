@@ -34,7 +34,7 @@ usePageSeo({
         >
           <template #footer>
             <UButton
-              to="/path"
+              to="/start"
               label="See the whole path"
               variant="subtle"
               trailing-icon="i-lucide-arrow-right"

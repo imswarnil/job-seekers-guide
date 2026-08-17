@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 @import "./diagram.css";
+@import "./illustration.css";
 
 @source "../../../content/**/*";
 

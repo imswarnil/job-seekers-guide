@@ -62,6 +62,18 @@ useSchemaOrg([
         />
       </template>
 
+      <!-- The argument, animated: every opening is already on the page and
+           always was. What moves is the glass. -->
+      <template #description>
+        <div class="lg:grid lg:grid-cols-[1fr_auto] lg:gap-12 lg:items-center">
+          <p class="text-balance">
+            {{ page.description }}
+          </p>
+
+          <IllustrationJobSearch class="mx-auto mt-8 lg:mt-0 w-full max-w-[19rem] shrink-0" />
+        </div>
+      </template>
+
       <!-- The start of the path, on the front page. The fastest possible answer
            to "where do I start" is the first subject, visible without a click. -->
       <UPageGrid class="lg:grid-cols-3">
@@ -72,7 +84,60 @@ useSchemaOrg([
           :index="index"
         />
       </UPageGrid>
+
+      <!-- What the path is made of, without a paragraph about it. -->
+      <div class="mt-10 flex flex-col items-center gap-3">
+        <p class="text-xs uppercase tracking-wider text-dimmed">
+          What you will actually learn
+        </p>
+        <div class="flex flex-wrap justify-center gap-2.5">
+          <TechThumb
+            v-for="name in ['os', 'sql', 'java', 'oops', 'dsa', 'networks', 'html', 'css', 'git', 'system-design']"
+            :key="name"
+            :name="name"
+            size="sm"
+          />
+        </div>
+      </div>
     </UPageHero>
+
+    <!-- The story sits between the pitch and the detail, because it is the
+         evidence for the pitch. Tighter than a normal section: it belongs to the
+         hero above it rather than starting a new thought. -->
+    <UPageSection :ui="{ container: 'py-8 sm:py-10 lg:py-12' }">
+      <UPageCard
+        variant="subtle"
+        class="overflow-hidden"
+      >
+        <div class="lg:grid lg:grid-cols-[auto_1fr] lg:gap-10 lg:items-center">
+          <IllustrationResume class="w-40 mx-auto lg:mx-0 shrink-0 mb-6 lg:mb-0" />
+
+          <div>
+            <UBadge
+              label="Why this exists"
+              color="secondary"
+              variant="subtle"
+            />
+            <h2 class="font-display text-2xl font-bold text-highlighted mt-3 text-balance">
+              I could not clear a single written round. I am now a Salesforce engineer in Europe.
+            </h2>
+            <p class="mt-3 text-muted text-balance">
+              Average student, no plan, no guidance, and a family that could not
+              fund one. This is the whole route — the rejections, the ₹13,000
+              first salary, and every offer after it — written down exactly as it
+              happened.
+            </p>
+            <UButton
+              to="/my-story"
+              label="Read my story"
+              trailing-icon="i-lucide-arrow-right"
+              size="lg"
+              class="mt-6"
+            />
+          </div>
+        </div>
+      </UPageCard>
+    </UPageSection>
 
     <UPageSection
       v-for="(section, index) in page.sections"

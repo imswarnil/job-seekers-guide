@@ -84,13 +84,50 @@ export default defineContentConfig({
       })
     }),
 
-    // Standalone root-level pages: /about, /faq. Each one needs a matching
-    // app/pages/<slug>.vue — that file is what reserves the slug from the path.
+    // Standalone root-level pages: /about, /my-story, /faq. Each one needs a
+    // matching app/pages/<slug>.vue — that file is what reserves the slug from
+    // the path.
     pages: defineCollection({
       source: '*.md',
       type: 'page',
       schema: z.object({
         icon: z.string().optional().editor({ input: 'icon' }),
+        // The story's spine. Each id must match a `{#id}` on a heading in the
+        // body; the sidebar tracks which one the reader is inside.
+        chapters: z.array(z.object({
+          id: z.string().nonempty(),
+          label: z.string().nonempty(),
+          year: z.union([z.string(), z.number()]).optional()
+        })).optional().editor({ label: 'Chapters', description: 'Ids must match the {#anchor} on each heading.' }),
+        stats: z.array(z.object({
+          value: z.string().nonempty(),
+          label: z.string().nonempty()
+        })).optional().editor({ label: 'Headline numbers' }),
+        seo: createSeoSchema()
+      })
+    }),
+
+    // The web series. Ten episodes of the same story told properly, with the
+    // video on Mux. An episode with no playback id is a real page with a real
+    // poster and a "not out yet" state — the writing lands before the filming.
+    series: defineCollection({
+      source: '5.series/**',
+      type: 'page',
+      schema: z.object({
+        episode: z.number().editor({ label: 'Episode number' }),
+        runtime: z.string().optional().editor({ label: 'Runtime', description: 'e.g. "8 min"' }),
+        /** Mux playback id. Empty until the episode is uploaded. */
+        muxPlaybackId: z.string().optional().editor({ label: 'Mux playback ID' }),
+        /** Overrides the generated poster once there is a real still. */
+        poster: z.string().optional().editor({ input: 'media' }),
+        year: z.string().optional().editor({ label: 'When this happened' }),
+        place: z.string().optional().editor({ label: 'Where this happened' }),
+        /** The line the episode ends on. Shown on the card as the hook. */
+        cliffhanger: z.string().optional().editor({ input: 'textarea', label: 'Cliffhanger' }),
+        chapters: z.array(z.object({
+          at: z.string().nonempty().editor({ label: 'Timestamp, mm:ss' }),
+          label: z.string().nonempty()
+        })).optional().editor({ label: 'Episode chapters' }),
         seo: createSeoSchema()
       })
     }),

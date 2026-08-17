@@ -10,14 +10,14 @@ hero:
     - label: Start at the beginning
       icon: i-lucide-arrow-right
       trailing: true
-      to: /path
+      to: /start
       size: xl
     - label: See the curriculum
       icon: i-lucide-list-tree
       size: xl
       color: neutral
       variant: subtle
-      to: /path
+      to: /start
 sections:
   - title: You are not behind. You were never given the map.
     description: Every year lakhs of graduates discover that a degree is not a job. The gap is filled by institutes charging ₹50,000–₹1,50,000 to teach material that is already free on YouTube and in open courseware. They are not selling knowledge. They are selling sequence, filtering, and someone telling you what to do next. We give that away.

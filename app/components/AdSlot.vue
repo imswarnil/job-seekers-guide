@@ -72,7 +72,7 @@ const aspect = computed(() => `${definition.value.width} / ${definition.value.he
            option that costs the reader nothing. -->
       <NuxtLink
         v-if="loaded && ads.provider === 'house'"
-        to="/path"
+        to="/start"
         class="ad__house"
       >
         <UIcon

@@ -8,12 +8,20 @@ import type { NavigationMenuItem } from '@nuxt/ui'
  * unreadable without them.
  */
 export const navLinks: NavigationMenuItem[] = [{
-  label: 'The path',
-  icon: 'i-lucide-route',
-  to: '/path'
+  label: 'Start here',
+  icon: 'i-lucide-compass',
+  to: '/start'
+}, {
+  label: 'My story',
+  icon: 'i-lucide-user-round',
+  to: '/my-story'
+}, {
+  label: 'Series',
+  icon: 'i-lucide-clapperboard',
+  to: '/series'
 }, {
   label: 'About',
-  icon: 'i-lucide-compass',
+  icon: 'i-lucide-info',
   to: '/about'
 }, {
   label: 'Questions',

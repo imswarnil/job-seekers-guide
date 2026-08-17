@@ -23,7 +23,7 @@ export function usePlayerShortcuts(handlers: PlayerShortcutHandlers) {
     'arrowleft': handlers.previous || noop,
     'm': handlers.toggleComplete || noop,
     '[': handlers.toggleRail || noop,
-    'g-p': () => navigateTo('/path'),
+    'g-p': () => navigateTo('/start'),
     'g-h': () => navigateTo('/')
   })
 }

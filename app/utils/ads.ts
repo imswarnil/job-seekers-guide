@@ -57,6 +57,6 @@ export const adSlots: Record<AdSlotId, AdSlot> = {
     width: 1200,
     height: 260,
     minViewport: 768,
-    note: 'Full-width parallax band on /path. Off by default: it is the single most likely thing to make this site feel cheap, and parallax is the most likely thing to wreck CLS and INP. Prove it before enabling.'
+    note: 'Full-width parallax band on /start. Off by default: it is the single most likely thing to make this site feel cheap, and parallax is the most likely thing to wreck CLS and INP. Prove it before enabling.'
   }
 }

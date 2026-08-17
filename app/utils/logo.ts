@@ -1,31 +1,52 @@
 /**
  * The mark, as data.
  *
- * Three steps rising, the last one picked out in the accent — the product in one
- * glyph: a sequence, going somewhere, with the next step marked. The geometry
- * lives here because it is drawn twice: once as an animated SVG in the browser
- * (`AppLogo.vue`) and once as a still frame by the OG image renderer
+ * The old mark was three rising bars — a chart, meaning "progress", meaning
+ * nothing. It could have belonged to an analytics dashboard. This one says the
+ * actual thing: a magnifier over a job listing. Somebody looking for work.
+ *
+ * The geometry lives here because it is drawn twice — animated in the browser
+ * (`AppLogo.vue`) and as a still frame by the OG image renderer
  * (`OgImage/Guide.takumi.vue`), which cannot run CSS. When they were two copies
  * of hardcoded markup they drifted.
+ *
+ * Viewbox is 32×32. The listing is a card with three lines of text; the
+ * magnifier sits over its bottom-right corner and sweeps across on entry.
  */
 
-export interface LogoBar {
-  /** Rounded-rect path, drawn from the baseline up. */
-  d: string
-  /** Rise order — index into the animation stagger. */
-  step: number
-  /** The last step is the accent one: where you are going, not where you are. */
+/** The lines of "text" on the listing behind the glass. */
+export interface LogoLine {
+  x: number
+  y: number
+  width: number
+  /** The line the magnifier lands on — drawn in the accent. */
   accent?: boolean
 }
 
-export const logoBars: LogoBar[] = [
-  { d: 'M8 22.5H12.5V17.5H8V22.5Z', step: 0 },
-  { d: 'M13.75 22.5H18.25V13H13.75V22.5Z', step: 1 },
-  { d: 'M19.5 22.5H24V8.5H19.5V22.5Z', step: 2, accent: true }
+export const logoLines: LogoLine[] = [
+  { x: 9, y: 10.5, width: 11 },
+  { x: 9, y: 14, width: 8 },
+  { x: 9, y: 17.5, width: 9.5, accent: true }
 ]
 
-/** Opacity of the two non-accent bars, so the eye lands on the third. */
-export const logoBarOpacity = [0.55, 0.8, 1]
+/** The card the lines sit on. */
+export const logoCard = {
+  x: 6,
+  y: 5.5,
+  width: 17,
+  height: 17,
+  radius: 3
+}
+
+/** The lens: centre and radius, plus the handle it drags behind it. */
+export const logoLens = {
+  cx: 20.5,
+  cy: 19,
+  r: 6,
+  handle: { x1: 24.9, y1: 23.4, x2: 27.5, y2: 26 }
+}
+
+export const logoLineHeight = 1.6
 
 /**
  * Literal colours, for renderers with no access to the stylesheet. Keep in step
@@ -33,6 +54,7 @@ export const logoBarOpacity = [0.55, 0.8, 1]
  */
 export const logoColors = {
   plate: '#4338ca',
-  bar: '#ffffff',
+  card: '#ffffff',
+  line: '#ffffff',
   accent: '#2dd4bf'
 } as const

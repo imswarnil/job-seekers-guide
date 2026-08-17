@@ -13,8 +13,11 @@ import { defineNuxtModule } from 'nuxt/kit'
  * that silently does not exist costs however long it takes somebody to notice.
  */
 const RESERVED = [
+  'start',
   'path',
   'about',
+  'my-story',
+  'series',
   'faq',
   'changelog',
   'login',

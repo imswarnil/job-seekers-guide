@@ -4,9 +4,9 @@ const { path } = usePath()
 // The footer lists the path itself rather than a made-up set of sections — the
 // subjects are the site, and they are already ordered.
 const columns = computed(() => [{
-  label: 'The path',
+  label: 'Start here',
   children: [
-    { label: 'Everything, in order', to: '/path' },
+    { label: 'Everything, in order', to: '/start' },
     ...path.value.subjects.slice(0, 4).map(subject => ({
       label: subject.title,
       to: subject.path

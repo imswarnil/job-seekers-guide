@@ -7,7 +7,7 @@
  * farm, and the transform runs on every scroll frame. It is disabled outright
  * under reduced motion and on touch, where it reliably janks.
  *
- * If it is ever enabled, prove it on `/path` with a Lighthouse run before it
+ * If it is ever enabled, prove it on `/start` with a Lighthouse run before it
  * goes anywhere near a lesson.
  */
 const root = useTemplateRef<HTMLElement>('root')

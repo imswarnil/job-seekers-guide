@@ -1,0 +1,61 @@
+/* =============================================================================
+   Illustration language
+   =============================================================================
+
+   The animated SVGs that carry the argument on the landing page and in the
+   story. Same rules as the diagrams in diagram.css, and the same timing scale —
+   an illustration that moves to a different rhythm than the teaching components
+   reads as a different website.
+
+   Everything here loops, which is the one real difference. A diagram animates
+   once because it is explaining something; an illustration keeps moving because
+   it is setting a mood. That makes reduced-motion support more important, not
+   less: `--ill-play` is set to `paused` in the media query below, which stops
+   every loop in the library without a single component knowing about it.
+   ========================================================================== */
+
+:root {
+  --ill-play: running;
+
+  --ill-ink: var(--ui-text-highlighted);
+  --ill-line: var(--ui-border-accented);
+  --ill-surface: var(--ui-bg-elevated);
+  --ill-accent: var(--ui-primary);
+  --ill-spark: var(--ui-secondary);
+  --ill-muted: var(--ui-text-dimmed);
+
+  /* Loops are slower than interface motion by design. Interface motion is
+     feedback and wants to be quick; this is scenery and wants to be ignorable. */
+  --ill-loop-slow: 9s;
+  --ill-loop: 6s;
+  --ill-loop-fast: 3.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ill-play: paused;
+  }
+}
+
+/* Every looping animation in the library carries this, so the media query above
+   is the whole reduced-motion story. Paused rather than removed, so the shape
+   holds its first keyframe instead of jumping to some arbitrary resting state. */
+.ill-loop {
+  animation-play-state: var(--ill-play);
+}
+
+.ill-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* Strokes scale with the viewBox rather than the rendered size, so the same
+   illustration is legible as a 48px thumbnail and as a hero. */
+.ill-stroke {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}

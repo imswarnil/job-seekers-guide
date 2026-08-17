@@ -63,7 +63,7 @@ const { isNarrow, open, collapsed, toggle, close } = useRail()
         v-if="!bare && isNarrow"
         v-model:open="open"
         side="left"
-        title="The path"
+        title="Start here"
       >
         <template #body>
           <PlayerRail

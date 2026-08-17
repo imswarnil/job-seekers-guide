@@ -76,7 +76,7 @@ const emit = defineEmits<{
 
       <UButton
         v-else
-        to="/path"
+        to="/start"
         trailing-icon="i-lucide-flag"
         label="Finish"
         color="success"

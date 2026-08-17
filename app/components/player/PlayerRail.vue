@@ -28,7 +28,7 @@ onMounted(async () => {
     aria-label="The learning path"
   >
     <NuxtLink
-      to="/path"
+      to="/start"
       class="flex items-center gap-2.5 group"
       @click="$emit('navigate')"
     >
@@ -37,7 +37,7 @@ onMounted(async () => {
         class="size-5 text-primary shrink-0"
       />
       <span class="font-display font-semibold text-highlighted group-hover:text-primary transition-colors">
-        The path
+        Start here
       </span>
     </NuxtLink>
 

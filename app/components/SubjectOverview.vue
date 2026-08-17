@@ -87,7 +87,7 @@ const prerequisites = computed(() =>
         </ClientOnly>
 
         <UButton
-          to="/path"
+          to="/start"
           label="See the whole path"
           color="neutral"
           variant="ghost"

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Keep in step with app/utils/logo.ts. A favicon is rendered at 16px, so
+       this is the same mark with the strokes thickened and the card lines
+       dropped to two — three lines turn to mush at that size. -->
+  <rect width="32" height="32" rx="9" fill="#4338ca"/>
+  <rect x="6" y="5.5" width="17" height="17" rx="3" fill="#ffffff" fill-opacity="0.2"/>
+  <rect x="9" y="10" width="11" height="2.2" rx="1.1" fill="#ffffff" fill-opacity="0.7"/>
+  <rect x="9" y="15" width="9.5" height="2.2" rx="1.1" fill="#2dd4bf"/>
+  <circle cx="20.5" cy="19" r="6" fill="#4338ca" fill-opacity="0.75"/>
+  <circle cx="20.5" cy="19" r="6" fill="none" stroke="#ffffff" stroke-width="2.4"/>
+  <line x1="24.9" y1="23.4" x2="27.6" y2="26.1" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+</svg>

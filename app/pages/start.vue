@@ -2,7 +2,7 @@
 const { path } = usePath()
 const { state, pathProgress, resume, streak } = useProgress()
 
-const title = 'The path'
+const title = 'Start here'
 const description = 'One sequence, end to end. Orientation first, foundations second, the job hunt taught with the same seriousness as everything before it.'
 
 usePageSeo({ title, description, headline: 'Everything, in order' })

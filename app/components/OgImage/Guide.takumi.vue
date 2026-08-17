@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { logoBarOpacity, logoBars, logoColors } from '~/utils/logo'
+import { logoCard, logoColors, logoLens, logoLineHeight, logoLines } from '~/utils/logo'
 
 defineOptions({
   inheritAttrs: false
@@ -62,12 +62,49 @@ defineProps<{
             rx="9"
             :fill="logoColors.plate"
           />
-          <path
-            v-for="(bar, index) in logoBars"
-            :key="bar.d"
-            :d="bar.d"
-            :fill="bar.accent ? logoColors.accent : logoColors.bar"
-            :fill-opacity="bar.accent ? 1 : logoBarOpacity[index]"
+          <rect
+            :x="logoCard.x"
+            :y="logoCard.y"
+            :width="logoCard.width"
+            :height="logoCard.height"
+            :rx="logoCard.radius"
+            :fill="logoColors.card"
+            fill-opacity="0.16"
+          />
+          <rect
+            v-for="(line, index) in logoLines"
+            :key="index"
+            :x="line.x"
+            :y="line.y"
+            :width="line.width"
+            :height="logoLineHeight"
+            :rx="logoLineHeight / 2"
+            :fill="line.accent ? logoColors.accent : logoColors.line"
+            :fill-opacity="line.accent ? 1 : 0.62"
+          />
+          <circle
+            :cx="logoLens.cx"
+            :cy="logoLens.cy"
+            :r="logoLens.r"
+            :fill="logoColors.plate"
+            fill-opacity="0.55"
+          />
+          <circle
+            :cx="logoLens.cx"
+            :cy="logoLens.cy"
+            :r="logoLens.r"
+            fill="none"
+            stroke="#ffffff"
+            stroke-width="2"
+          />
+          <line
+            :x1="logoLens.handle.x1"
+            :y1="logoLens.handle.y1"
+            :x2="logoLens.handle.x2"
+            :y2="logoLens.handle.y2"
+            stroke="#ffffff"
+            stroke-width="2.4"
+            stroke-linecap="round"
           />
         </svg>
         <div class="h-px flex-1 bg-border" />

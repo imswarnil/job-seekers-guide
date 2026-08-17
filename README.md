@@ -39,7 +39,7 @@ and it lives at the root of the site.
 
 ```
 /                            the landing page
-/path                        every subject, in order
+/start                       every subject, in order
 /java                        a subject
 /java/collections            a module
 /java/collections/generics   a lesson
@@ -154,7 +154,7 @@ so it can be toggled from Nuxt Studio without a deploy. Every slot reserves its
 box before anything loads, so enabling them cannot shift layout.
 
 The parallax slot is built and shipped disabled on purpose. Prove it against
-Lighthouse on `/path` before turning it on anywhere near a lesson.
+Lighthouse on `/start` before turning it on anywhere near a lesson.
 
 ## Design language
 

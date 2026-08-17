@@ -103,7 +103,7 @@ export const stageLabels: Record<Stage, string> = {
   'job-search': 'The job hunt'
 }
 
-/** The order stages are shown in on `/path`, when a subject declares one. */
+/** The order stages are shown in on `/start`, when a subject declares one. */
 export const stageOrder: Stage[] = ['orientation', 'foundation', 'language', 'applied', 'projects', 'job-search']
 
 /**
@@ -211,7 +211,7 @@ export function findModule(path: LearningPath, url: string): Module | undefined 
     .find(module => url === module.path || url.startsWith(`${module.path}/`))
 }
 
-/** Subjects grouped for display on `/path`, in stage order, ungrouped last. */
+/** Subjects grouped for display on `/start`, in stage order, ungrouped last. */
 export function byStage(path: LearningPath) {
   const groups = stageOrder
     .map(stage => ({

@@ -20,13 +20,13 @@ const isLesson = computed(() => route.path.split('/').filter(Boolean).length ===
 
 const items = computed(() => navLinks.map(link => ({
   ...link,
-  active: link.to === '/path'
-    ? route.path === '/path'
+  active: link.to === '/start'
+    ? route.path === '/start'
     : route.path === link.to || route.path.startsWith(`${link.to}/`)
 })))
 
 const progress = computed(() => pathProgress(path.value))
-const continueTo = computed(() => resume(path.value)?.path || '/path')
+const continueTo = computed(() => resume(path.value)?.path || '/start')
 const continueLabel = computed(() => progress.value.started ? 'Continue' : 'Start learning')
 </script>
 
@@ -55,8 +55,8 @@ const continueLabel = computed(() => progress.value.started ? 'Continue' : 'Star
         icon="i-lucide-route"
         color="neutral"
         variant="ghost"
-        to="/path"
-        aria-label="The path"
+        to="/start"
+        aria-label="Start here"
         class="lg:hidden"
       />
 
@@ -72,7 +72,7 @@ const continueLabel = computed(() => progress.value.started ? 'Continue' : 'Star
 
         <template #fallback>
           <UButton
-            to="/path"
+            to="/start"
             label="Start learning"
             trailing-icon="i-lucide-arrow-right"
             class="hidden lg:inline-flex"
@@ -110,7 +110,7 @@ const continueLabel = computed(() => progress.value.started ? 'Continue' : 'Star
 
           <template #fallback>
             <UButton
-              to="/path"
+              to="/start"
               label="Start learning"
               trailing-icon="i-lucide-arrow-right"
               block

@@ -23,6 +23,14 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  vue: {
+    compilerOptions: {
+      // `<mux-player>` is a web component, not a Vue one. Without this the
+      // compiler tries to resolve it and warns on every episode page.
+      isCustomElement: tag => tag.startsWith('mux-')
+    }
+  },
+
   site: {
     name: 'Job Seekers Guide',
     url: 'https://jobseekersguide.in'
@@ -55,10 +63,13 @@ export default defineNuxtConfig({
   // `/courses/*` → `/*` rewrite needs a splat, which route rules do not have, so
   // it lives in `public/_redirects` alongside these.
   routeRules: {
-    '/courses': { redirect: { to: '/path', statusCode: 301 }, prerender: false },
+    '/courses': { redirect: { to: '/start', statusCode: 301 }, prerender: false },
+    // `/path` was the first name for the curriculum index. "Start here" is what
+    // somebody frightened of the whole thing actually needs to read.
+    '/path': { redirect: { to: '/start', statusCode: 301 }, prerender: false },
     '/docs': { redirect: { to: '/about', statusCode: 301 }, prerender: false },
     '/docs/getting-started/**': { redirect: { to: '/about', statusCode: 301 }, prerender: false },
-    '/docs/curriculum/**': { redirect: { to: '/path', statusCode: 301 }, prerender: false },
+    '/docs/curriculum/**': { redirect: { to: '/start', statusCode: 301 }, prerender: false },
     '/docs/help/**': { redirect: { to: '/faq', statusCode: 301 }, prerender: false },
     '/docs/authoring/**': { redirect: { to: '/about', statusCode: 301 }, prerender: false },
     '/docs/**': { redirect: { to: '/about', statusCode: 301 }, prerender: false },
@@ -74,7 +85,9 @@ export default defineNuxtConfig({
       // player rail renders server-side — see app/components/player/PlayerRail.vue.
       routes: [
         '/',
-        '/path',
+        '/start',
+        '/my-story',
+        '/series',
         '/about',
         '/faq',
         '/changelog',
@@ -122,6 +135,6 @@ export default defineNuxtConfig({
     // URLs are harvested from the prerender crawl, which reaches every lesson
     // through the server-rendered player rail. The legacy paths below only exist
     // as redirects and must not be advertised as destinations.
-    exclude: ['/login', '/signup', '/search', '/courses/**', '/docs/**', '/blog/**']
+    exclude: ['/login', '/signup', '/search', '/courses/**', '/docs/**', '/blog/**', '/path']
   }
 })

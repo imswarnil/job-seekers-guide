@@ -60,7 +60,7 @@ export function usePageSeo(options: PageSeoOptions) {
 
     const { kind, page, subject, module } = context
 
-    const crumbs = [{ name: 'The path', item: '/path' }]
+    const crumbs = [{ name: 'Start here', item: '/start' }]
     if (subject) {
       crumbs.push({ name: subject.title, item: subject.path })
     }

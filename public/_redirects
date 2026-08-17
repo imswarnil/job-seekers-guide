@@ -8,10 +8,10 @@
 # Cloudflare honours this file for both Pages and Workers static assets.
 
 /courses/*                /:splat        301
-/courses                  /path          301
+/courses                  /start         301
 
 /docs/getting-started/*   /about         301
-/docs/curriculum/*        /path          301
+/docs/curriculum/*        /start         301
 /docs/help/*              /faq           301
 /docs/authoring/*         /about         301
 /docs/*                   /about         301
@@ -19,3 +19,6 @@
 
 /blog/*                   /changelog     301
 /blog                     /changelog     301
+
+# The learning path moved from /path to /start.
+/path                     /start         301
