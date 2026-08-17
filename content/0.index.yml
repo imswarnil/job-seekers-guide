@@ -1,0 +1,104 @@
+title: Getting a job in software is a [navigation]{class="text-primary"} problem
+description: Content is abundant and free. Direction is scarce and expensive. Job Seekers Guide gives you the sequence — orientation, foundations, one language, real projects, and the job hunt itself — as a path built around who you actually are.
+seo:
+  title: Job Seekers Guide — the path from graduated to employed
+  description: A free, structured learning path for anyone who wants a job in software and does not know where to start. The same syllabus the best engineering colleges teach, arranged for employment rather than for exams.
+navigation: false
+hero:
+  headline: Free core path, forever
+  links:
+    - label: Start at the beginning
+      icon: i-lucide-arrow-right
+      trailing: true
+      to: /courses
+      size: xl
+    - label: See the curriculum
+      icon: i-lucide-list-tree
+      size: xl
+      color: neutral
+      variant: subtle
+      to: /docs/curriculum
+sections:
+  - title: You are not behind. You were never given the map.
+    description: Every year lakhs of graduates discover that a degree is not a job. The gap is filled by institutes charging ₹50,000–₹1,50,000 to teach material that is already free on YouTube and in open courseware. They are not selling knowledge. They are selling sequence, filtering, and someone telling you what to do next. We give that away.
+    id: why
+    orientation: horizontal
+    features:
+      - title: Orientation before choice
+        description: Nobody picks "backend engineer" meaningfully on day one. Everyone starts with the same module — what software is, what the industry is, what each team actually does all day.
+        icon: i-lucide-compass
+      - title: Foundations before tools
+        description: Tools change every 18 months. Operating systems, databases, networks, OOP and DSA do not. We teach the layer that survives, then the tool on top of it.
+        icon: i-lucide-layers
+      - title: One language, learned properly
+        description: Java by default, and we defend the recommendation. C++, Python or TypeScript if you prefer. What we refuse to endorse is learning four languages badly.
+        icon: i-lucide-code-2
+  - title: The syllabus was never the secret
+    description: These are the same subjects on the curriculum at the IITs and at every good engineering college. What is missing at most colleges is a teacher who connects the subject to the job. That connection is what every lesson here is built around.
+    id: how
+    orientation: horizontal
+    reverse: true
+    features:
+      - title: Why before what
+        description: Every lesson opens with where this shows up in a real job, and closes with the interview question it answers. No definitions in search of a purpose.
+        icon: i-lucide-help-circle
+      - title: Permission to skip
+        description: A lesson that says "skip this, here is why" is as valuable as one that teaches. Maths, aptitude drills and certification farming are excluded on purpose, and we say so plainly.
+        icon: i-lucide-scissors
+      - title: The job hunt is a subject
+        description: Resume, search strategy, using AI properly, HR rounds, technical rounds, negotiation, the first switch. Taught with the same seriousness as DBMS, because it converts the other modules into income.
+        icon: i-lucide-briefcase
+features:
+  title: What the path actually contains
+  description: Ten modules, roughly forty-four weeks at a relaxed pace or sixteen if you go hard. Assembled from your answers rather than handed to everyone identically.
+  items:
+    - title: How the IT industry works
+      description: Product vs service companies, where the money comes from, who you report to, and the vocabulary every team assumes you already have.
+      icon: i-lucide-building-2
+    - title: Computer science foundations
+      description: Operating systems, networks, DBMS, OOP, data structures, software engineering, system design — chunked into semesters so eleven subjects do not arrive as one wall.
+      icon: i-lucide-cpu
+    - title: Databases in practice
+      description: Schema design, normalisation to the point it stops helping, indexes, transactions, and honest SQL vs NoSQL.
+      icon: i-lucide-database
+    - title: Four escalating projects
+      description: Proof of work beats certificates at a fraction of the cost. Each project is larger than the last and ends up on your resume.
+      icon: i-lucide-hammer
+    - title: English and communication
+      description: Runs in parallel throughout, not as a bolt-on. Standups, code reviews, and HR rounds are all conducted in it.
+      icon: i-lucide-message-circle
+    - title: Offer, joining and first switch
+      description: The first offer may be small. Take it anyway — here is why, and here is exactly what happens next.
+      icon: i-lucide-trending-up
+testimonials:
+  headline: Who this was built for
+  title: Four people, one map
+  description: The personas the path is assembled around. If you recognise yourself here, the sequence already exists for you.
+  items:
+    - quote: I have a CS degree and no offer. I can pass exams and I cannot pass interviews, and nobody has told me which of the twelve things on my list to do first.
+      user:
+        name: The unplaced CS graduate
+        description: Has the syllabus, missing the sequence
+    - quote: I studied mechanical engineering. Everyone says software is the way out, and every roadmap I open assumes I already know what an API is.
+      user:
+        name: The non-CS graduate
+        description: Capable, and ruled out by jargon
+    - quote: I do not know what a developer does all day. I do not know what the roles are. I do not know if I need maths. I have not started because I cannot choose.
+      user:
+        name: The clueless starter
+        description: Frozen by the number of options
+    - quote: I am twenty-nine, I have a job I do not want, and I have evenings. I need something honest about how long this takes.
+      user:
+        name: The career changer
+        description: Time-boxed and owed the truth
+cta:
+  title: Start where the path starts
+  description: Module zero, two weeks, mandatory for everyone including computer science graduates. It is the module self-taught developers skip, and it shows in interviews.
+  links:
+    - label: Open module zero
+      to: /courses/how-the-industry-works
+      trailingIcon: i-lucide-arrow-right
+    - label: Read the principles
+      to: /docs/getting-started
+      variant: subtle
+      icon: i-lucide-book-open

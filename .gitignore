@@ -1,44 +1,27 @@
-# Environment / secrets
-.env
-docker/.env
-*.pem
-*.key
-*.pub
-id_rsa*
-id_ed25519*
-hostinger*
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
 
-# WordPress runtime content (synced separately from VPS, not versioned)
-wp-content/uploads/
-wp-content/cache/
-wp-content/upgrade/
-wp-content/backup*/
+# Node dependencies
+node_modules
 
-# WordPress core / bundled defaults (installed via wp-cli or the installer,
-# not part of this project's code)
-wp-content/index.php
-wp-content/plugins/index.php
-wp-content/plugins/akismet/
-wp-content/plugins/hello.php
+# Logs
+logs
+*.log
 
-# Third-party plugins installed through wp-admin. Tracking these breaks the
-# deploy: the server has its own copy, so an incoming commit that adds the same
-# files aborts the pull with "untracked working tree files would be
-# overwritten". Only this project's own plugin and theme belong in git.
-wp-content/plugins/classic-editor/
-wp-content/plugins/ai-provider-for-anthropic/
-wp-content/themes/index.php
-wp-content/themes/twentytwenty*/
-
-# Database
-*.sql
-*.sql.gz
-db-data/
-
-# OS / editor
+# Misc
 .DS_Store
-.vscode/
-.idea/
+.fleet
+.idea
 
-# Node (if theme build tooling is used)
-node_modules/
+# Local env files
+.env
+.env.*
+!.env.example
+
+# VSC
+.history

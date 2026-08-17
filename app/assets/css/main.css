@@ -1,0 +1,163 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@source "../../../content/**/*";
+
+/* =============================================================================
+   Job Seekers Guide — design language
+   =============================================================================
+
+   The tone is set out in abstract/04-vision-and-principles.md: honest,
+   structured, warm, anti-hype. This is a platform someone opens after their
+   thirty-third rejection, so the visual language has to read as "somebody has
+   thought this through and is on your side" — not as a bootcamp sales page and
+   not as a childish gamified toy.
+
+   Concretely:
+     · Indigo carries everything structural. It is the colour of study — used
+       for navigation, progress, and every primary action, so the interface
+       feels like one continuous path rather than a pile of features.
+     · Teal is the accent. Amber is the default "encouragement" colour of every
+       course platform on the internet and against indigo it reads as a warning.
+       Teal stays legible on the white page and the dark hero both.
+     · Amber survives for one job only — streaks and milestones, where "warm"
+       is the meaning rather than a decoration. It is rationed on purpose; if
+       amber is everywhere it stops meaning anything.
+     · Neutrals are tinted toward the indigo hue (h 232, s 13%) so greys never
+       look like a different design system bolted on.
+     · Type is sized for long-form reading first. Lesson prose is the product.
+   ========================================================================== */
+
+@theme static {
+  /* Plus Jakarta Sans for display (geometric, confident without shouting),
+     Inter for body and UI (drawn for screen legibility at small sizes),
+     JetBrains Mono for code — and there is a lot of code on this platform. */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Indigo — the brand. Deepened so it holds its colour when the interface is
+     desaturated by a cheap phone screen at low brightness, which is what a lot
+     of this audience is reading on. */
+  --color-guide-50: #f3f2ff;
+  --color-guide-100: #e4e2ff;
+  --color-guide-200: #c3bffb;
+  --color-guide-300: #a099f5;
+  --color-guide-400: #7c73ea;
+  --color-guide-500: #5b50dc;
+  --color-guide-600: #4338ca;
+  --color-guide-700: #362eaa;
+  --color-guide-800: #272185;
+  --color-guide-900: #1e1b4b;
+  --color-guide-950: #14122f;
+
+  /* Teal — the accent, and the real change of identity from every other course
+     platform in the category. */
+  --color-spark-50: #effcfa;
+  --color-spark-100: #d3f7f1;
+  --color-spark-200: #99f2e4;
+  --color-spark-300: #5eead4;
+  --color-spark-400: #2dd4bf;
+  --color-spark-500: #14b8a6;
+  --color-spark-600: #0d9488;
+  --color-spark-700: #0f766e;
+  --color-spark-800: #115e59;
+  --color-spark-900: #134e4a;
+  --color-spark-950: #042f2e;
+
+  /* Ink — neutrals pulled toward the indigo hue rather than pure grey. */
+  --color-ink-50: hsl(232 13% 98%);
+  --color-ink-100: hsl(232 13% 96%);
+  --color-ink-200: hsl(232 13% 92%);
+  --color-ink-300: hsl(232 13% 86%);
+  --color-ink-400: hsl(232 12% 68%);
+  --color-ink-500: hsl(232 11% 52%);
+  --color-ink-600: hsl(232 13% 42%);
+  --color-ink-700: hsl(232 15% 33%);
+  --color-ink-800: hsl(232 18% 23%);
+  --color-ink-900: hsl(232 22% 15%);
+  --color-ink-950: hsl(232 30% 8%);
+
+  /* Borders do the structural work; shadows stay subtle. A teaching interface
+     that floats everything reads as a marketing site. */
+  --radius-xs: 0.375rem;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.125rem;
+
+  --shadow-2xs: 0 1px 2px rgb(16 19 64 / 0.06);
+  --shadow-xs: 0 1px 2px rgb(16 19 64 / 0.06);
+  --shadow-sm: 0 2px 8px rgb(16 19 64 / 0.08), 0 1px 2px rgb(16 19 64 / 0.04);
+  --shadow-md: 0 2px 8px rgb(16 19 64 / 0.08), 0 1px 2px rgb(16 19 64 / 0.04);
+  --shadow-lg: 0 12px 32px rgb(16 19 64 / 0.12), 0 2px 8px rgb(16 19 64 / 0.06);
+
+  /* Long-form reading measure. Lesson prose is capped here so lines never run
+     past the ~75 characters beyond which readers start losing their place. */
+  --guide-measure: 68ch;
+}
+
+:root {
+  /* Amber, rationed. Streaks, milestones, "you are further than you think". */
+  --guide-milestone: #e9a92a;
+  --guide-milestone-soft: #fdf3d9;
+  --guide-milestone-strong: #b47b11;
+
+  /* Deliberately-dark bands — the hero, the closing CTA, code blocks. These
+     must NOT follow the theme: they are dark by design, so pointing them at an
+     inverted surface renders dark-on-dark once the page itself is dark. Fixed
+     values, light text, both themes. */
+  --guide-inverse-bg: var(--color-guide-900);
+  --guide-inverse-ink: #f4f5ff;
+  --guide-inverse-muted: rgb(244 245 255 / 0.74);
+  --guide-inverse-line: rgb(255 255 255 / 0.14);
+}
+
+.dark {
+  --ui-bg: var(--ui-color-neutral-950);
+  --ui-bg-muted: var(--ui-color-neutral-900);
+  --ui-bg-elevated: var(--ui-color-neutral-900);
+  --ui-bg-accented: var(--ui-color-neutral-800);
+
+  /* Light-mode amber vibrates unpleasantly against a dark surface. */
+  --guide-milestone: #f6cf65;
+  --guide-milestone-soft: rgb(233 169 42 / 0.16);
+  --guide-milestone-strong: #f6cf65;
+
+  /* In dark mode the inverse bands sit against an already-dark page, so they
+     go one step darker to stay distinguishable from the surface behind them. */
+  --guide-inverse-bg: #07091a;
+}
+
+/* Headings carry the display face; body copy stays on Inter. */
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* A dark band that ignores the colour mode, used by the hero and the CTA. */
+.guide-inverse {
+  background-color: var(--guide-inverse-bg);
+  color: var(--guide-inverse-ink);
+}
+
+.guide-inverse :where(p, li) {
+  color: var(--guide-inverse-muted);
+}
+
+/* The contour backdrop: a faint indigo grid that gives large empty surfaces
+   some structure without becoming decoration you have to look at. */
+.guide-contour {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--ui-border) 60%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--ui-border) 60%, transparent) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+}
+
+/* Lesson prose. Capped at the reading measure and given a little more line
+   height than the UI default, because these pages are read, not scanned. */
+.guide-prose {
+  max-width: var(--guide-measure);
+  line-height: 1.75;
+}
