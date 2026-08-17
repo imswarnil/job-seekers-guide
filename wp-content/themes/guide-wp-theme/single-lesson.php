@@ -101,6 +101,29 @@ while ( have_posts() ) :
 				</div>
 			<?php endif; ?>
 
+			<?php
+			// Filter the lesson list.
+			//
+			// A course can run to forty lessons across five sections, and the
+			// most common reason somebody opens this sidebar mid-course is to
+			// find one specific thing they half-remember. Scrolling a list that
+			// long on a phone to find "the one about résumé bullets" is the
+			// part people give up on.
+			//
+			// Client-side on purpose: the whole list is already in the page, so
+			// filtering it is instant and works offline, and a round trip to
+			// search a list you are already looking at is absurd.
+			?>
+			<div class="guide-player__filter">
+				<label class="is-sr-only" for="guide-lesson-filter"><?php esc_html_e( 'Filter lessons', 'guide-wp-theme' ); ?></label>
+				<input type="search" id="guide-lesson-filter" class="input is-small"
+					placeholder="<?php esc_attr_e( 'Filter lessons…', 'guide-wp-theme' ); ?>"
+					autocomplete="off" data-lesson-filter>
+				<p class="guide-player__filter-empty" data-lesson-filter-empty hidden>
+					<?php esc_html_e( 'Nothing matches that.', 'guide-wp-theme' ); ?>
+				</p>
+			</div>
+
 			<nav class="guide-player__modules" aria-label="<?php esc_attr_e( 'Course lessons', 'guide-wp-theme' ); ?>">
 				<?php foreach ( $guide_modules as $guide_module_index => $guide_module ) : ?>
 					<p class="guide-player__module-label">

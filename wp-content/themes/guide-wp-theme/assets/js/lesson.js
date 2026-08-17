@@ -310,3 +310,74 @@
 		}
 	} );
 } )();
+
+/* -------------------------------------------------------------------------
+ * Filtering the lesson list
+ * -------------------------------------------------------------------------
+ * The whole course is already in the page, so this is a match-and-hide rather
+ * than a search: instant, works offline, and no request to search a list the
+ * reader is already looking at.
+ *
+ * Section headings hide when nothing under them matches, otherwise the list
+ * turns into a column of empty labels.
+ * ---------------------------------------------------------------------- */
+( function () {
+	'use strict';
+
+	document.addEventListener( 'DOMContentLoaded', function () {
+		var input = document.querySelector( '[data-lesson-filter]' );
+		var empty = document.querySelector( '[data-lesson-filter-empty]' );
+		var nav   = document.querySelector( '.guide-player__modules' );
+
+		if ( ! input || ! nav ) {
+			return;
+		}
+
+		var rows = Array.prototype.slice.call( nav.querySelectorAll( '[data-lesson-row]' ) );
+		var labels = Array.prototype.slice.call( nav.querySelectorAll( '.guide-player__module-label' ) );
+
+		function apply() {
+			var term = input.value.trim().toLowerCase();
+			var hits = 0;
+
+			rows.forEach( function ( row ) {
+				var match = ! term || row.textContent.toLowerCase().indexOf( term ) !== -1;
+				row.hidden = ! match;
+				if ( match ) {
+					hits++;
+				}
+			} );
+
+			// A section heading is only useful while something below it shows.
+			labels.forEach( function ( label ) {
+				var node = label.nextElementSibling;
+				var any  = false;
+
+				while ( node && ! node.classList.contains( 'guide-player__module-label' ) ) {
+					if ( node.hasAttribute( 'data-lesson-row' ) && ! node.hidden ) {
+						any = true;
+						break;
+					}
+					node = node.nextElementSibling;
+				}
+
+				label.hidden = ! any;
+			} );
+
+			if ( empty ) {
+				empty.hidden = hits > 0;
+			}
+		}
+
+		input.addEventListener( 'input', apply );
+
+		// Escape clears, which is what every filter box on the internet does.
+		input.addEventListener( 'keydown', function ( e ) {
+			if ( 'Escape' === e.key && input.value ) {
+				e.preventDefault();
+				input.value = '';
+				apply();
+			}
+		} );
+	} );
+} )();

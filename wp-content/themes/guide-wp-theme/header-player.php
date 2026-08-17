@@ -62,33 +62,20 @@ $guide_p_percent = $guide_p_total > 0 ? (int) round( $guide_p_done / $guide_p_to
 	</a>
 
 	<div style="min-width:0;flex:1">
+		<?php
+		// The course name, and nothing else.
+		//
+		// This used to also print "Lesson 14 of 17" and a progress bar — both
+		// of which the sidebar already shows, three centimetres below and with
+		// more context. Two progress bars on one screen invite the reader to
+		// work out whether they disagree.
+		?>
 		<?php if ( $guide_p_course ) : ?>
 			<a class="guide-player__course-title" href="<?php echo esc_url( get_permalink( $guide_p_course ) ); ?>">
 				<?php echo esc_html( get_the_title( $guide_p_course ) ); ?>
 			</a>
 		<?php endif; ?>
-		<?php if ( $guide_p_position && $guide_p_total ) : ?>
-			<p class="guide-player__toolbar-title">
-				<?php
-				printf(
-					/* translators: 1: current lesson number, 2: total lessons. */
-					esc_html__( 'Lesson %1$d of %2$d', 'guide-wp-theme' ),
-					(int) $guide_p_position,
-					(int) $guide_p_total
-				);
-				?>
-			</p>
-		<?php endif; ?>
 	</div>
-
-	<?php if ( $guide_p_user && $guide_p_total ) : ?>
-		<div class="guide-player__progress">
-			<span class="guide-progress" style="width:7rem">
-				<span class="guide-progress__bar" data-progress-bar style="width:<?php echo esc_attr( (string) $guide_p_percent ); ?>%"></span>
-			</span>
-			<span class="guide-player__percent" data-progress-percent><?php echo esc_html( (string) $guide_p_percent ); ?>%</span>
-		</div>
-	<?php endif; ?>
 
 	<button type="button" class="guide-icon-button" data-theme-toggle
 		data-label-auto="<?php esc_attr_e( 'Theme: follow system', 'guide-wp-theme' ); ?>"

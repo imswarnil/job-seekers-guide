@@ -610,3 +610,30 @@
     scroll-margin-top: calc(var(--guide-header-h, 4rem) + 1rem);
   }
 }
+
+// -----------------------------------------------------------------------------
+// Filtering the lesson list
+// -----------------------------------------------------------------------------
+
+.guide-player__filter {
+  padding: 0 1.25rem 0.75rem;
+
+  input[type="search"] {
+    width: 100%;
+  }
+}
+
+// The rows are display:flex, and a CSS display wins over the [hidden]
+// attribute's user-agent display:none — so hiding them needs saying out loud.
+// Without this the filter appears to do nothing at all while working
+// perfectly in the DOM.
+.guide-player__lesson[hidden],
+.guide-player__module-label[hidden] {
+  display: none;
+}
+
+.guide-player__filter-empty {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  color: var(--bulma-text-weak);
+}

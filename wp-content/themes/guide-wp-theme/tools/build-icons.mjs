@@ -35,6 +35,9 @@ const ICONS = {
 	"arrow-right": ["regular"],
 	"arrow-left": ["regular"],
 	"dots-three-vertical": ["regular"],
+	// Used by the admin console: drag handles and "opens in a new tab".
+	"dots-six-vertical": ["regular"],
+	"arrow-square-out": ["regular"],
 	moon: ["regular", "fill"],
 	"circle-half": ["regular"],
 	sun: ["regular", "fill"],

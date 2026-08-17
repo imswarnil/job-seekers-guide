@@ -506,6 +506,24 @@ function guide_svg_allowed_html() {
 		'line'     => array_merge( $shared, array( 'x1' => true, 'y1' => true, 'x2' => true, 'y2' => true ) ),
 		'polyline' => array_merge( $shared, array( 'points' => true ) ),
 		'polygon'  => array_merge( $shared, array( 'points' => true ) ),
+		// Text inside an illustration is decorative labelling — the artwork is
+		// aria-hidden and everything it says is also said in the markup around
+		// it — but it still has to survive the sanitiser to be drawn at all.
+		'text'     => array_merge(
+			$shared,
+			array(
+				'x'                 => true,
+				'y'                 => true,
+				'dx'                => true,
+				'dy'                => true,
+				'text-anchor'       => true,
+				'font-size'         => true,
+				'font-weight'       => true,
+				'letter-spacing'    => true,
+				'dominant-baseline' => true,
+			)
+		),
+		'tspan'    => array_merge( $shared, array( 'x' => true, 'y' => true, 'dx' => true, 'dy' => true ) ),
 		'ellipse'  => array_merge( $shared, array( 'cx' => true, 'cy' => true, 'rx' => true, 'ry' => true ) ),
 	);
 }

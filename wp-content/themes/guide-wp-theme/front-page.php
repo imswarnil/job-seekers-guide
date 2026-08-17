@@ -53,7 +53,9 @@ foreach ( $guide_hero_steps as $guide_hs ) {
 		: (int) get_post_meta( $guide_hs['id'], 'jsl_duration_minutes', true );
 }
 
-$guide_has_visual = $guide_resume || ! empty( $guide_hero_steps );
+// The hero always has a right column now: a resume card for somebody
+// mid-course, and the animated sequence for everybody else.
+$guide_has_visual = true;
 ?>
 
 <!-- ============================= Hero ============================= -->
@@ -137,71 +139,29 @@ $guide_has_visual = $guide_resume || ! empty( $guide_hero_steps );
 					</a>
 				</div>
 
-			<?php elseif ( ! empty( $guide_hero_steps ) ) : ?>
-				<div class="guide-hero-card">
-					<p class="guide-eyebrow"><?php esc_html_e( 'Learning path', 'guide-wp-theme' ); ?></p>
-					<h2 class="guide-hero-card__title mt-1"><?php echo esc_html( get_the_title( $guide_hero_path ) ); ?></h2>
+			<?php else : ?>
+				<?php
+				// The animated sequence, for anybody who has not started yet.
+				//
+				// Three scenes in the order the argument is made: applications
+				// going out with nothing coming back, a path with the steps
+				// ticked off one at a time, and the door. A returning learner
+				// gets the resume card above instead — "carry on where you
+				// stopped" beats any illustration.
+				//
+				// aria-hidden, and every claim it makes is also in the text
+				// beside it, so nothing is lost with images off or motion
+				// disabled.
+				?>
+				<div class="guide-hero-scenes" role="presentation">
+					<?php echo guide_illustration( 'hero-scenes' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 
-					<ol class="guide-step-list mt-5">
-						<?php
-						foreach ( array_slice( $guide_hero_steps, 0, 5 ) as $guide_i => $guide_step ) :
-							$guide_is_course = 'course' === $guide_step['type'];
-							$guide_icon_name = $guide_is_course
-								? 'stack'
-								: ( 'video' === $guide_step['lesson_type']
-									? 'film-strip'
-									: ( 'quiz' === $guide_step['lesson_type'] ? 'list-checks' : 'article' ) );
-							?>
-							<li class="guide-step">
-								<span class="guide-step__index"><?php echo esc_html( str_pad( (string) ( $guide_i + 1 ), 2, '0', STR_PAD_LEFT ) ); ?></span>
-								<span class="guide-step__icon"><?php echo guide_icon( $guide_icon_name ); ?></span>
-								<span class="guide-step__title"><?php echo esc_html( $guide_step['title'] ); ?></span>
-							</li>
-						<?php endforeach; ?>
-
-						<?php if ( count( $guide_hero_steps ) > 5 ) : ?>
-							<li class="guide-step guide-step--more">
-								<?php
-								printf(
-									/* translators: %d: number of remaining steps. */
-									esc_html( _n( '+ %d more step', '+ %d more steps', count( $guide_hero_steps ) - 5, 'guide-wp-theme' ) ),
-									(int) ( count( $guide_hero_steps ) - 5 )
-								);
-								?>
-							</li>
-						<?php endif; ?>
-					</ol>
-
-					<div class="guide-hero-card__foot">
-						<span class="guide-card__meta-item">
-							<?php echo guide_icon( 'stack' ); ?>
-							<?php
-							printf(
-								/* translators: %d: number of steps. */
-								esc_html( _n( '%d step', '%d steps', count( $guide_hero_steps ), 'guide-wp-theme' ) ),
-								(int) count( $guide_hero_steps )
-							);
-							?>
-						</span>
-						<?php if ( $guide_hero_minutes ) : ?>
-							<span class="guide-card__meta-item">
-								<?php echo guide_icon( 'clock' ); ?>
-								<?php
-								printf(
-									/* translators: %d: total minutes. */
-									esc_html__( '%d min', 'guide-wp-theme' ),
-									(int) $guide_hero_minutes
-								);
-								?>
-							</span>
-						<?php endif; ?>
-						<a class="guide-hero-card__link" href="<?php echo esc_url( get_permalink( $guide_hero_path ) ); ?>">
-							<?php esc_html_e( 'View path', 'guide-wp-theme' ); ?>
-							<?php echo guide_icon( 'arrow-right' ); ?>
-						</a>
+					<div class="guide-hero-scenes__dots" aria-hidden="true">
+						<span></span><span></span><span></span>
 					</div>
 				</div>
 			<?php endif; ?>
+
 		</div>
 	</div>
 </section>
