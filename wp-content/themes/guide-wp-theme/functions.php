@@ -291,11 +291,20 @@ function guide_avatar( $user_id, $size = 40, $class = '' ) {
  * @param string $class Classes for the <svg>.
  */
 function guide_logo_mark( $class = '' ) {
+	// Three ascending steps, the last carried through as an arrow.
+	//
+	// The old mark was a magnifying glass over a briefcase — "job search",
+	// which is what every job board on the internet draws, and which depicts
+	// the thing this platform argues is not the problem. The problem is the
+	// order: people are not short of material, they are short of a sequence.
+	// So the mark is a sequence, going up.
+	//
+	// Solid shapes rather than strokes, because the same drawing has to work
+	// at 16px in a browser tab where a fine stroke turns to mud.
 	return '<svg class="' . esc_attr( trim( 'guide-icon ' . $class ) ) . '" viewBox="0 0 256 256" fill="none" aria-hidden="true" focusable="false">'
-		. '<circle cx="106" cy="106" r="72" stroke="currentColor" stroke-width="18"/>'
-		. '<path d="M158 158L214 214" stroke="currentColor" stroke-width="24" stroke-linecap="round"/>'
-		. '<path d="M90 90V82a12 12 0 0 1 12-12h8a12 12 0 0 1 12 12v8" stroke="currentColor" stroke-width="13" stroke-linecap="round"/>'
-		. '<path d="M70 90h72a12 12 0 0 1 12 12v34a12 12 0 0 1-12 12H70a12 12 0 0 1-12-12v-34a12 12 0 0 1 12-12Zm28 22h16a4 4 0 0 1 0 8H98a4 4 0 0 1 0-8Z" fill="currentColor" fill-rule="evenodd"/>'
+		. '<rect x="26" y="150" width="50" height="76" rx="16" fill="currentColor" opacity=".45"/>'
+		. '<rect x="103" y="104" width="50" height="122" rx="16" fill="currentColor" opacity=".72"/>'
+		. '<rect x="180" y="58" width="50" height="168" rx="16" fill="currentColor"/>'
 		. '</svg>';
 }
 

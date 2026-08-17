@@ -30,20 +30,39 @@
 // Brand palette
 // -----------------------------------------------------------------------------
 
-// Indigo — the brand. Carried over from the previous token set so the site
-// does not change identity, only framework.
-$indigo-05: #f2f3fd;
-$indigo-10: #e0e2ff;
-$indigo-20: #b4baf0;
-$indigo-30: #8892e0;
-$indigo-40: #6e79ce;
-$indigo-50: #5560b8;
-$indigo-60: #414ba0;
-$indigo-70: #2e3782;
-$indigo-80: #1e2465;
-$indigo-90: #101340;
+// Indigo — the brand.
+//
+// Deepened from the previous set. The old #414ba0 sat in the middle of the
+// scale: dark enough to look heavy on white, light enough to look washed out
+// on the dark hero, and slightly grey in both. This one commits — richer at
+// the top of the scale for large surfaces, and it holds its colour when the
+// interface is desaturated by a cheap phone screen at low brightness, which is
+// what a lot of this audience is reading on.
+$indigo-05: #f3f2ff;
+$indigo-10: #e4e2ff;
+$indigo-20: #c3bffb;
+$indigo-30: #a099f5;
+$indigo-40: #7c73ea;
+$indigo-50: #5b50dc;
+$indigo-60: #4338ca;
+$indigo-70: #362eaa;
+$indigo-80: #272185;
+$indigo-90: #1e1b4b;
 
-// Amber — encouragement, streaks, milestones. Rationed on purpose.
+// Teal — the accent, and the one real change of identity.
+//
+// The previous accent was amber, which is the default "encouragement" colour
+// of every course platform on the internet, and against indigo it read as a
+// warning rather than a highlight. Teal is the complement that stays legible
+// on both the white page and the dark hero, and it is far less common in this
+// category — which is most of what an accent colour is for.
+$teal-10: #d3f7f1;
+$teal-30: #5eead4;
+$teal-50: #14b8a6;
+$teal-70: #0f766e;
+
+// Amber is kept for one job only: streaks and milestones, where "warm" is the
+// meaning rather than a decoration.
 $amber-10: #fdf3d9;
 $amber-30: #f6cf65;
 $amber-50: #e9a92a;
@@ -52,7 +71,6 @@ $amber-70: #b47b11;
 // Supporting status colours.
 $green: #2f9e64;
 $red: #d0413c;
-$teal: #2b7f9e;
 
 // -----------------------------------------------------------------------------
 // Semantic assignments consumed by Bulma
@@ -60,16 +78,16 @@ $teal: #2b7f9e;
 
 $primary: $indigo-60;
 $link: $indigo-60;
-$info: $teal;
+$info: $teal-70;
 $success: $green;
 $warning: $amber-50;
 $danger: $red;
 
 // The "spark" accent. Not a Bulma status colour — Guide-specific, exposed as a
 // custom property so components can reach it without importing this file.
-$spark: $amber-50;
-$spark-soft: $amber-10;
-$spark-strong: $amber-70;
+$spark: $teal-50;
+$spark-soft: $teal-10;
+$spark-strong: $teal-70;
 
 // -----------------------------------------------------------------------------
 // Neutral scheme

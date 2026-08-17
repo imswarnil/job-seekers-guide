@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Favicon: the brand mark reversed out of a filled primary tile. Simplified
-  (thicker strokes, no clasp) because it has to survive being drawn at 16px.
-  Colours are literal rather than currentColor — a favicon has no inherited
-  context to take them from.
+  Favicon: the brand mark reversed out of a filled tile.
+  Three ascending steps — a sequence going up, which is the thing this platform
+  claims people were never given. Solid shapes and no strokes under 8px, because
+  a favicon is drawn at 16 and anything finer turns to mud. Colours are literal:
+  a favicon has no inherited context to take currentColor from.
 -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Job Seekers Guide">
-  <rect width="256" height="256" rx="56" fill="#414BA0"/>
-  <g fill="none" stroke="#ffffff">
-    <circle cx="112" cy="110" r="60" stroke-width="20"/>
-    <path d="M156 154L200 198" stroke-width="26" stroke-linecap="round"/>
-    <path d="M98 92v-6a12 12 0 0 1 12-12h6a12 12 0 0 1 12 12v6" stroke-width="14" stroke-linecap="round"/>
-  </g>
-  <rect x="78" y="92" width="70" height="50" rx="12" fill="#ffffff"/>
+  <rect width="256" height="256" rx="56" fill="#4338CA"/>
+  <rect x="46" y="150" width="46" height="62" rx="14" fill="#ffffff" opacity=".5"/>
+  <rect x="105" y="106" width="46" height="106" rx="14" fill="#ffffff" opacity=".75"/>
+  <rect x="164" y="62" width="46" height="150" rx="14" fill="#ffffff"/>
 </svg>

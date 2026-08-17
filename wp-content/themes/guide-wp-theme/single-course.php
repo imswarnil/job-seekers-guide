@@ -357,6 +357,13 @@ while ( have_posts() ) :
 
 			<?php get_template_part( 'template-parts/feedback', null, array( 'object_type' => 'course' ) ); ?>
 
+			<?php
+			// Questions about the course itself, which is where somebody stands
+			// while deciding whether to start. Other learners answer "is this
+			// worth it with no degree?" far better than any sales copy.
+			comments_template();
+			?>
+
 			<?php guide_ad( 'page' ); ?>
 
 			<?php if ( $guide_has_about ) : ?>

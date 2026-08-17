@@ -182,4 +182,7 @@ while ( have_posts() ) :
 	<?php
 endwhile;
 
+
+comments_template();
+
 get_footer();

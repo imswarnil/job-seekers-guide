@@ -30,8 +30,16 @@ defined( 'ABSPATH' ) || exit;
 
 class Discussion {
 
-	/** Where discussion is allowed. */
-	const OPEN_ON = array( 'lesson', 'help_article', 'company', 'success_story' );
+	/**
+	 * Where discussion is allowed.
+	 *
+	 * Courses and paths are included because that is where somebody stands
+	 * when they are deciding whether to start, and "is this worth it for
+	 * somebody with no degree?" is a question other learners answer better
+	 * than any sales copy. Leaving it off made the site look as though comments
+	 * were broken — the most common place people tried was the course page.
+	 */
+	const OPEN_ON = array( 'lesson', 'course', 'learning_path', 'help_article', 'company', 'success_story' );
 
 	const OPTION_ENABLED = 'jsl_discussion_enabled';
 

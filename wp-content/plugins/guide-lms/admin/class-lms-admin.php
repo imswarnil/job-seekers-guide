@@ -27,6 +27,7 @@ class Lms_Admin {
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'remove_menus' ), 100 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_updates_link' ), 30 );
+		add_action( 'admin_menu', array( __CLASS__, 'add_moderation_link' ), 31 );
 		add_action( 'load-index.php', array( __CLASS__, 'redirect_dashboard' ) );
 		add_action( 'admin_bar_menu', array( __CLASS__, 'trim_admin_bar' ), 999 );
 		add_action( 'wp_dashboard_setup', array( __CLASS__, 'strip_dashboard_widgets' ), 100 );
@@ -115,6 +116,42 @@ class Lms_Admin {
 			),
 			'update_core',
 			'update-core.php'
+		);
+	}
+
+	/**
+	 * Put the pending-comment count in the LMS menu.
+	 *
+	 * A learner's first comment is held for review. That is the right policy
+	 * and it has one failure mode: a queue nobody looks at, which from the
+	 * learner's side is indistinguishable from comments being broken — they
+	 * post a question, nothing appears, and they do not come back.
+	 *
+	 * The Dashboard redirects to the console, so the usual "1 pending" bubble
+	 * on the Comments menu is never seen. This puts the same number in the menu
+	 * the operator actually uses.
+	 */
+	public static function add_moderation_link() {
+		if ( ! current_user_can( 'moderate_comments' ) ) {
+			return;
+		}
+
+		$pending = (int) get_comments( array( 'status' => 'hold', 'count' => true ) );
+
+		if ( ! $pending ) {
+			return;
+		}
+
+		add_submenu_page(
+			Console::SLUG,
+			__( 'Comments', 'guide-lms' ),
+			sprintf(
+				/* translators: %s: number of comments awaiting review. */
+				__( 'Comments %s', 'guide-lms' ),
+				'<span class="awaiting-mod count-' . $pending . '"><span class="pending-count">' . number_format_i18n( $pending ) . '</span></span>'
+			),
+			'moderate_comments',
+			'edit-comments.php'
 		);
 	}
 
