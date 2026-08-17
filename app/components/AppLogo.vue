@@ -1,15 +1,24 @@
 <script setup lang="ts">
+import { logoBarOpacity, logoBars } from '~/utils/logo'
+
 defineProps<{
   /** Mark only, no wordmark — for tight spaces and the mobile header. */
   markOnly?: boolean
+  /** Replay the rise on hover. On for the header, off everywhere else. */
+  interactive?: boolean
 }>()
 </script>
 
 <template>
-  <span class="inline-flex items-center gap-2.5">
-    <!-- The mark is the path itself: three steps rising, with the last one
-         picked out in the accent. It is the product in one glyph — a sequence,
-         going somewhere, with the next step marked. -->
+  <span
+    class="app-logo inline-flex items-center gap-2.5"
+    :class="interactive && 'app-logo--interactive'"
+  >
+    <!-- The bars grow from the baseline in sequence: the mark performs the idea
+         it stands for. The animation is pure CSS on server-rendered SVG, so the
+         prerendered HTML already contains the finished geometry — nothing
+         flashes, nothing waits for JavaScript, and under reduced motion it is
+         simply the static mark it has always been. -->
     <svg
       viewBox="0 0 32 32"
       fill="none"
@@ -23,19 +32,15 @@ defineProps<{
         rx="9"
         class="fill-primary-600"
       />
+
       <path
-        d="M8 22.5H12.5V17.5H8V22.5Z"
-        fill="white"
-        fill-opacity="0.55"
-      />
-      <path
-        d="M13.75 22.5H18.25V13H13.75V22.5Z"
-        fill="white"
-        fill-opacity="0.8"
-      />
-      <path
-        d="M19.5 22.5H24V8.5H19.5V22.5Z"
-        class="fill-secondary-400"
+        v-for="(bar, index) in logoBars"
+        :key="bar.d"
+        :d="bar.d"
+        class="app-logo__bar"
+        :class="bar.accent ? 'fill-secondary-400' : 'fill-white'"
+        :fill-opacity="bar.accent ? undefined : logoBarOpacity[index]"
+        :style="{ '--step': bar.step }"
       />
     </svg>
 
@@ -47,3 +52,45 @@ defineProps<{
     </span>
   </span>
 </template>
+
+<style scoped>
+.app-logo__bar {
+  transform-origin: 50% 22.5px;
+  animation: app-logo-rise var(--dgm-t-slow) var(--dgm-ease) backwards;
+  animation-delay: calc(var(--dgm-stagger) * var(--step));
+}
+
+@keyframes app-logo-rise {
+  from {
+    transform: scaleY(0.12);
+    opacity: 0.35;
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* Hovering the header replays it. Restarting a CSS animation needs the element
+   to leave and re-enter the animated state, which the name swap below does
+   without any JavaScript keeping a key around. */
+.app-logo--interactive:hover .app-logo__bar {
+  animation-name: app-logo-rise-again;
+}
+
+@keyframes app-logo-rise-again {
+  from {
+    transform: scaleY(0.12);
+    opacity: 0.35;
+  }
+  to {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-logo__bar,
+  .app-logo--interactive:hover .app-logo__bar {
+    animation: none;
+  }
+}
+</style>

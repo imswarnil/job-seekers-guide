@@ -1,39 +1,33 @@
 <script setup lang="ts">
-import type { ContentNavigationItem } from '@nuxt/content'
-
 const route = useRoute()
 
-const navigation = inject<Ref<ContentNavigationItem[]>>('navigation')
-
 const { open: searchOpen } = useContentSearch()
+const { path } = usePath()
+const { resume, pathProgress } = useProgress()
 
 const open = ref(false)
 
-const isDocs = computed(() => route.path === '/docs' || route.path.startsWith('/docs/'))
-
 // Both modals portal to `body` with no z-index, so after a client-side layout
-// change the menu can end up painted over the search
+// change the menu can end up painted over the search.
 watch(searchOpen, (value) => {
   if (value) {
     open.value = false
   }
 })
 
-const items = computed(() => [{
-  label: 'Courses',
-  to: '/courses',
-  active: route.path.startsWith('/courses')
-}, {
-  label: 'Docs',
-  to: '/docs',
-  active: isDocs.value
-}, {
-  label: 'Writing',
-  to: '/blog'
-}, {
-  label: 'Changelog',
-  to: '/changelog'
-}])
+/** A lesson page hands the mobile sheet over to the player rail instead. */
+const isLesson = computed(() => route.path.split('/').filter(Boolean).length === 3)
+
+const items = computed(() => navLinks.map(link => ({
+  ...link,
+  active: link.to === '/path'
+    ? route.path === '/path'
+    : route.path === link.to || route.path.startsWith(`${link.to}/`)
+})))
+
+const progress = computed(() => pathProgress(path.value))
+const continueTo = computed(() => resume(path.value)?.path || '/path')
+const continueLabel = computed(() => progress.value.started ? 'Continue' : 'Start learning')
 </script>
 
 <template>
@@ -43,7 +37,7 @@ const items = computed(() => [{
         to="/"
         aria-label="Job Seekers Guide"
       >
-        <AppLogo />
+        <AppLogo interactive />
       </NuxtLink>
     </template>
 
@@ -58,20 +52,33 @@ const items = computed(() => [{
       <UContentSearchButton class="lg:hidden" />
 
       <UButton
-        icon="i-lucide-graduation-cap"
+        icon="i-lucide-route"
         color="neutral"
         variant="ghost"
-        to="/courses"
-        aria-label="Courses"
+        to="/path"
+        aria-label="The path"
         class="lg:hidden"
       />
 
-      <UButton
-        label="Start learning"
-        trailing-icon="i-lucide-arrow-right"
-        class="hidden lg:inline-flex"
-        to="/courses"
-      />
+      <!-- Resuming needs localStorage, so the server renders the plain start
+           button and the client swaps in "Continue" once it knows better. -->
+      <ClientOnly>
+        <UButton
+          :to="continueTo"
+          :label="continueLabel"
+          trailing-icon="i-lucide-arrow-right"
+          class="hidden lg:inline-flex"
+        />
+
+        <template #fallback>
+          <UButton
+            to="/path"
+            label="Start learning"
+            trailing-icon="i-lucide-arrow-right"
+            class="hidden lg:inline-flex"
+          />
+        </template>
+      </ClientOnly>
     </template>
 
     <template #body>
@@ -81,23 +88,36 @@ const items = computed(() => [{
         class="-mx-2.5"
       />
 
-      <template v-if="isDocs">
-        <USeparator class="my-6" />
-
-        <UContentNavigation
-          :navigation="navigation"
-          highlight
-        />
-      </template>
-
       <USeparator class="my-6" />
 
-      <UButton
-        label="Start learning"
-        to="/courses"
-        trailing-icon="i-lucide-arrow-right"
-        block
+      <!-- On a lesson, the useful thing in the mobile sheet is not the site nav
+           a second time — it is where you are in the path. -->
+      <PlayerRail
+        v-if="isLesson"
+        :current="route.path"
+        class="-mx-1"
+        @navigate="open = false"
       />
+
+      <template v-else>
+        <ClientOnly>
+          <UButton
+            :to="continueTo"
+            :label="continueLabel"
+            trailing-icon="i-lucide-arrow-right"
+            block
+          />
+
+          <template #fallback>
+            <UButton
+              to="/path"
+              label="Start learning"
+              trailing-icon="i-lucide-arrow-right"
+              block
+            />
+          </template>
+        </ClientOnly>
+      </template>
     </template>
   </UHeader>
 </template>

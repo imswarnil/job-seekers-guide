@@ -10,14 +10,14 @@ hero:
     - label: Start at the beginning
       icon: i-lucide-arrow-right
       trailing: true
-      to: /courses
+      to: /path
       size: xl
     - label: See the curriculum
       icon: i-lucide-list-tree
       size: xl
       color: neutral
       variant: subtle
-      to: /docs/curriculum
+      to: /path
 sections:
   - title: You are not behind. You were never given the map.
     description: Every year lakhs of graduates discover that a degree is not a job. The gap is filled by institutes charging ₹50,000–₹1,50,000 to teach material that is already free on YouTube and in open courseware. They are not selling knowledge. They are selling sequence, filtering, and someone telling you what to do next. We give that away.
@@ -96,9 +96,9 @@ cta:
   description: Module zero, two weeks, mandatory for everyone including computer science graduates. It is the module self-taught developers skip, and it shows in interviews.
   links:
     - label: Open module zero
-      to: /courses/how-the-industry-works
+      to: /how-the-industry-works
       trailingIcon: i-lucide-arrow-right
     - label: Read the principles
-      to: /docs/getting-started
+      to: /about
       variant: subtle
       icon: i-lucide-book-open

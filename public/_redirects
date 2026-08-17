@@ -1,0 +1,21 @@
+# Courses and docs became one path at the root of the site.
+#
+# The route rules in nuxt.config.ts cover the fixed redirects so `pnpm dev`
+# behaves the same, but two things need this file: a static host prerenders a
+# route rule as a meta-refresh rather than a real 301, and there is no splat
+# variable in a route rule — which is exactly what every old lesson URL needs.
+#
+# Cloudflare honours this file for both Pages and Workers static assets.
+
+/courses/*                /:splat        301
+/courses                  /path          301
+
+/docs/getting-started/*   /about         301
+/docs/curriculum/*        /path          301
+/docs/help/*              /faq           301
+/docs/authoring/*         /about         301
+/docs/*                   /about         301
+/docs                     /about         301
+
+/blog/*                   /changelog     301
+/blog                     /changelog     301

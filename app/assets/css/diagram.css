@@ -1,0 +1,153 @@
+/* =============================================================================
+   Diagram language
+   =============================================================================
+
+   Every teaching component on this platform — flow diagrams, code traces, memory
+   visualisers, timelines, the logo — draws its boxes, its arrows and its motion
+   from this one file. That is the point: a lesson that mixes four differently
+   styled diagrams reads as four different websites, and the reader spends
+   attention on the chrome instead of on the idea.
+
+   Two rules keep it honest:
+
+     1. Colours are mapped onto the existing palette, never picked fresh. A
+        diagram is part of the page, not a picture pasted into it.
+     2. There is ONE timing scale. Setting every duration to zero in a single
+        `prefers-reduced-motion` block below is therefore the entire
+        reduced-motion story for the whole library — no component ever branches
+        on it in JavaScript.
+   ========================================================================== */
+
+:root {
+  /* Surfaces */
+  --dgm-bg: var(--ui-bg);
+  --dgm-box-bg: var(--ui-bg-elevated);
+  --dgm-box-bg-active: color-mix(in oklab, var(--ui-primary) 12%, var(--ui-bg));
+  --dgm-box-border: var(--ui-border);
+  --dgm-box-border-active: var(--ui-primary);
+  --dgm-box-radius: var(--radius-md);
+
+  /* Ink */
+  --dgm-ink: var(--ui-text-highlighted);
+  --dgm-label: var(--ui-text-muted);
+  --dgm-dim: var(--ui-text-dimmed);
+
+  /* Meaning. Accent for "this one", spark for "the good path", milestone for
+     "a landmark". Never more than one accent live in a single diagram. */
+  --dgm-accent: var(--ui-primary);
+  --dgm-accent-soft: color-mix(in oklab, var(--ui-primary) 14%, transparent);
+  --dgm-spark: var(--ui-secondary);
+  --dgm-good: var(--ui-success);
+  --dgm-bad: var(--ui-error);
+  --dgm-warn: var(--ui-warning);
+  --dgm-milestone: var(--guide-milestone);
+
+  /* Geometry */
+  --dgm-stroke: 1.5px;
+  --dgm-gap: 0.75rem;
+
+  /* The one timing scale. */
+  --dgm-t-fast: 180ms;
+  --dgm-t-base: 320ms;
+  --dgm-t-slow: 640ms;
+  --dgm-stagger: 90ms;
+  --dgm-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dgm-t-fast: 0ms;
+    --dgm-t-base: 0ms;
+    --dgm-t-slow: 0ms;
+    --dgm-stagger: 0ms;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   Reveal
+   -----------------------------------------------------------------------------
+   Diagrams render finished. JavaScript *adds* `.dgm-reveal` on mount, which is
+   what hides them again until they scroll into view — so a reader with no
+   JavaScript, or a crawler, sees the completed diagram rather than an empty box.
+   -------------------------------------------------------------------------- */
+
+.dgm-reveal > .dgm-item {
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--dgm-t-base) var(--dgm-ease),
+    transform var(--dgm-t-base) var(--dgm-ease);
+  transition-delay: calc(var(--dgm-stagger) * var(--dgm-i, 0));
+}
+
+.dgm-reveal.dgm-in > .dgm-item {
+  opacity: 1;
+  transform: none;
+}
+
+/* An arrow draws itself along its own length rather than fading in — the motion
+   says "and then", which is the only thing an arrow in a teaching diagram is
+   ever there to say. */
+.dgm-reveal .dgm-draw {
+  stroke-dasharray: var(--dgm-len, 100);
+  stroke-dashoffset: var(--dgm-len, 100);
+  transition: stroke-dashoffset var(--dgm-t-slow) var(--dgm-ease);
+  transition-delay: calc(var(--dgm-stagger) * var(--dgm-i, 0));
+}
+
+.dgm-reveal.dgm-in .dgm-draw {
+  stroke-dashoffset: 0;
+}
+
+/* -----------------------------------------------------------------------------
+   Shared primitives
+   -------------------------------------------------------------------------- */
+
+.dgm-box {
+  background: var(--dgm-box-bg);
+  border: 1px solid var(--dgm-box-border);
+  border-radius: var(--dgm-box-radius);
+  color: var(--dgm-ink);
+  transition:
+    background-color var(--dgm-t-fast) var(--dgm-ease),
+    border-color var(--dgm-t-fast) var(--dgm-ease);
+}
+
+.dgm-box[data-state='active'] {
+  background: var(--dgm-box-bg-active);
+  border-color: var(--dgm-box-border-active);
+}
+
+.dgm-label {
+  color: var(--dgm-label);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+.dgm-mono {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-variant-ligatures: none;
+}
+
+/* Every diagram is a figure with a caption underneath, consistently. */
+.dgm-figure {
+  margin-block: 2rem;
+}
+
+.dgm-caption {
+  color: var(--dgm-label);
+  font-size: 0.8125rem;
+  margin-top: 0.75rem;
+  text-align: center;
+  text-wrap: balance;
+}
+
+/* Wide diagrams scroll inside themselves. The page body never scrolls sideways
+   — on a phone that is the difference between a diagram and a broken layout. */
+.dgm-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+}

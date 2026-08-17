@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { data: page } = await useAsyncData('index', () => queryCollection('index').first())
 
-const { courses } = useCourses()
+const { path } = usePath()
 
 const title = page.value?.seo?.title || page.value?.title
 const description = page.value?.seo?.description || page.value?.description
@@ -11,7 +11,8 @@ useSeoMeta({
   title,
   ogTitle: title,
   description,
-  ogDescription: description
+  ogDescription: description,
+  ogType: 'website'
 })
 
 defineOgImage('Guide', {
@@ -19,6 +20,26 @@ defineOgImage('Guide', {
   description,
   headline: 'Job Seekers Guide'
 })
+
+const site = useSiteConfig()
+
+useSchemaOrg([
+  defineWebSite({
+    name: site.name,
+    description,
+    potentialAction: defineSearchAction({ target: '/search?q={search_term_string}' })
+  }),
+  defineItemList({
+    name: 'The learning path',
+    itemListElement: path.value.subjects.map(subject => ({
+      '@type': 'Course',
+      'name': subject.title,
+      'description': subject.description,
+      'url': `${site.url}${subject.path}`,
+      'provider': { '@id': `${site.url}/#identity` }
+    }))
+  })
+])
 </script>
 
 <template>
@@ -41,13 +62,14 @@ defineOgImage('Guide', {
         />
       </template>
 
-      <!-- The catalogue, on the front page. The fastest possible answer to
-           "where do I start" is the first course, visible without a click. -->
+      <!-- The start of the path, on the front page. The fastest possible answer
+           to "where do I start" is the first subject, visible without a click. -->
       <UPageGrid class="lg:grid-cols-3">
-        <CourseCard
-          v-for="course in courses.slice(0, 3)"
-          :key="course.path"
-          :course="course"
+        <SubjectCard
+          v-for="(subject, index) in path.subjects.slice(0, 3)"
+          :key="subject.path"
+          :subject="subject"
+          :index="index"
         />
       </UPageGrid>
     </UPageHero>

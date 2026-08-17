@@ -4,17 +4,11 @@ const route = useRoute()
 const { data: page } = await useAsyncData('changelog', () => queryCollection('changelog').first())
 const { data: versions } = await useAsyncData(route.path, () => queryCollection('versions').order('date', 'DESC').all())
 
-const title = page.value?.seo?.title || page.value?.title
-const description = page.value?.seo?.description || page.value?.description
-
-useSeoMeta({
-  title,
-  ogTitle: title,
-  description,
-  ogDescription: description
+usePageSeo({
+  title: page.value?.seo?.title || page.value?.title,
+  description: page.value?.seo?.description || page.value?.description,
+  headline: 'Changelog'
 })
-
-defineOgImage('Guide', { title, description })
 </script>
 
 <template>

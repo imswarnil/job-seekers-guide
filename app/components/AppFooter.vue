@@ -1,50 +1,34 @@
 <script setup lang="ts">
-const columns = [{
-  label: 'Learn',
-  children: [{
-    label: 'All courses',
-    to: '/courses'
-  }, {
-    label: 'Start at module zero',
-    to: '/courses/how-the-industry-works'
-  }, {
-    label: 'The curriculum',
-    to: '/docs/curriculum'
-  }, {
-    label: 'What we exclude',
-    to: '/docs/curriculum/what-we-exclude'
-  }]
+const { path } = usePath()
+
+// The footer lists the path itself rather than a made-up set of sections — the
+// subjects are the site, and they are already ordered.
+const columns = computed(() => [{
+  label: 'The path',
+  children: [
+    { label: 'Everything, in order', to: '/path' },
+    ...path.value.subjects.slice(0, 4).map(subject => ({
+      label: subject.title,
+      to: subject.path
+    }))
+  ]
 }, {
   label: 'About',
-  children: [{
-    label: 'What this is',
-    to: '/docs/getting-started'
-  }, {
-    label: 'Principles',
-    to: '/docs/getting-started/principles'
-  }, {
-    label: 'Writing',
-    to: '/blog'
-  }, {
-    label: 'Changelog',
-    to: '/changelog'
-  }]
+  children: [
+    { label: 'What this is', to: '/about' },
+    { label: 'Principles', to: '/about#the-ten-principles' },
+    { label: 'Questions', to: '/faq' },
+    { label: 'Changelog', to: '/changelog' }
+  ]
 }, {
-  label: 'Contribute',
-  children: [{
-    label: 'Course structure',
-    to: '/docs/authoring/course-structure'
-  }, {
-    label: 'Writing a lesson',
-    to: '/docs/authoring/writing-a-lesson'
-  }, {
-    label: 'Markdown reference',
-    to: '/docs/authoring/markdown-reference'
-  }, {
-    label: 'Help for learners',
-    to: '/docs/help/for-learners'
-  }]
-}]
+  label: 'Honest answers',
+  children: [
+    { label: 'Do I need maths?', to: '/faq' },
+    { label: 'What is left out', to: '/faq' },
+    { label: 'Is it really free?', to: '/faq' },
+    { label: 'Will you get me a job?', to: '/faq' }
+  ]
+}])
 </script>
 
 <template>

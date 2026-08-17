@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { logoBarOpacity, logoBars, logoColors } from '~/utils/logo'
+
 defineOptions({
   inheritAttrs: false
 })
@@ -45,7 +47,9 @@ defineProps<{
       </div>
 
       <div class="flex items-center gap-4">
-        <!-- The mark: three steps rising, the last one in the accent. -->
+        <!-- The mark, at rest. Same geometry as AppLogo.vue, from the same
+             source — this renderer has no stylesheet and no animation, so it
+             draws the final frame with literal colours. -->
         <svg
           class="size-10"
           viewBox="0 0 32 32"
@@ -56,21 +60,14 @@ defineProps<{
             width="32"
             height="32"
             rx="9"
-            fill="#4338ca"
+            :fill="logoColors.plate"
           />
           <path
-            d="M8 22.5H12.5V17.5H8V22.5Z"
-            fill="#ffffff"
-            fill-opacity="0.55"
-          />
-          <path
-            d="M13.75 22.5H18.25V13H13.75V22.5Z"
-            fill="#ffffff"
-            fill-opacity="0.8"
-          />
-          <path
-            d="M19.5 22.5H24V8.5H19.5V22.5Z"
-            fill="#2dd4bf"
+            v-for="(bar, index) in logoBars"
+            :key="bar.d"
+            :d="bar.d"
+            :fill="bar.accent ? logoColors.accent : logoColors.bar"
+            :fill-opacity="bar.accent ? 1 : logoBarOpacity[index]"
           />
         </svg>
         <div class="h-px flex-1 bg-border" />
