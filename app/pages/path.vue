@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { path } = usePath()
-const { pathProgress, resume, streak } = useProgress()
+const { state, pathProgress, resume, streak } = useProgress()
 
 const title = 'The path'
 const description = 'One sequence, end to end. Orientation first, foundations second, the job hunt taught with the same seriousness as everything before it.'
@@ -10,6 +10,11 @@ usePageSeo({ title, description, headline: 'Everything, in order' })
 const groups = computed(() => byStage(path.value))
 const progress = computed(() => pathProgress(path.value))
 const resumeTo = computed(() => resume(path.value))
+
+// "Start here" pointing at lesson nine is a lie. Having opened a lesson counts
+// as having started, whether or not anything was ever ticked off — a reader who
+// stopped half way through does not want to be told to begin.
+const returning = computed(() => Boolean(state.value.lastVisited) || pathProgress(path.value).started)
 
 /** Running index across the whole path, so numbering does not restart per stage. */
 const positions = computed(() => {
@@ -50,7 +55,7 @@ const positions = computed(() => {
             <div class="min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
                 <UBadge
-                  :label="progress.started ? 'Where you left off' : 'Start here'"
+                  :label="returning ? 'Where you left off' : 'Start here'"
                   color="secondary"
                   variant="subtle"
                 />
@@ -80,7 +85,7 @@ const positions = computed(() => {
 
             <UButton
               :to="resumeTo.path"
-              :label="progress.started ? 'Continue' : 'Begin'"
+              :label="returning ? 'Continue' : 'Begin'"
               trailing-icon="i-lucide-arrow-right"
               size="lg"
               class="shrink-0"
