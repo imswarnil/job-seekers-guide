@@ -20,6 +20,7 @@
 /** Exact matches, checked first. */
 const exact: Record<string, string> = {
   '/path': '/start',
+  '/my-story': '/series/read',
   '/courses': '/start',
   '/docs': '/about',
   '/blog': '/changelog'

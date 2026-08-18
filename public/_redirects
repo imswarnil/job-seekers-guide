@@ -22,3 +22,4 @@
 
 # The learning path moved from /path to /start.
 /path                     /start         301
+/my-story                 /series/read   301

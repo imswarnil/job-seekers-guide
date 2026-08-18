@@ -129,6 +129,18 @@ export default defineContentConfig({
           at: z.string().nonempty().editor({ label: 'Timestamp, mm:ss' }),
           label: z.string().nonempty()
         })).optional().editor({ label: 'Episode chapters' }),
+        // The long read is in this collection too, and its spine is headings
+        // rather than timestamps. Ids must match the slug Nuxt Content derives
+        // from each `##` heading.
+        storyChapters: z.array(z.object({
+          id: z.string().nonempty(),
+          label: z.string().nonempty(),
+          year: z.union([z.string(), z.number()]).optional()
+        })).optional().editor({ label: 'Story chapters' }),
+        stats: z.array(z.object({
+          value: z.string().nonempty(),
+          label: z.string().nonempty()
+        })).optional().editor({ label: 'Headline numbers' }),
         seo: createSeoSchema()
       })
     }),

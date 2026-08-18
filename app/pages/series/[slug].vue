@@ -12,7 +12,7 @@ if (!episode.value) {
 // Prev and next across the whole series, so an episode is never a dead end —
 // the same rule the lesson player follows.
 const { data: siblings } = await useAsyncData(`series:around:${route.path}`, () =>
-  queryCollection('series').order('episode', 'ASC').select('path', 'title', 'episode', 'description').all()
+  queryCollection('series').where('episode', '>', 0).order('episode', 'ASC').select('path', 'title', 'episode', 'description').all()
 )
 
 const index = computed(() => siblings.value?.findIndex(item => item.path === route.path) ?? -1)
@@ -48,6 +48,7 @@ usePageSeo({
       :episode="episode.episode"
       :poster="episode.poster"
       :runtime="episode.runtime"
+      :next="next ? { path: next.path, title: next.title, episode: next.episode } : undefined"
     />
 
     <div class="lg:grid lg:grid-cols-[1fr_16rem] lg:gap-12 mt-8">

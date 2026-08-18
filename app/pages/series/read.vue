@@ -1,17 +1,19 @@
 <script setup lang="ts">
-const { data: page } = await useAsyncData('page:/my-story', () => queryCollection('pages').path('/my-story').first())
+const { data: page } = await useAsyncData('series:read', () =>
+  queryCollection('series').path('/series/read').first()
+)
 
 if (!page.value) {
   throw createError({ statusCode: 404, statusMessage: 'Page not found', fatal: true })
 }
 
 usePageSeo({
-  title: page.value.seo?.title || page.value.title,
+  title: page.value.seo?.title || 'My story, in full',
   description: page.value.seo?.description || page.value.description,
-  headline: 'My story'
+  headline: 'Read the story'
 })
 
-const chapters = computed(() => page.value?.chapters || [])
+const chapters = computed(() => page.value?.storyChapters || [])
 const stats = computed(() => page.value?.stats || [])
 
 const open = ref(false)
@@ -19,9 +21,20 @@ const open = ref(false)
 
 <template>
   <UContainer v-if="page">
-    <div class="py-10 lg:py-14">
+    <div class="py-10 lg:py-14 max-w-3xl">
+      <NuxtLink
+        to="/series"
+        class="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors mb-6"
+      >
+        <UIcon
+          name="i-lucide-arrow-left"
+          class="size-3.5"
+        />
+        My story
+      </NuxtLink>
+
       <UBadge
-        label="Swarnil · Mahroni → Bangalore → Budapest"
+        label="Mahroni → Bangalore → Budapest"
         color="secondary"
         variant="subtle"
       />
@@ -30,15 +43,24 @@ const open = ref(false)
         {{ page.title }}
       </h1>
 
-      <p class="mt-4 text-lg text-muted max-w-2xl text-balance">
+      <p class="mt-4 text-lg text-muted text-balance">
         {{ page.description }}
       </p>
 
-      <!-- Four numbers, up front. The story is long and these are the reason to
-           start reading it. -->
+      <div class="mt-6 flex flex-wrap items-center gap-3">
+        <UButton
+          to="/series/always-seventy-percent"
+          label="Watch it instead"
+          icon="i-lucide-play"
+          color="neutral"
+          variant="subtle"
+        />
+        <span class="text-sm text-dimmed">{{ page.runtime }}</span>
+      </div>
+
       <dl
         v-if="stats.length"
-        class="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4"
+        class="mt-10 grid grid-cols-2 lg:grid-cols-4 gap-4"
       >
         <div
           v-for="stat in stats"
@@ -56,16 +78,16 @@ const open = ref(false)
     </div>
 
     <div class="lg:grid lg:grid-cols-[15rem_1fr] lg:gap-12 pb-16">
-      <!-- The spine. Sticky on a wide screen, a slideover below it: the story is
-           long enough that knowing where you are in it is the difference between
-           finishing and abandoning. -->
+      <!-- The spine. The story gets worse before it gets better, and knowing how
+           much of the climb is behind you is the difference between finishing
+           and abandoning. -->
       <aside class="hidden lg:block">
         <div class="sticky top-[calc(var(--ui-header-height)+2rem)]">
           <StoryTimeline :chapters="chapters" />
         </div>
       </aside>
 
-      <div class="min-w-0">
+      <div class="min-w-0 max-w-3xl">
         <UButton
           icon="i-lucide-list"
           label="Chapters"
