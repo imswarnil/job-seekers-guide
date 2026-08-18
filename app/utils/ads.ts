@@ -12,7 +12,7 @@
  * your place.
  */
 
-export type AdSlotId = 'in-article' | 'lesson-footer' | 'rail-bottom' | 'path-parallax'
+export type AdSlotId = 'nav-leaderboard' | 'in-article' | 'lesson-footer' | 'sidebar' | 'rail-bottom' | 'path-parallax'
 
 export interface AdSlot {
   id: AdSlotId
@@ -28,6 +28,22 @@ export interface AdSlot {
 }
 
 export const adSlots: Record<AdSlotId, AdSlot> = {
+  'nav-leaderboard': {
+    id: 'nav-leaderboard',
+    label: 'Advertisement',
+    width: 970,
+    height: 90,
+    minViewport: 1024,
+    note: 'A band above the header. Deliberately above rather than inside it, so the nav keeps its own height whatever the slot does. Desktop only — 970px has nowhere to go on a phone.'
+  },
+  'sidebar': {
+    id: 'sidebar',
+    label: 'Advertisement',
+    width: 300,
+    height: 250,
+    minViewport: 1280,
+    note: 'Under the table of contents on a lesson. The least intrusive slot that anybody actually sees.'
+  },
   'in-article': {
     id: 'in-article',
     label: 'Advertisement',

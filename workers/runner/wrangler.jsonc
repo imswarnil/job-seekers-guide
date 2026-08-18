@@ -12,11 +12,11 @@
   "kv_namespaces": [
     {
       "binding": "RUNNER_CACHE",
-      "id": "REPLACE_WITH_KV_NAMESPACE_ID"
+      "id": "1b11e4f90b314bf794dd05bfecb12f16"
     }
   ],
   "vars": {
-    "ALLOWED_ORIGINS": "https://jobseekersguide.in,http://localhost:3000"
+    "ALLOWED_ORIGINS": "https://jobseekers.imswarnil.com,http://localhost:3000,http://localhost:4801"
   }
   // PISTON_URL and PISTON_TOKEN are secrets, set with:
   //   npx wrangler secret put PISTON_TOKEN

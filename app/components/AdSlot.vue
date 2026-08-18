@@ -5,11 +5,19 @@ import { adSlots } from '~/utils/ads'
 /**
  * The one ad implementation on the site.
  *
- * Everything else — the MDC wrapper, the parallax band — renders this. The rules
- * it enforces are the reason it is one component: the box is reserved before
- * anything loads so nothing shifts, nothing loads until the slot is near the
- * viewport, the provider script is injected once per page rather than once per
- * slot, and the whole thing disappears when `ads.enabled` is off.
+ * Everything else — the MDC wrapper, the parallax band, the navbar leaderboard —
+ * renders this. The rules it enforces are why it is one component: the box is
+ * reserved before anything loads so nothing shifts, nothing loads until the slot
+ * is near the viewport, and the whole thing disappears when ads are off.
+ *
+ * Three states, not two:
+ *
+ * · **live** — ads on, a creative renders.
+ * · **placeholder** — ads off but `ads.showPlaceholders` on. Draws the reserved
+ *   box, labelled, at the real dimensions. This is what makes the layout honest
+ *   while ads are switched off: you can see where they will land and prove the
+ *   reservation works before a single real ad exists.
+ * · **nothing** — both off.
  */
 const props = withDefaults(defineProps<{
   placement: AdSlotId
@@ -27,21 +35,24 @@ const near = useElementVisibility(root, { rootMargin: '400px' })
 
 const width = useWindowSize().width
 
-const allowed = computed(() => {
-  if (!ads?.enabled || ads.provider === 'none') {
-    return false
+const enabledHere = computed(() => !(ads?.slots && ads.slots[props.placement] === false))
+
+const live = computed(() => Boolean(ads?.enabled) && ads.provider !== 'none' && enabledHere.value)
+const placeholder = computed(() => !live.value && Boolean(ads?.showPlaceholders) && enabledHere.value)
+
+// The viewport gate is a render decision, not a CSS one — a hidden slot still
+// costs a request, and on a phone the 970px leaderboard has nowhere to go.
+// Treated as fitting during SSR (width 0) so the reserved box is in the HTML;
+// the client removes it if the window is genuinely too narrow.
+const fits = computed(() => {
+  if (!definition.value.minViewport) {
+    return true
   }
-  if (ads.slots && ads.slots[props.placement] === false) {
-    return false
-  }
-  return true
+  return width.value === 0 || width.value >= definition.value.minViewport
 })
 
-// Viewport gate is a render decision, not a CSS one — a hidden slot still costs
-// a request, and on a phone the 240px rail slot has nowhere to go anyway.
-const fits = computed(() => !definition.value.minViewport || width.value >= definition.value.minViewport)
+const shown = computed(() => (live.value || placeholder.value) && fits.value)
 
-const live = computed(() => allowed.value && fits.value)
 const loaded = ref(false)
 
 watch([live, near], ([isLive, isNear]) => {
@@ -55,12 +66,13 @@ const aspect = computed(() => `${definition.value.width} / ${definition.value.he
 
 <template>
   <aside
-    v-if="live"
+    v-if="shown"
     ref="root"
     class="ad"
-    :class="`ad--${variant}`"
+    :class="[`ad--${variant}`, placeholder && 'ad--placeholder']"
     :style="{ '--ad-aspect': aspect, '--ad-max': `${definition.width}px` }"
     :aria-label="definition.label"
+    :aria-hidden="placeholder || undefined"
   >
     <p class="ad__label">
       {{ definition.label }}
@@ -71,12 +83,12 @@ const aspect = computed(() => `${definition.value.width} / ${definition.value.he
            renting the space out. It is the default because it is the only
            option that costs the reader nothing. -->
       <NuxtLink
-        v-if="loaded && ads.provider === 'house'"
+        v-if="live && loaded && ads.provider === 'house'"
         to="/start"
         class="ad__house"
       >
         <UIcon
-          name="i-lucide-route"
+          name="i-lucide-compass"
           class="size-5 text-primary shrink-0"
         />
         <span>
@@ -85,7 +97,17 @@ const aspect = computed(() => `${definition.value.width} / ${definition.value.he
         </span>
       </NuxtLink>
 
-      <slot v-else-if="loaded" />
+      <slot v-else-if="live && loaded" />
+
+      <!-- Off, but drawn. Says what it is and what size it would be, so nobody
+           has to guess where an ad lands once they are switched on. -->
+      <p
+        v-else-if="placeholder"
+        class="ad__placeholder-text"
+      >
+        {{ definition.width }} × {{ definition.height }}
+        <span class="ad__placeholder-id">{{ definition.id }}</span>
+      </p>
     </div>
   </aside>
 </template>
@@ -99,11 +121,20 @@ const aspect = computed(() => `${definition.value.width} / ${definition.value.he
   margin-block: 1rem;
 }
 
+.ad--banner {
+  margin-block: 0;
+  padding-block: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-bottom: 1px solid var(--ui-border);
+}
+
 .ad__label {
   font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--dgm-dim);
+  color: var(--ui-text-dimmed);
   margin-bottom: 0.375rem;
 }
 
@@ -133,5 +164,33 @@ const aspect = computed(() => `${definition.value.width} / ${definition.value.he
 
 .ad__house:hover {
   background: var(--ui-bg-elevated);
+}
+
+.ad--placeholder .ad__box {
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 9px,
+      color-mix(in oklab, var(--ui-border) 45%, transparent) 9px,
+      color-mix(in oklab, var(--ui-border) 45%, transparent) 10px
+    );
+}
+
+.ad__placeholder-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ui-text-dimmed);
+  background: var(--ui-bg);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-xs);
+}
+
+.ad__placeholder-id {
+  font-family: var(--font-mono);
+  opacity: 0.65;
 }
 </style>

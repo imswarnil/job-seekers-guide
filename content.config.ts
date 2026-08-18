@@ -8,6 +8,7 @@ const orientationEnum = z.enum(['vertical', 'horizontal'])
 /** Display grouping on `/path`. Never ordering — order is the folder numbering. */
 const stageEnum = z.enum(['orientation', 'foundation', 'language', 'applied', 'projects', 'job-search'])
 const kindEnum = z.enum(['lesson', 'practice', 'project', 'quiz', 'reading'])
+const changeEnum = z.enum(['feature', 'fix', 'content', 'other'])
 
 const createBaseSchema = () => z.object({
   title: z.string().nonempty(),
@@ -181,7 +182,14 @@ export default defineContentConfig({
       schema: z.object({
         title: z.string().nonempty(),
         description: z.string(),
-        date: z.date()
+        date: z.date(),
+        // Entries are a list of short, categorised lines rather than prose. A
+        // changelog nobody scans is a changelog nobody reads, and the previous
+        // ones were essays.
+        changes: z.array(z.object({
+          type: changeEnum,
+          text: z.string().nonempty()
+        })).optional().editor({ label: 'Changes' })
       })
     })
   }

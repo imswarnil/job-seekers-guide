@@ -33,7 +33,9 @@ export default defineAppConfig({
     /** Repository the content is authored in. Empty hides the link. */
     github: 'https://github.com',
     /** Channel companion videos are published to. Empty hides the link. */
-    youtube: ''
+    youtube: '',
+    /** Booking link on the Questions page. Empty hides the button. */
+    topmate: 'https://topmate.io/swarnil'
   },
 
   /** Lesson player behaviour. */
@@ -51,16 +53,25 @@ export default defineAppConfig({
    * ones authors placed inline in markdown.
    */
   ads: {
-    /** Master switch. Nothing renders while this is off. */
+    /** Master switch. No real ad renders while this is off. */
     enabled: false,
+    /**
+     * Draw the reserved boxes even when ads are off, labelled and dashed.
+     * Makes the layout honest during development and proves the size
+     * reservation works before a single real ad exists. Turn off for production
+     * while `enabled` is still false.
+     */
+    showPlaceholders: true,
     /** `house` shows the built-in promo; `adsense` loads a third-party script. */
     provider: 'house' as 'house' | 'adsense' | 'none',
     /** Publisher id, for the adsense provider only. */
     client: '',
     /** Per-placement switches. See app/utils/ads.ts for what each one is. */
     slots: {
+      'nav-leaderboard': true,
       'in-article': true,
       'lesson-footer': true,
+      'sidebar': true,
       'rail-bottom': false,
       'path-parallax': false
     },
