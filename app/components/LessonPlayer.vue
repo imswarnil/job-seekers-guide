@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { PathCollectionItem } from '@nuxt/content'
 
-const props = defineProps<{
+defineProps<{
   page: PathCollectionItem
 }>()
 
 const route = useRoute()
 
-const { subject, lesson, previous, next, position, crossesSubject } = usePathPlayer(() => route.path)
+const { subject, previous, next } = usePathPlayer(() => route.path)
 const { state, isComplete, setComplete, toggleComplete, markVisited } = useProgress()
 const { toggle: toggleRail } = useRail()
 
@@ -88,85 +88,51 @@ usePlayerShortcuts({
   toggleComplete: onToggle,
   toggleRail
 })
-
-const toc = computed(() => props.page.body?.toc?.links || [])
 </script>
 
 <template>
   <div>
-    <LessonHeader
-      :title="page.title"
-      :description="page.description"
-      :lesson="lesson"
-      :minutes="page.minutes"
-      :kind="page.kind"
-    />
+    <div class="guide-prose">
+      <ContentRenderer
+        v-if="page.body"
+        :value="page"
+      />
+    </div>
 
-    <div class="xl:flex xl:gap-10 xl:items-start">
-      <div class="min-w-0 flex-1">
-        <div class="guide-prose">
-          <ContentRenderer
-            v-if="page.body"
-            :value="page"
-          />
-        </div>
+    <AdSlot placement="lesson-footer" />
 
-        <AdSlot placement="lesson-footer" />
+    <USeparator class="my-10" />
 
-        <USeparator class="my-10" />
-
-        <ClientOnly>
-          <div class="flex flex-col sm:flex-row sm:items-center gap-3 justify-between mb-8">
-            <UButton
-              :label="complete ? 'Finished' : 'Mark as finished'"
-              :icon="complete ? 'i-lucide-circle-check' : 'i-lucide-circle'"
-              :color="complete ? 'success' : 'neutral'"
-              variant="subtle"
-              @click="onToggle"
-            />
-
-            <UButton
-              :label="next ? 'Finish and continue' : 'Finish the path'"
-              trailing-icon="i-lucide-arrow-right"
-              @click="advance"
-            />
-          </div>
-        </ClientOnly>
-
-        <PlayerUpNext
-          v-model:remaining="remaining"
-          :previous="previous"
-          :next="next"
-          :crosses-subject="crossesSubject"
-          :counting="counting"
-          :seconds="AUTO_ADVANCE_SECONDS"
-          @cancel="cancelAdvance"
+    <!-- The two actions that end a lesson. Moving on is the full-width
+         pagination band below; this is only about marking it done. -->
+    <ClientOnly>
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+        <UButton
+          :label="complete ? 'Finished' : 'Mark as finished'"
+          :icon="complete ? 'i-lucide-circle-check' : 'i-lucide-circle'"
+          :color="complete ? 'success' : 'neutral'"
+          variant="subtle"
+          size="lg"
+          @click="onToggle"
         />
 
-        <PlayerFooterBar
-          :previous="previous"
-          :next="next"
-          :position="position"
-          :crosses-subject="crossesSubject"
-          :complete="complete"
-          @toggle="onToggle"
-          @advance="advance"
-          @open-rail="toggleRail"
+        <UButton
+          :label="next ? 'Finish and continue' : 'Finish the path'"
+          trailing-icon="i-lucide-arrow-right"
+          size="lg"
+          @click="advance"
         />
       </div>
+    </ClientOnly>
 
-      <!-- The contents sit beside the prose only where there is room for them.
-           Below xl they would push the reading measure into a gutter. -->
-      <aside
-        v-if="toc.length"
-        class="hidden xl:block w-56 shrink-0 sticky top-[calc(var(--ui-header-height)+2rem)]"
-      >
-        <UContentToc
-          :links="toc"
-          highlight
-          class="!bg-transparent !border-0 !p-0"
-        />
-      </aside>
-    </div>
+    <PlayerUpNext
+      v-if="counting"
+      v-model:remaining="remaining"
+      :next="next"
+      :counting="counting"
+      :seconds="AUTO_ADVANCE_SECONDS"
+      class="mt-8"
+      @cancel="cancelAdvance"
+    />
   </div>
 </template>

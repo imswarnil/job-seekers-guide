@@ -7,6 +7,10 @@
  * segments above this, which is why `/about` reaches `about.vue` and never gets
  * here — and why `modules/reserved-slugs.ts` fails the build if somebody names a
  * subject after one of those pages.
+ *
+ * The three-band layout (full-width hero, content + sidebar, full-width
+ * pagination) lives in `player/PlayerShell.vue`; this file decides what goes in
+ * each band.
  */
 const route = useRoute()
 
@@ -18,7 +22,7 @@ const { data: page } = await useAsyncData(
   { watch: [() => route.path] }
 )
 
-const { path, subject, module } = usePathPlayer(() => route.path)
+const { path, subject, module, lesson, previous, next, position, crossesSubject } = usePathPlayer(() => route.path)
 
 // A module folder need not carry an `index.md`. When it does not, the page is
 // still real — it is built from the navigation tree. Only 404 when the content
@@ -40,11 +44,19 @@ if (!page.value && !known.value) {
 const view = computed(() => depth.value >= 3 ? 'lesson' : depth.value === 2 ? 'module' : 'subject')
 
 const title = computed(() =>
-  page.value?.seo?.title || page.value?.title || module.value?.title || subject.value?.title || 'The path'
+  page.value?.seo?.title || page.value?.title || module.value?.title || subject.value?.title || 'Start here'
 )
 const description = computed(() =>
   page.value?.seo?.description || page.value?.description || module.value?.description || subject.value?.description
 )
+
+const toc = computed(() => page.value?.body?.toc?.links || [])
+
+/** The markdown file behind this page, for "edit this page". */
+const file = computed(() => {
+  const stem = page.value?.stem
+  return stem ? `content/1.path/${stem}${page.value?.extension ? `.${page.value.extension}` : '.md'}` : undefined
+})
 
 usePageSeo({
   title,
@@ -62,6 +74,25 @@ usePageSeo({
 
 <template>
   <PlayerShell :current="route.path">
+    <template #hero>
+      <LessonHeader
+        v-if="view === 'lesson' && page"
+        :title="page.title"
+        :description="page.description"
+        :lesson="lesson"
+        :minutes="page.minutes"
+        :kind="page.kind"
+      />
+      <ModuleHeader
+        v-else-if="view === 'module'"
+        :page="page || undefined"
+      />
+      <SubjectHeader
+        v-else
+        :page="page || undefined"
+      />
+    </template>
+
     <LessonPlayer
       v-if="view === 'lesson' && page"
       :page="page"
@@ -74,5 +105,33 @@ usePageSeo({
       v-else
       :page="page || undefined"
     />
+
+    <template #aside>
+      <UContentToc
+        v-if="toc.length"
+        :links="toc"
+        highlight
+        class="!bg-transparent !border-0 !p-0 !static"
+      />
+
+      <AdSlot
+        placement="sidebar"
+        variant="card"
+      />
+
+      <PageActions :file="file" />
+    </template>
+
+    <template
+      v-if="view === 'lesson'"
+      #pagination
+    >
+      <PlayerPagination
+        :previous="previous"
+        :next="next"
+        :crosses-subject="crossesSubject"
+        :position="position"
+      />
+    </template>
   </PlayerShell>
 </template>
