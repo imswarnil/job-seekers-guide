@@ -87,6 +87,24 @@ function encode(value: string): string {
 
 source.value = decode(route.query.c) ?? SAMPLES[lang.value].code
 
+/**
+ * The page is prerendered with no query string, so a shared link arrives with
+ * the server's defaults already baked into the markup. Re-reading the query on
+ * mount is what makes `?lang=java&c=…` actually restore a run rather than
+ * showing whatever the build happened to render.
+ */
+onMounted(() => {
+  const wanted = route.query.lang
+  if (typeof wanted === 'string' && wanted in SAMPLES && wanted !== lang.value) {
+    lang.value = wanted as Lang
+  }
+
+  const shared = decode(route.query.c)
+  if (shared) {
+    source.value = shared
+  }
+})
+
 watch(lang, (next) => {
   source.value = SAMPLES[next].code
   visual.value = undefined
@@ -150,7 +168,13 @@ async function run() {
       }
     }
   } catch (thrown) {
-    error.value = thrown instanceof Error ? thrown.message : String(thrown)
+    const message = thrown instanceof Error ? thrown.message : String(thrown)
+    // "Failed to fetch" is what a browser says for a blocked request, a dead
+    // endpoint and an origin the server will not accept. None of those mean
+    // anything to a reader, so say what it actually implies.
+    error.value = /failed to fetch|networkerror/i.test(message)
+      ? `Could not reach the runner.\n\nEverything else on this page runs in your browser and still works — Java is the one piece that needs a server.\n\n(${message})`
+      : message
   } finally {
     running.value = false
     loading.value = ''
@@ -273,20 +297,30 @@ defineShortcuts({
           </p>
         </div>
 
-        <template v-else-if="visual">
-          <VisualiserStagePipeline :stages="visual.stages" />
+        <template v-else-if="visual || error">
+          <VisualiserStagePipeline
+            v-if="visual"
+            :stages="visual.stages"
+          />
 
+          <!-- Outside the `visual` branch on purpose. A run that fails before it
+               produces any stages — a blocked request, a dead endpoint — used to
+               render nothing at all, which is indistinguishable from the button
+               not working. -->
           <UAlert
             v-if="error"
             icon="i-lucide-circle-x"
             color="error"
             variant="subtle"
-            class="mt-6"
+            :class="visual && 'mt-6'"
             :ui="{ description: 'whitespace-pre-wrap font-mono text-xs' }"
             :description="error"
           />
 
-          <div class="mt-8">
+          <div
+            v-if="visual"
+            class="mt-8"
+          >
             <VisualiserSqlPanel
               v-if="visual.kind === 'sql' && visual.data"
               :data="visual.data as any"
@@ -294,6 +328,7 @@ defineShortcuts({
             <VisualiserJavaPanel
               v-else-if="visual.kind === 'java' && visual.data"
               :data="visual.data as any"
+              :stages="visual.stages"
             />
           </div>
         </template>

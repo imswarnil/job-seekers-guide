@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { JavaVisualData } from '~/utils/runners/java-analyse'
+import type { RunStage } from '~/utils/runners/visualise'
 
 defineProps<{
   data: JavaVisualData
+  stages: RunStage[]
 }>()
 
 const kindIcon = {
@@ -14,6 +16,12 @@ const kindIcon = {
 
 <template>
   <div class="space-y-8">
+    <!-- The mechanism, before the details about it. -->
+    <VisualiserJavaFlow
+      :stages="stages"
+      :data="data"
+    />
+
     <!-- Where the compiler pointed. Given its own block because a beginner's
          first hundred hours are mostly this one number. -->
     <section

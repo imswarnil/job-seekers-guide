@@ -15,6 +15,13 @@ function width(rows: number) {
 
 <template>
   <div class="space-y-8">
+    <!-- The rows moving, before the numbers about them. Somebody who watches
+         this and reads nothing else has understood what a WHERE clause does. -->
+    <VisualiserSqlFlow
+      v-if="data.funnel.length"
+      :funnel="data.funnel"
+    />
+
     <!-- The funnel. Every number here was obtained by running a cut-down version
          of the query against the real data — change a WHERE and the figures move. -->
     <section v-if="data.funnel.length">
