@@ -1,10 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <!-- Keep in step with app/utils/logo.ts. Transparent background, and the
-       strokes are thicker than the site mark because a favicon renders at 16px
-       and hairlines disappear there. The two waypoints are dropped for the same
-       reason — at that size they read as noise on the line. -->
-  <path d="M5.5 25.5C5.5 25.5 9 17.5 16 16C23 14.5 26 7 26 7"
-        stroke="#4338ca" stroke-width="4" stroke-linecap="round" fill="none"/>
-  <circle cx="5.5" cy="25.5" r="4" fill="#4338ca"/>
-  <circle cx="26" cy="7" r="6" fill="#2dd4bf"/>
+  <!-- Keep in step with app/utils/logo.ts. Transparent background, and two
+       differences from the site mark, both because this renders at 16px:
+       the strokes are thicker, because hairlines disappear at that size, and
+       the shortlist is two rows rather than three, because at 16px a third row
+       is a grey smudge rather than a row. -->
+  <rect x="8.3" y="9.2" width="9.4" height="2.6" rx="1.3" fill="#a099f5"/>
+  <rect x="8.3" y="14" width="6.4" height="2.6" rx="1.3" fill="#2dd4bf"/>
+  <circle cx="13" cy="13" r="9.4" stroke="#4338ca" stroke-width="3.4" fill="none"/>
+  <path d="M19.7 19.7L28.6 28.6" stroke="#4338ca" stroke-width="4" stroke-linecap="round"/>
 </svg>

@@ -76,32 +76,13 @@ useSchemaOrg([
                 v-bind="link"
               />
             </div>
-
-            <div class="mt-10">
-              <p class="text-xs uppercase tracking-wider text-dimmed mb-3">
-                What you will actually learn
-              </p>
-              <div class="flex flex-wrap gap-2.5">
-                <TechThumb
-                  v-for="name in ['os', 'sql', 'java', 'oops', 'dsa', 'networks', 'html', 'css', 'git', 'system-design']"
-                  :key="name"
-                  :name="name"
-                  size="sm"
-                />
-              </div>
-            </div>
           </div>
 
-          <div class="mt-14 lg:mt-0">
-            <UPageCard
-              variant="subtle"
-              :ui="{ body: 'p-6 sm:p-7' }"
-            >
-              <p class="text-xs uppercase tracking-wider text-dimmed mb-5">
-                The whole route
-              </p>
-              <HeroTrail />
-            </UPageCard>
+          <!-- The argument in one loop: every subject is already out there,
+               free and in no order, and the product is the volume they land
+               in. -->
+          <div class="mt-12 lg:mt-0">
+            <HeroConverge />
           </div>
         </div>
       </UContainer>
@@ -125,43 +106,13 @@ useSchemaOrg([
       />
     </UContainer>
 
-    <!-- The story sits between the pitch and the detail, because it is the
-         evidence for the pitch. Tighter than a normal section: it belongs to the
-         hero above it rather than starting a new thought. -->
-    <UPageSection :ui="{ container: 'py-8 sm:py-10 lg:py-12' }">
-      <UPageCard
-        variant="subtle"
-        class="overflow-hidden"
-      >
-        <div class="lg:grid lg:grid-cols-[auto_1fr] lg:gap-10 lg:items-center">
-          <IllustrationResume class="w-40 mx-auto lg:mx-0 shrink-0 mb-6 lg:mb-0" />
+    <UContainer class="py-10 lg:py-16">
+      <HomeContrast />
+    </UContainer>
 
-          <div>
-            <UBadge
-              label="Why this exists"
-              color="secondary"
-              variant="subtle"
-            />
-            <h2 class="font-display text-2xl font-bold text-highlighted mt-3 text-balance">
-              I could not clear a single written round. I am now a Salesforce engineer in Europe.
-            </h2>
-            <p class="mt-3 text-muted text-balance">
-              Average student, no plan, no guidance, and a family that could not
-              fund one. This is the whole route — the rejections, the ₹13,000
-              first salary, and every offer after it — written down exactly as it
-              happened.
-            </p>
-            <UButton
-              to="/my-story"
-              label="Read my story"
-              trailing-icon="i-lucide-arrow-right"
-              size="lg"
-              class="mt-6"
-            />
-          </div>
-        </div>
-      </UPageCard>
-    </UPageSection>
+    <!-- The evidence for everything above it. Its own band, because a
+         sentence this load-bearing inside a card reads as a third feature. -->
+    <HomeStory />
 
     <UPageSection
       v-for="(section, index) in page.sections"
@@ -173,7 +124,13 @@ useSchemaOrg([
       :reverse="section.reverse"
       :features="section.features"
     >
-      <ImagePlaceholder />
+      <!-- A drawing that says something about the section, rather than the
+           dashed grey box that used to sit here saying nothing. -->
+      <Illustration
+        :name="section.id === 'how' ? 'foundations' : 'job-search'"
+        size="lg"
+        class="mx-auto"
+      />
     </UPageSection>
 
     <UPageSection
@@ -189,6 +146,10 @@ useSchemaOrg([
         />
       </UPageGrid>
     </UPageSection>
+
+    <UContainer class="py-10 lg:py-16">
+      <HomePace />
+    </UContainer>
 
     <UPageSection
       id="who-for"
@@ -213,6 +174,10 @@ useSchemaOrg([
         </UPageCard>
       </UPageColumns>
     </UPageSection>
+
+    <UContainer class="py-10 lg:py-16">
+      <HomeQuestions />
+    </UContainer>
 
     <USeparator />
 

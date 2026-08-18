@@ -23,10 +23,25 @@ interface Point {
 const points: Point[] = [
   { year: '2019', company: 'First job', lpa: 1.8, note: '₹13,000 a month', tone: 'start' },
   { year: '2019', company: 'Accenture', lpa: 3.6, note: 'Three months later' },
-  { year: '2021', company: 'Same role', lpa: 5.5, note: 'Standing still' },
-  { year: '2022', company: 'Cognizant', lpa: 15.5, note: 'After learning to interview', tone: 'jump' },
-  { year: '2022', company: 'PwC', lpa: 21 },
+  { year: '2021', company: 'Accenture', lpa: 5.5, note: 'Two years, same desk' },
+  { year: '2022', company: 'Cognizant', lpa: 15.5, note: 'Best of four offers', tone: 'jump' },
+  { year: '2022', company: 'PwC', lpa: 21, note: 'Seven months later' },
   { year: '2023', company: 'Twilio', lpa: 32, note: 'With stocks', tone: 'end' }
+]
+
+/**
+ * The year the whole shape turns on.
+ *
+ * Cognizant is the bar on the chart, but it was one of four offers cleared in
+ * the same stretch — and the spread is the actual evidence. One good number can
+ * be luck. Four in a row is a skill somebody acquired, which is the only claim
+ * this page is making.
+ */
+const offers = [
+  { company: 'ABSYZ', lpa: 9 },
+  { company: 'Genpact', lpa: 12 },
+  { company: 'Dazeworks', lpa: 14 },
+  { company: 'Cognizant', lpa: 15.5, taken: true }
 ]
 
 const max = Math.max(...points.map(p => p.lpa))
@@ -91,6 +106,29 @@ watch(seen, (value) => {
           >{{ point.note }}</span>
         </span>
       </div>
+    </div>
+
+    <!-- The four offers behind the fourth bar. Same person, same Java, same
+         year — the only thing that changed was knowing how to be interviewed. -->
+    <div class="salary__offers">
+      <p class="salary__offers-head">
+        The jump was four offers, cleared in one stretch
+      </p>
+      <ul class="salary__offers-list">
+        <li
+          v-for="offer in offers"
+          :key="offer.company"
+          class="salary__offer"
+          :data-taken="offer.taken || undefined"
+        >
+          <span class="salary__offer-lpa">₹{{ offer.lpa }}L</span>
+          <span class="salary__offer-co">{{ offer.company }}</span>
+          <span
+            v-if="offer.taken"
+            class="salary__offer-tag"
+          >took it</span>
+        </li>
+      </ul>
     </div>
 
     <p class="salary__axis">
@@ -214,6 +252,64 @@ watch(seen, (value) => {
   line-height: 1.3;
   margin-top: 0.25rem;
   text-wrap: balance;
+}
+
+.salary__offers {
+  margin-top: 1.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--ui-border);
+}
+
+.salary__offers-head {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ui-text-dimmed);
+}
+
+.salary__offers-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.salary__offer {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--ui-border);
+  background: var(--ui-bg);
+}
+
+.salary__offer[data-taken] {
+  border-color: color-mix(in oklab, var(--ui-secondary) 55%, transparent);
+  background: color-mix(in oklab, var(--ui-secondary) 10%, transparent);
+}
+
+.salary__offer-lpa {
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ui-text-highlighted);
+}
+
+.salary__offer-co {
+  font-size: 0.6875rem;
+  color: var(--ui-text-muted);
+}
+
+.salary__offer-tag {
+  font-size: 0.5625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ui-secondary);
+  font-weight: 600;
 }
 
 .salary__axis {

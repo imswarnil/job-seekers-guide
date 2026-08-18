@@ -20,7 +20,9 @@
 /** Exact matches, checked first. */
 const exact: Record<string, string> = {
   '/path': '/start',
-  '/my-story': '/series/read',
+  // `/my-story` is a real page now; `/series` is what moved under it.
+  '/series': '/my-story/watch',
+  '/series/read': '/my-story/book',
   '/courses': '/start',
   '/docs': '/about',
   '/blog': '/changelog'
@@ -34,6 +36,8 @@ const prefixes: [string, string | ((rest: string) => string)][] = [
   // A course lesson kept its whole shape when courses became the path; only the
   // section prefix was dropped. `/courses/java/collections/generics` → `/java/…`
   ['/courses/', rest => `/${rest}`],
+  // Old episode URLs. `/series/read` is handled above, before this prefix.
+  ['/series/', '/my-story/watch'],
   ['/docs/getting-started/', '/about'],
   ['/docs/curriculum/', '/start'],
   ['/docs/help/', '/faq'],

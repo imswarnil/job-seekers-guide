@@ -96,13 +96,13 @@ onMounted(() => {
              work out that the other version exists. -->
         <div class="mt-9 flex flex-wrap gap-3">
           <UButton
-            to="/series/read"
+            to="/my-story/book"
             label="Read the story"
             icon="i-lucide-book-open"
             size="xl"
           />
           <UButton
-            to="/series/always-seventy-percent"
+            to="/my-story/watch/always-seventy-percent"
             label="Watch the story"
             icon="i-lucide-play"
             size="xl"

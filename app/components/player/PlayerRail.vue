@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Lesson } from '~/utils/path'
+
 const props = defineProps<{
   /** The lesson, module or subject page currently open. */
   current?: string
@@ -11,6 +13,32 @@ const { pathProgress } = useProgress()
 
 const progress = computed(() => pathProgress(path.value))
 const activeSubject = computed(() => props.current ? findSubject(path.value, props.current) : undefined)
+
+/* ── Finding a lesson ──────────────────────────────────────────────────
+   Three hundred lessons behind eleven collapsed subjects is a tree you
+   have to already know your way around. The filter is the way in for
+   everybody else: it searches lesson titles *and* the module and subject
+   they sit in, so "interview" finds the lessons and "java" finds the
+   subject's worth of them. */
+const query = ref('')
+const searching = computed(() => query.value.trim().length > 0)
+
+const results = computed<Lesson[]>(() => {
+  const needle = query.value.trim().toLowerCase()
+  if (!needle) {
+    return []
+  }
+
+  const words = needle.split(/\s+/)
+
+  return path.value.lessons.filter((lesson) => {
+    const haystack = [lesson.title, lesson.moduleTitle, lesson.subjectTitle]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+    return words.every(word => haystack.includes(word))
+  }).slice(0, 40)
+})
 
 const root = useTemplateRef<HTMLElement>('root')
 
@@ -48,12 +76,82 @@ onMounted(async () => {
       />
     </ClientOnly>
 
+    <UInput
+      v-model="query"
+      icon="i-lucide-search"
+      placeholder="Find a lesson"
+      size="sm"
+      class="w-full mt-4"
+      :ui="{ trailing: 'pe-1' }"
+    >
+      <template
+        v-if="query"
+        #trailing
+      >
+        <UButton
+          icon="i-lucide-x"
+          color="neutral"
+          variant="link"
+          size="xs"
+          aria-label="Clear the filter"
+          @click="query = ''"
+        />
+      </template>
+    </UInput>
+
     <USeparator class="my-4" />
 
-    <!-- Every subject on the platform is listed. Only the one you are inside is
-         expanded — a rail that opened all of them would be thousands of nodes
-         and no more useful for it. -->
-    <div class="space-y-0.5">
+    <!-- ── Filtered ──────────────────────────────────────────────────── -->
+    <div v-if="searching">
+      <p class="px-2 mb-2 text-xs text-dimmed tabular-nums">
+        {{ results.length }} {{ results.length === 1 ? 'lesson' : 'lessons' }}
+      </p>
+
+      <ul
+        v-if="results.length"
+        class="space-y-px"
+      >
+        <li
+          v-for="lesson in results"
+          :key="lesson.path"
+        >
+          <NuxtLink
+            :to="lesson.path"
+            :data-active="lesson.path === current || undefined"
+            class="block rounded-md px-2 py-1.5 transition-colors"
+            :class="lesson.path === current
+              ? 'bg-primary/10 text-primary'
+              : 'text-muted hover:text-highlighted hover:bg-elevated'"
+            @click="$emit('navigate')"
+          >
+            <span class="block text-sm truncate">{{ lesson.title }}</span>
+            <!-- Where it lives. A flat result list without this is a list of
+                 titles you cannot place in the path. -->
+            <span class="block text-xs text-dimmed truncate">
+              {{ [lesson.subjectTitle, lesson.moduleTitle].filter(Boolean).join(' · ') }}
+            </span>
+          </NuxtLink>
+        </li>
+      </ul>
+
+      <p
+        v-else
+        class="px-2 text-sm text-dimmed"
+      >
+        Nothing matches that. The path is still being written — try a broader
+        word, or
+        <NuxtLink
+          to="/start"
+          class="text-primary hover:underline"
+        >see every subject</NuxtLink>.
+      </p>
+    </div>
+
+    <!-- ── The tree ──────────────────────────────────────────────────── -->
+    <div
+      v-else
+      class="space-y-0.5"
+    >
       <PlayerRailSubject
         v-for="(subject, index) in path.subjects"
         :key="subject.path"

@@ -103,25 +103,29 @@ usePlayerShortcuts({
 
     <USeparator class="my-10" />
 
-    <!-- The two actions that end a lesson. Moving on is the full-width
-         pagination band below; this is only about marking it done. -->
+    <!-- One action, not two.
+         This block used to carry both "mark as finished" and "finish and
+         continue", and the full-width band underneath it carried a Next card
+         doing the same job — so every lesson ended in two paginations arguing
+         about which one was the way forward. Moving on belongs to the band;
+         this is only ever about marking the lesson done. -->
     <ClientOnly>
-      <div class="flex flex-col sm:flex-row sm:items-center gap-3 justify-between">
+      <div class="flex flex-wrap items-center gap-3">
         <UButton
           :label="complete ? 'Finished' : 'Mark as finished'"
           :icon="complete ? 'i-lucide-circle-check' : 'i-lucide-circle'"
           :color="complete ? 'success' : 'neutral'"
-          variant="subtle"
+          :variant="complete ? 'subtle' : 'solid'"
           size="lg"
           @click="onToggle"
         />
 
-        <UButton
-          :label="next ? 'Finish and continue' : 'Finish the path'"
-          trailing-icon="i-lucide-arrow-right"
-          size="lg"
-          @click="advance"
-        />
+        <p
+          v-if="!complete && next"
+          class="text-sm text-dimmed"
+        >
+          Ticking it off moves you on to {{ next.title }}.
+        </p>
       </div>
     </ClientOnly>
 

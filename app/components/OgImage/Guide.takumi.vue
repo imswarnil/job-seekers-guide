@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { logoColors, logoTrail } from '~/utils/logo'
+import { logoColors, logoMark } from '~/utils/logo'
 
 defineOptions({
   inheritAttrs: false
@@ -47,41 +47,39 @@ defineProps<{
       </div>
 
       <div class="flex items-center gap-4">
-        <!-- The mark, at rest. Same geometry as AppLogo.vue, from the same
-             source — this renderer has no stylesheet and no animation, so it
-             draws the final frame with literal colours. -->
+        <!-- The mark. Same geometry as AppLogo.vue, from the same source —
+             this renderer has no stylesheet, so it draws with literal
+             colours. -->
         <svg
           class="size-10"
           viewBox="0 0 32 32"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path
-            :d="logoTrail.path"
-            :stroke="logoColors.trail"
-            stroke-width="2.75"
-            stroke-linecap="round"
+          <rect
+            v-for="(row, index) in logoMark.rows"
+            :key="index"
+            :x="row.x"
+            :y="row.y"
+            :width="row.w"
+            :height="row.h"
+            :rx="row.h / 2"
+            :fill="row.match ? logoColors.match : logoColors.row"
+          />
+          <circle
+            :cx="logoMark.lens.cx"
+            :cy="logoMark.lens.cy"
+            :r="logoMark.lens.r"
+            :stroke="logoColors.frame"
+            :stroke-width="logoMark.lensWidth"
             fill="none"
           />
-          <circle
-            v-for="(stop, index) in logoTrail.stops"
-            :key="index"
-            :cx="stop.cx"
-            :cy="stop.cy"
-            :r="stop.r"
-            :fill="logoColors.stop"
-          />
-          <circle
-            :cx="logoTrail.start.cx"
-            :cy="logoTrail.start.cy"
-            :r="logoTrail.start.r"
-            :fill="logoColors.trail"
-          />
-          <circle
-            :cx="logoTrail.end.cx"
-            :cy="logoTrail.end.cy"
-            :r="logoTrail.end.r"
-            :fill="logoColors.end"
+          <path
+            :d="logoMark.handle"
+            :stroke="logoColors.frame"
+            :stroke-width="logoMark.handleWidth"
+            stroke-linecap="round"
+            fill="none"
           />
         </svg>
         <div class="h-px flex-1 bg-border" />

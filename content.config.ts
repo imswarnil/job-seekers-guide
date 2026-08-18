@@ -104,6 +104,54 @@ export default defineContentConfig({
           value: z.string().nonempty(),
           label: z.string().nonempty()
         })).optional().editor({ label: 'Headline numbers' }),
+        // Questions, grouped. Kept as data rather than as accordion blocks in
+        // the body so the page can filter them, group them and emit FAQ
+        // structured data — none of which is possible over rendered prose.
+        groups: z.array(z.object({
+          label: z.string().nonempty(),
+          icon: z.string().optional().editor({ input: 'icon' }),
+          description: z.string().optional(),
+          questions: z.array(z.object({
+            q: z.string().nonempty(),
+            a: z.string().nonempty().editor({ input: 'textarea' })
+          }))
+        })).optional().editor({ label: 'Question groups' }),
+        // The About page is laid out in columns rather than run as one column
+        // of prose, so its structure is data. Every field is optional — the
+        // other root pages in this collection use none of them.
+        hero: z.object({
+          kicker: z.string().optional(),
+          headline: z.string().nonempty(),
+          lede: z.string().optional()
+        }).optional(),
+        pillars: z.array(z.object({
+          title: z.string().nonempty(),
+          body: z.string().nonempty(),
+          illustration: z.string().optional()
+        })).optional(),
+        audience: z.object({
+          title: z.string().nonempty(),
+          body: z.string().nonempty()
+        }).optional(),
+        principles: z.array(z.object({
+          title: z.string().nonempty(),
+          body: z.string().nonempty()
+        })).optional(),
+        excluded: z.array(z.object({
+          what: z.string().nonempty(),
+          why: z.string().nonempty()
+        })).optional(),
+        nonGoals: z.array(z.string()).optional(),
+        built: z.object({
+          title: z.string().nonempty(),
+          body: z.string().nonempty()
+        }).optional(),
+        cards: z.array(z.object({
+          title: z.string().nonempty(),
+          body: z.string().nonempty(),
+          icon: z.string().optional().editor({ input: 'icon' }),
+          to: z.string().nonempty()
+        })).optional(),
         seo: createSeoSchema()
       })
     }),
@@ -112,12 +160,23 @@ export default defineContentConfig({
     // video on Mux. An episode with no playback id is a real page with a real
     // poster and a "not out yet" state — the writing lands before the filming.
     series: defineCollection({
-      source: '5.series/**',
+      // `/my-story/watch/<episode>`. The prefix is set here rather than derived
+      // from the folder, so the episodes sit under the story they belong to
+      // instead of under a top-level `/series` nobody would guess at.
+      source: { include: '5.series/**', prefix: '/my-story/watch' },
       type: 'page',
       schema: z.object({
         episode: z.number().editor({ label: 'Episode number' }),
         runtime: z.string().optional().editor({ label: 'Runtime', description: 'e.g. "8 min"' }),
-        /** Mux playback id. Empty until the episode is uploaded. */
+        /** YouTube video id. The channel is where these actually live. */
+        youtubeId: z.string().optional().editor({ label: 'YouTube video ID', description: 'The bit after v= in the URL.' }),
+        /**
+         * Marks `youtubeId` as stand-in footage rather than the real episode.
+         * The player says so on screen, because a placeholder that does not
+         * announce itself is just a lie with a play button on it.
+         */
+        placeholder: z.boolean().optional().editor({ label: 'Placeholder footage', description: 'Tick while the real film does not exist yet.' }),
+        /** Mux playback id, if an episode is ever hosted there instead. */
         muxPlaybackId: z.string().optional().editor({ label: 'Mux playback ID' }),
         /** Overrides the generated poster once there is a real still. */
         poster: z.string().optional().editor({ input: 'media' }),
@@ -141,6 +200,26 @@ export default defineContentConfig({
           value: z.string().nonempty(),
           label: z.string().nonempty()
         })).optional().editor({ label: 'Headline numbers' }),
+        seo: createSeoSchema()
+      })
+    }),
+
+    // The story, as a book: one file per chapter, ordered by the numeric
+    // prefix. Split out of a single long page because a book needs pages —
+    // covers, chapter breaks and a flip only mean anything if there is
+    // something discrete to turn.
+    story: defineCollection({
+      // `/my-story/book/<chapter>`. Every chapter is a real, linkable, indexable
+      // page — the reader is a surface over them, not a replacement for them.
+      source: { include: '6.story/**', prefix: '/my-story/book' },
+      type: 'page',
+      schema: z.object({
+        chapter: z.number().editor({ label: 'Chapter number', description: '0 is the prologue.' }),
+        subtitle: z.string().optional().editor({ label: 'Chapter subtitle' }),
+        year: z.string().optional(),
+        place: z.string().optional(),
+        image: z.string().optional().editor({ input: 'media', label: 'Chapter illustration' }),
+        imageAlt: z.string().optional(),
         seo: createSeoSchema()
       })
     }),
@@ -195,6 +274,14 @@ export default defineContentConfig({
         title: z.string().nonempty(),
         description: z.string(),
         date: z.date(),
+        /**
+         * The release number. Shown on the generated cover and used as the
+         * anchor, so a single release can be linked to — "we shipped that in
+         * 1.2" is only useful if 1.2 has an address.
+         */
+        version: z.string().optional().editor({ label: 'Version', description: 'e.g. 1.0.0' }),
+        /** A short label for the release, printed on the cover under the number. */
+        codename: z.string().optional().editor({ label: 'Codename' }),
         // Entries are a list of short, categorised lines rather than prose. A
         // changelog nobody scans is a changelog nobody reads, and the previous
         // ones were essays.

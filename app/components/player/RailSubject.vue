@@ -21,6 +21,47 @@ watch(() => props.expanded, (value) => {
     open.value = true
   }
 })
+
+/**
+ * Which module the reader is inside.
+ *
+ * A subject with six modules and forty lessons opened all at once is a wall —
+ * the reader has to scroll past everything they are not doing to reach the one
+ * thing they are. So the modules collapse too, and only the one containing the
+ * current page starts open.
+ */
+const activeModule = computed(() => {
+  if (!props.current) {
+    return undefined
+  }
+  return props.subject.modules.find(module =>
+    module.path === props.current || module.lessons.some(lesson => lesson.path === props.current)
+  )?.path
+})
+
+/**
+ * Modules the reader has opened or shut by hand.
+ *
+ * Three states, not two: unset means "follow the active module", and an
+ * explicit `true`/`false` overrides it. Two booleans were not enough — without
+ * the unset case, either the active module could never be shut or opening a
+ * different one would not stick.
+ */
+const override = ref<Record<string, boolean>>({})
+
+function shown(path: string) {
+  return override.value[path] ?? path === activeModule.value
+}
+
+function toggleModule(path: string) {
+  override.value = { ...override.value, [path]: !shown(path) }
+}
+
+/* Following a link into a different module opens that module and forgets what
+   the reader had shut by hand in the one they left. */
+watch(activeModule, () => {
+  override.value = {}
+})
 </script>
 
 <template>
@@ -70,7 +111,7 @@ watch(() => props.expanded, (value) => {
 
     <div
       v-if="open"
-      class="mt-1 mb-3 pl-3 ml-3 border-l border-default space-y-3"
+      class="mt-1 mb-3 pl-3 ml-3 border-l border-default space-y-2"
     >
       <NuxtLink
         :to="subject.path"
@@ -85,23 +126,47 @@ watch(() => props.expanded, (value) => {
         v-for="module in subject.modules"
         :key="module.path"
       >
-        <!-- Real links, not buttons: the prerender crawler discovers module
-             pages through exactly these. -->
-        <NuxtLink
-          :to="module.path"
-          class="flex items-center gap-2 px-2 mb-1 text-xs font-semibold uppercase tracking-wider transition-colors"
-          :class="current === module.path ? 'text-primary' : 'text-dimmed hover:text-highlighted'"
-          @click="$emit('navigate')"
+        <!-- Two controls in one row: the title is a real link, because the
+             prerender crawler discovers module pages through exactly these, and
+             the chevron beside it opens the section without navigating. -->
+        <div
+          class="flex items-center gap-1 rounded-md pr-1 transition-colors"
+          :class="shown(module.path) ? '' : 'hover:bg-elevated'"
         >
-          <UIcon
-            v-if="module.icon"
-            :name="module.icon"
-            class="size-3.5"
-          />
-          <span class="truncate">{{ module.title }}</span>
-        </NuxtLink>
+          <NuxtLink
+            :to="module.path"
+            class="flex items-center gap-2 px-2 py-1 flex-1 min-w-0 text-xs font-semibold uppercase tracking-wider transition-colors"
+            :class="current === module.path ? 'text-primary' : 'text-dimmed hover:text-highlighted'"
+            @click="$emit('navigate')"
+          >
+            <UIcon
+              v-if="module.icon"
+              :name="module.icon"
+              class="size-3.5 shrink-0"
+            />
+            <span class="truncate">{{ module.title }}</span>
+          </NuxtLink>
 
-        <ul class="space-y-px">
+          <button
+            type="button"
+            class="shrink-0 p-1 rounded text-dimmed hover:text-highlighted transition-colors"
+            :aria-expanded="shown(module.path)"
+            :aria-label="`${shown(module.path) ? 'Collapse' : 'Expand'} ${module.title}`"
+            @click="toggleModule(module.path)"
+          >
+            <UIcon
+              name="i-lucide-chevron-down"
+              class="size-3.5 transition-transform"
+              :class="shown(module.path) && 'rotate-180'"
+              :style="{ transitionDuration: 'var(--dgm-t-fast)' }"
+            />
+          </button>
+        </div>
+
+        <ul
+          v-if="shown(module.path)"
+          class="space-y-px mt-0.5 mb-2"
+        >
           <li
             v-for="lesson in module.lessons"
             :key="lesson.path"
@@ -113,6 +178,15 @@ watch(() => props.expanded, (value) => {
             />
           </li>
         </ul>
+
+        <!-- Collapsed sections still say how much is inside them, so closing
+             one does not hide the fact that it exists. -->
+        <p
+          v-else
+          class="px-2 pb-1.5 text-xs text-dimmed tabular-nums"
+        >
+          {{ module.lessons.length }} {{ module.lessons.length === 1 ? 'lesson' : 'lessons' }}
+        </p>
       </div>
 
       <ul

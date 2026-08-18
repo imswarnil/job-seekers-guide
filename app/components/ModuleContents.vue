@@ -18,25 +18,23 @@ const { isComplete } = useProgress()
     >
       <NuxtLink
         :to="lesson.path"
-        class="flex items-center gap-3 px-4 py-3 hover:bg-elevated/50 transition-colors"
+        class="flex items-center gap-3.5 px-4 py-3 hover:bg-elevated/50 transition-colors"
       >
         <span
           v-if="numbered"
           class="text-xs text-dimmed tabular-nums w-5 shrink-0"
         >{{ index + 1 }}</span>
 
+        <!-- Completion lives in localStorage, so the server draws the plain
+             tile and the client swaps in the finished one. -->
         <ClientOnly>
-          <UIcon
-            :name="isComplete(lesson.path) ? 'i-lucide-circle-check' : lessonIcon(lesson)"
-            class="size-4 shrink-0"
-            :class="isComplete(lesson.path) ? 'text-success' : 'text-dimmed'"
+          <LessonThumb
+            :lesson="lesson"
+            :complete="isComplete(lesson.path)"
           />
 
           <template #fallback>
-            <UIcon
-              :name="lessonIcon(lesson)"
-              class="size-4 shrink-0 text-dimmed"
-            />
+            <LessonThumb :lesson="lesson" />
           </template>
         </ClientOnly>
 

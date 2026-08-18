@@ -22,4 +22,9 @@
 
 # The learning path moved from /path to /start.
 /path                     /start         301
-/my-story                 /series/read   301
+
+# The story became one section with two doors: /my-story is now a real page,
+# and the series and the book are children of it.
+/series/read              /my-story/book   301
+/series/*                 /my-story/watch  301
+/series                   /my-story/watch  301

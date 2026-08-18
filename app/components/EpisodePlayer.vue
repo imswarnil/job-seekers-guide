@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const props = defineProps<{
+  youtubeId?: string
   playbackId?: string
   title: string
   episode: number
@@ -11,26 +12,24 @@ const props = defineProps<{
 /**
  * The episode player.
  *
- * Mux's player is a web component and about 200 KB, so it is imported
- * dynamically and only when there is actually something to play. An episode that
- * has not been filmed yet renders a poster and a state — the writing goes up
- * before the video does, which is deliberate: the scripts are worth reading on
- * their own and the series should not be a set of empty pages until it is
- * finished.
+ * YouTube first, because that is where these actually live and Mux bills per
+ * minute delivered. It is a lite embed: a poster and a real link until somebody
+ * presses play, so an episode page costs nothing in third-party JavaScript for
+ * the people who came to read the script.
  *
- * The next-episode card is the thing that makes it feel like television rather
- * than a page with a video on it. It counts down, and any interaction cancels
- * it — an autoplay that fires while somebody is still thinking about the ending
- * is the reason people turn autoplay off everywhere else.
+ * An episode with no video at all is still a real page with a real poster. The
+ * writing goes up before the filming, and ten empty rectangles would say the
+ * series had been abandoned rather than that it is coming.
  */
-const NEXT_SECONDS = 10
-
-const ready = ref(false)
-const failed = ref(false)
+const playing = ref(false)
 const ended = ref(false)
-const remaining = ref(NEXT_SECONDS)
+const remaining = ref(10)
 
-const hasVideo = computed(() => Boolean(props.playbackId))
+const hasYoutube = computed(() => Boolean(props.youtubeId))
+const hasMux = computed(() => Boolean(props.playbackId))
+const hasVideo = computed(() => hasYoutube.value || hasMux.value)
+
+const muxReady = ref(false)
 
 let timer: ReturnType<typeof setInterval> | undefined
 
@@ -47,7 +46,7 @@ function onEnded() {
     return
   }
   ended.value = true
-  remaining.value = NEXT_SECONDS
+  remaining.value = 10
 
   timer = setInterval(() => {
     remaining.value--
@@ -58,108 +57,162 @@ function onEnded() {
   }, 1000)
 }
 
-onMounted(async () => {
-  if (!hasVideo.value) {
-    return
+async function play() {
+  playing.value = true
+  if (hasMux.value && !hasYoutube.value) {
+    try {
+      await import('@mux/mux-player')
+      muxReady.value = true
+    } catch {
+      playing.value = false
+    }
   }
-  try {
-    await import('@mux/mux-player')
-    ready.value = true
-  } catch {
-    failed.value = true
-  }
-})
+}
 
 onBeforeUnmount(cancel)
 
-// Mux generates a still from the video itself, so an unfilmed episode has no
-// poster and falls through to the drawn placeholder below.
-const posterUrl = computed(() => {
+const poster = computed(() => {
   if (props.poster) {
     return props.poster
+  }
+  if (props.youtubeId) {
+    return `https://i.ytimg.com/vi/${props.youtubeId}/maxresdefault.jpg`
   }
   if (props.playbackId) {
     return `https://image.mux.com/${props.playbackId}/thumbnail.webp?width=1280&fit_mode=smartcrop`
   }
   return undefined
 })
+
+/** `enablejsapi` is what lets the page hear the video end and offer the next. */
+const embedUrl = computed(() => {
+  if (!props.youtubeId) {
+    return ''
+  }
+  const url = new URL(`https://www.youtube-nocookie.com/embed/${props.youtubeId}`)
+  url.searchParams.set('autoplay', '1')
+  url.searchParams.set('rel', '0')
+  url.searchParams.set('modestbranding', '1')
+  url.searchParams.set('enablejsapi', '1')
+  return url.toString()
+})
+
+const watchUrl = computed(() =>
+  props.youtubeId ? `https://www.youtube.com/watch?v=${props.youtubeId}` : undefined
+)
+
+// YouTube posts player-state messages when `enablejsapi` is on. State 0 is
+// "ended", which is the only one this page needs.
+useEventListener('message', (event: MessageEvent) => {
+  if (!playing.value || !hasYoutube.value) {
+    return
+  }
+  if (typeof event.origin !== 'string' || !event.origin.includes('youtube')) {
+    return
+  }
+  try {
+    const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data
+    if (data?.event === 'infoDelivery' && data?.info?.playerState === 0) {
+      onEnded()
+    }
+  } catch {
+    // Not a message meant for us.
+  }
+})
 </script>
 
 <template>
-  <div class="episode-player">
+  <div class="player">
+    <iframe
+      v-if="playing && hasYoutube"
+      :src="embedUrl"
+      :title="title"
+      class="player__frame"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    />
+
     <mux-player
-      v-if="hasVideo && ready"
+      v-else-if="playing && muxReady"
       :playback-id="playbackId"
       :metadata-video-title="title"
-      :poster="posterUrl"
+      :poster="poster"
       stream-type="on-demand"
       accent-color="#4338ca"
-      class="episode-player__mux"
+      class="player__frame"
       @ended="onEnded"
     />
 
-    <!-- The unfilmed state. A real poster with the episode number and title, not
-         a grey box: this page is worth landing on before the video exists. -->
-    <div
+    <!-- Poster. A real anchor to YouTube underneath, so it works with no
+         JavaScript and can be middle-clicked. -->
+    <component
+      :is="watchUrl ? 'a' : 'div'"
       v-else
-      class="episode-player__placeholder"
+      :href="watchUrl"
+      target="_blank"
+      rel="noopener"
+      class="player__poster"
+      :class="!hasVideo && 'player__poster--empty'"
+      @click="hasVideo ? ($event.preventDefault(), play()) : undefined"
     >
-      <div class="absolute inset-0 guide-contour opacity-40" />
+      <img
+        v-if="poster"
+        :src="poster"
+        :alt="title"
+        class="player__still"
+      >
+      <div
+        v-else
+        class="absolute inset-0 guide-contour opacity-40"
+      />
 
-      <div class="relative text-center px-6">
-        <p class="text-xs uppercase tracking-[0.2em] text-[color:var(--guide-inverse-muted)]">
-          Episode {{ String(episode).padStart(2, '0') }}
-        </p>
-        <p class="font-display text-2xl sm:text-3xl font-bold mt-2 text-[color:var(--guide-inverse-ink)] text-balance">
-          {{ title }}
-        </p>
+      <div class="player__scrim" />
 
-        <p
-          v-if="failed"
-          class="mt-4 text-sm text-[color:var(--guide-inverse-muted)]"
-        >
-          The player could not load. The script is below and reads on its own.
-        </p>
+      <div class="player__overlay">
+        <template v-if="hasVideo">
+          <span class="player__play">
+            <UIcon
+              name="i-lucide-play"
+              class="size-7"
+            />
+          </span>
+          <p class="player__hint">
+            Nothing loads from YouTube until you press play
+          </p>
+        </template>
 
-        <div
-          v-else-if="hasVideo"
-          class="mt-4 flex items-center justify-center gap-2 text-sm text-[color:var(--guide-inverse-muted)]"
-        >
-          <UIcon
-            name="i-lucide-loader-circle"
-            class="size-4 animate-spin"
-          />
-          Loading the player
-        </div>
-
-        <div
-          v-else
-          class="mt-5 inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-1.5 text-sm text-[color:var(--guide-inverse-muted)]"
-        >
-          <UIcon
-            name="i-lucide-clapperboard"
-            class="size-4"
-          />
-          Not filmed yet<span v-if="runtime"> · about {{ runtime }}</span>
-        </div>
-
-        <p class="mt-4 text-sm text-[color:var(--guide-inverse-muted)] max-w-sm mx-auto">
-          The full script is below. It was written to be read.
-        </p>
+        <template v-else>
+          <p class="player__kicker">
+            Episode {{ String(episode).padStart(2, '0') }}
+          </p>
+          <p class="player__title">
+            {{ title }}
+          </p>
+          <span class="player__badge">
+            <UIcon
+              name="i-lucide-clapperboard"
+              class="size-4"
+            />
+            Not filmed yet<span v-if="runtime"> · about {{ runtime }}</span>
+          </span>
+          <p class="player__hint">
+            The full script is below. It was written to be read.
+          </p>
+        </template>
       </div>
-    </div>
+    </component>
 
-    <!-- Up next, over the finished frame. -->
     <Transition name="up-next">
       <div
         v-if="ended && next"
-        class="episode-player__next"
+        class="player__next"
       >
         <div class="text-center px-6">
-          <p class="text-xs uppercase tracking-[0.18em] text-[color:var(--guide-inverse-muted)]">
+          <p class="player__kicker">
             Up next · Episode {{ String(next.episode).padStart(2, '0') }}
           </p>
-          <p class="font-display text-xl sm:text-2xl font-bold mt-2 text-[color:var(--guide-inverse-ink)] text-balance">
+          <p class="player__title">
             {{ next.title }}
           </p>
 
@@ -184,40 +237,118 @@ const posterUrl = computed(() => {
 </template>
 
 <style scoped>
-.episode-player {
+.player {
   position: relative;
   border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--ui-border);
   background: var(--guide-inverse-bg);
+  aspect-ratio: 16 / 9;
 }
 
-.episode-player__mux {
+.player__frame {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  --controls-backdrop-color: rgb(0 0 0 / 0.4);
+  height: 100%;
+  border: 0;
 }
 
-.episode-player__placeholder {
+.player__poster {
   position: relative;
-  aspect-ratio: 16 / 9;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.player__still {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.player__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, rgb(0 0 0 / 0.7), transparent 60%),
+    radial-gradient(ellipse 70% 70% at 50% 0%, color-mix(in oklab, var(--color-guide-600) 35%, transparent), transparent);
+}
+
+.player__poster--empty .player__scrim {
+  background: radial-gradient(ellipse 70% 70% at 50% 0%, color-mix(in oklab, var(--color-guide-600) 45%, transparent), transparent);
+}
+
+.player__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--guide-inverse-ink);
+}
+
+.player__play {
   display: flex;
   align-items: center;
   justify-content: center;
-  background:
-    radial-gradient(ellipse 70% 70% at 50% 0%, color-mix(in oklab, var(--color-guide-600) 40%, transparent), transparent),
-    var(--guide-inverse-bg);
+  width: 4.25rem;
+  height: 4.25rem;
+  border-radius: 999px;
+  background: var(--color-guide-600);
+  color: white;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.45);
+  transition: transform var(--dgm-t-fast) var(--dgm-ease);
+  padding-left: 0.2rem;
 }
 
-.episode-player__next {
+.player__poster:hover .player__play {
+  transform: scale(1.08);
+}
+
+.player__kicker {
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--guide-inverse-muted);
+}
+
+.player__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 3vw, 1.875rem);
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+.player__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 0.2);
+  font-size: 0.8125rem;
+  color: var(--guide-inverse-muted);
+}
+
+.player__hint {
+  font-size: 0.75rem;
+  color: var(--guide-inverse-muted);
+  max-width: 22rem;
+}
+
+.player__next {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: color-mix(in oklab, var(--guide-inverse-bg) 88%, transparent);
+  background: color-mix(in oklab, var(--guide-inverse-bg) 90%, transparent);
   backdrop-filter: blur(6px);
+  color: var(--guide-inverse-ink);
 }
 
 .up-next-enter-active,

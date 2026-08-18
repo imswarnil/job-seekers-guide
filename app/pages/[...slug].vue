@@ -107,12 +107,18 @@ usePageSeo({
     />
 
     <template #aside>
-      <UContentToc
+      <!-- `shell-toc` is the hook PlayerShell uses to let the contents scroll
+           on its own rather than pushing everything under it off screen. -->
+      <div
         v-if="toc.length"
-        :links="toc"
-        highlight
-        class="!bg-transparent !border-0 !p-0 !static"
-      />
+        class="shell-toc"
+      >
+        <UContentToc
+          :links="toc"
+          highlight
+          class="!bg-transparent !border-0 !p-0 !static"
+        />
+      </div>
 
       <AdSlot
         placement="sidebar"

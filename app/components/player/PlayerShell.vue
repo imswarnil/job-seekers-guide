@@ -9,7 +9,10 @@ const { isNarrow, open, collapsed, toggle, close } = useRail()
 </script>
 
 <template>
-  <div class="shell">
+  <div
+    class="shell"
+    :data-rail="!bare && collapsed ? 'collapsed' : undefined"
+  >
     <!-- The rail is a column, not a layout, so the same component serves the
          lesson player, the subject page and the mobile slideover. -->
     <aside
@@ -160,6 +163,14 @@ const { isNarrow, open, collapsed, toggle, close } = useRail()
   max-width: 88rem;
   margin-inline: auto;
   padding-inline: 1rem;
+  transition: max-width var(--dgm-t-base) var(--dgm-ease);
+}
+
+/* Hiding the rail gives its width back to the content rather than to the
+   margins. Capped all the same: past this the prose stops being readable and
+   the page is just wide. */
+.shell[data-rail='collapsed'] .shell__inner {
+  max-width: 100rem;
 }
 
 @media (min-width: 640px) {
@@ -214,8 +225,24 @@ const { isNarrow, open, collapsed, toggle, close } = useRail()
   flex-direction: column;
   gap: 1.75rem;
   max-height: calc(100vh - var(--ui-header-height) - 3rem);
+  overscroll-behavior: contain;
+}
+
+/* The contents takes whatever height is left and scrolls inside itself. When
+   the whole column scrolled as one, a long contents pushed the ad and the page
+   actions below the fold and was itself cut off half way down — so the reader
+   could see neither the end of the lesson's own outline nor anything under it. */
+.shell__aside-inner :slotted(.shell-toc) {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* Room for the scrollbar so the text does not sit under it. */
+  padding-right: 0.25rem;
+}
+
+.shell__aside-inner :slotted(:not(.shell-toc)) {
+  flex-shrink: 0;
 }
 
 .shell__pagination {

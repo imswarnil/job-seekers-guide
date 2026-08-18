@@ -6,7 +6,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
  * Five items, and that is close to the ceiling — a nav people scan rather than
  * read is a nav that has stopped working. `/run` is deliberately not here: it is
  * a component demonstrated inside lessons, not a destination somebody navigates
- * to, and the story lives under the series rather than as a separate entry.
+ * to, and the story is one entry with two doors behind it.
  *
  * Every item carries an icon, because this list is rendered three ways — the
  * desktop menu, the mobile sheet and the command palette — and the palette is
@@ -19,7 +19,7 @@ export const navLinks: NavigationMenuItem[] = [{
 }, {
   label: 'My story',
   icon: 'i-lucide-clapperboard',
-  to: '/series'
+  to: '/my-story'
 }, {
   label: 'About',
   icon: 'i-lucide-info',

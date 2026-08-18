@@ -7,7 +7,6 @@ const description = 'One sequence, end to end. Orientation first, foundations se
 
 usePageSeo({ title, description, headline: 'Everything, in order' })
 
-const groups = computed(() => byStage(path.value))
 const progress = computed(() => pathProgress(path.value))
 const resumeTo = computed(() => resume(path.value))
 
@@ -15,13 +14,6 @@ const resumeTo = computed(() => resume(path.value))
 // as having started, whether or not anything was ever ticked off — a reader who
 // stopped half way through does not want to be told to begin.
 const returning = computed(() => Boolean(state.value.lastVisited) || pathProgress(path.value).started)
-
-/** Running index across the whole path, so numbering does not restart per stage. */
-const positions = computed(() => {
-  const map = new Map<string, number>()
-  path.value.subjects.forEach((subject, index) => map.set(subject.path, index))
-  return map
-})
 </script>
 
 <template>
@@ -94,24 +86,13 @@ const positions = computed(() => {
         </UPageCard>
       </ClientOnly>
 
-      <div
-        v-for="group in groups"
-        :key="group.label"
-        class="mb-12"
-      >
-        <h2 class="font-display text-lg font-semibold text-highlighted mb-4">
-          {{ group.label }}
-        </h2>
-
-        <UPageGrid>
-          <SubjectCard
-            v-for="subject in group.subjects"
-            :key="subject.path"
-            :subject="subject"
-            :index="positions.get(subject.path)"
-          />
-        </UPageGrid>
-      </div>
+      <!-- The route as one connected line rather than a grid of cards. A grid
+           says "pick one of eleven", which is the decision the visitor arrived
+           here unable to make; a line says "this is the order". -->
+      <PathTimeline
+        :path="path"
+        class="mb-14"
+      />
 
       <AdSlot
         placement="in-article"

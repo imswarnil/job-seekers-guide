@@ -81,7 +81,11 @@ export default defineNuxtConfig({
     // `/path` was the first name for the curriculum index. "Start here" is what
     // somebody frightened of the whole thing actually needs to read.
     '/path': { redirect: { to: '/start', statusCode: 301 }, prerender: false },
-    '/my-story': { redirect: { to: '/series/read', statusCode: 301 }, prerender: false },
+    // The story moved under one roof: an overview at `/my-story`, with the
+    // series and the book as children of it.
+    '/series': { redirect: { to: '/my-story/watch', statusCode: 301 }, prerender: false },
+    '/series/read': { redirect: { to: '/my-story/book', statusCode: 301 }, prerender: false },
+    '/series/**': { redirect: { to: '/my-story/watch', statusCode: 301 }, prerender: false },
     '/docs': { redirect: { to: '/about', statusCode: 301 }, prerender: false },
     '/docs/getting-started/**': { redirect: { to: '/about', statusCode: 301 }, prerender: false },
     '/docs/curriculum/**': { redirect: { to: '/start', statusCode: 301 }, prerender: false },
@@ -102,8 +106,8 @@ export default defineNuxtConfig({
         '/',
         '/start',
         '/my-story',
-        '/series',
-        '/series/read',
+        '/my-story/watch',
+        '/my-story/book',
         '/run',
         '/about',
         '/faq',
@@ -140,7 +144,17 @@ export default defineNuxtConfig({
       name: 'Job Seekers Guide',
       // No `url` on purpose — it is derived from `site.url` above, so moving
       // the site does not leave a stale domain buried in the structured data.
-      description: 'A free, ordered learning path from no experience to a first software job.'
+      description: 'A free, ordered learning path from no experience to a first software job.',
+      // The person behind it, named. A site whose whole argument is "somebody
+      // who has done this is telling you the order" should say who that is in
+      // the machine-readable copy as well as in the prose.
+      founder: {
+        '@type': 'Person',
+        'name': 'Swarnil Singhai',
+        'jobTitle': 'Salesforce engineer',
+        'sameAs': ['https://github.com/imswarnil', 'https://topmate.io/swarnil']
+      },
+      sameAs: ['https://github.com/imswarnil/job-seekers-guide']
     }
   },
 
@@ -153,6 +167,6 @@ export default defineNuxtConfig({
     // URLs are harvested from the prerender crawl, which reaches every lesson
     // through the server-rendered player rail. The legacy paths below only exist
     // as redirects and must not be advertised as destinations.
-    exclude: ['/login', '/signup', '/search', '/courses/**', '/docs/**', '/blog/**', '/path', '/my-story']
+    exclude: ['/login', '/signup', '/search', '/courses/**', '/docs/**', '/blog/**', '/path', '/series', '/series/**']
   }
 })

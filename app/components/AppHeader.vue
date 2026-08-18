@@ -32,21 +32,13 @@ const continueLabel = computed(() => progress.value.started ? 'Continue' : 'Star
 
 <template>
   <div>
-    <!-- The leaderboard sits above the header rather than inside it, so it can
-         never push the nav around: the header keeps its own height whatever the
-         slot does, and the slot reserves its box before anything loads. -->
-    <AdSlot
-      placement="nav-leaderboard"
-      variant="banner"
-    />
-
     <UHeader v-model:open="open">
       <template #left>
         <NuxtLink
           to="/"
           aria-label="Job Seekers Guide"
         >
-          <AppLogo interactive />
+          <AppLogo />
         </NuxtLink>
       </template>
 

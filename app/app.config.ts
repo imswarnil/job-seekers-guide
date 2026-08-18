@@ -52,6 +52,18 @@ export default defineAppConfig({
    * Advertising. `enabled: false` removes every slot site-wide, including the
    * ones authors placed inline in markdown.
    */
+  /**
+   * Where the newsletter form posts.
+   *
+   * The site is static, so there is no endpoint of our own to post to — set
+   * this to a provider's form URL (Buttondown, ConvertKit, Formspark, a Worker,
+   * whatever) and the form starts working. Empty means the component renders a
+   * disabled state rather than quietly discarding addresses.
+   */
+  newsletter: {
+    action: ''
+  },
+
   ads: {
     /** Master switch. No real ad renders while this is off. */
     enabled: false,
@@ -68,7 +80,6 @@ export default defineAppConfig({
     client: '',
     /** Per-placement switches. See app/utils/ads.ts for what each one is. */
     slots: {
-      'nav-leaderboard': true,
       'in-article': true,
       'lesson-footer': true,
       'sidebar': true,

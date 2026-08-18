@@ -26,6 +26,29 @@ type Kind = keyof typeof kinds
 
 const formatter = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 const when = (date: string | Date) => formatter.format(new Date(date))
+
+/** `1.2.0` → `1-2-0`, so a release has an address somebody can send. */
+const anchor = (version?: string, fallback = '') =>
+  (version ? `v${version}` : fallback).toLowerCase().replace(/[^\w]+/g, '-')
+
+const latest = computed(() => versions.value?.[0])
+
+const site = useSiteConfig()
+
+/* Releases are the one thing on this site that genuinely is a feed of dated
+   articles, so they are marked up as one. */
+useSchemaOrg([
+  defineItemList({
+    name: 'Releases',
+    itemListElement: (versions.value || []).map(version => ({
+      '@type': 'TechArticle',
+      'headline': version.title,
+      'description': version.description,
+      'datePublished': new Date(version.date).toISOString(),
+      'url': `${site.url}/changelog#${anchor(version.version, version.title)}`
+    }))
+  })
+])
 </script>
 
 <template>
@@ -37,26 +60,70 @@ const when = (date: string | Date) => formatter.format(new Date(date))
       <p class="mt-3 text-lg text-muted text-balance">
         {{ page?.description }}
       </p>
+
+      <p
+        v-if="latest?.version"
+        class="mt-5 inline-flex items-center gap-2 text-sm"
+      >
+        <span class="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary px-2.5 py-1 text-xs font-semibold tabular-nums">
+          <UIcon
+            name="i-lucide-tag"
+            class="size-3"
+          />
+          v{{ latest.version }}
+        </span>
+        <span class="text-dimmed">latest, {{ when(latest.date) }}</span>
+      </p>
     </div>
 
-    <ol class="changelog mt-12">
+    <!-- One spine down the left with a cover hanging off each release. A list
+         of dated headings does not read as a history; a line does. -->
+    <ol class="log">
       <li
         v-for="version in versions"
+        :id="anchor(version.version, version.title)"
         :key="version.path"
-        class="changelog__entry"
+        class="log__entry"
       >
-        <div class="changelog__meta">
-          <time
-            :datetime="String(version.date)"
-            class="text-xs text-dimmed tabular-nums whitespace-nowrap"
-          >{{ when(version.date) }}</time>
+        <span
+          class="log__node"
+          aria-hidden="true"
+        />
+
+        <div class="log__cover">
+          <ReleaseThumb
+            :version="version.version"
+            :codename="version.codename"
+            :date="version.date"
+          />
         </div>
 
         <div class="min-w-0">
-          <h2 class="font-display text-lg font-semibold text-highlighted text-balance">
+          <p class="log__meta">
+            <span
+              v-if="version.version"
+              class="log__version"
+            >v{{ version.version }}</span>
+            <time
+              :datetime="String(version.date)"
+              class="tabular-nums"
+            >{{ when(version.date) }}</time>
+            <a
+              :href="`#${anchor(version.version, version.title)}`"
+              class="log__link"
+              aria-label="Link to this release"
+            >
+              <UIcon
+                name="i-lucide-link"
+                class="size-3"
+              />
+            </a>
+          </p>
+
+          <h2 class="log__title">
             {{ version.title }}
           </h2>
-          <p class="text-sm text-muted mt-1 text-balance">
+          <p class="log__desc">
             {{ version.description }}
           </p>
 
@@ -71,7 +138,7 @@ const when = (date: string | Date) => formatter.format(new Date(date))
               class="flex items-start gap-2.5"
             >
               <span
-                class="changelog__badge"
+                class="log__badge"
                 :class="[kinds[change.type as Kind].bg, kinds[change.type as Kind].tone]"
               >
                 <UIcon
@@ -113,41 +180,122 @@ const when = (date: string | Date) => formatter.format(new Date(date))
 </template>
 
 <style scoped>
-.changelog {
+.log {
   list-style: none;
-  margin: 0;
-  padding: 0;
+  margin: 3rem 0 0;
+  padding: 0 0 0 2rem;
   position: relative;
 }
 
-.changelog__entry {
-  display: grid;
-  gap: 0.5rem 2rem;
-  padding-bottom: 2.5rem;
+/* The spine, drawn once behind every entry. */
+.log::before {
+  content: '';
+  position: absolute;
+  left: 0.28rem;
+  top: 0.75rem;
+  bottom: 2rem;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, var(--ui-primary), var(--ui-border-accented));
+  opacity: 0.4;
 }
 
-@media (min-width: 768px) {
-  .changelog__entry {
-    grid-template-columns: 7rem 1fr;
+.log__entry {
+  position: relative;
+  display: grid;
+  gap: 1.25rem;
+  padding-bottom: 3.5rem;
+  /* Anchored links land under the sticky header without it. */
+  scroll-margin-top: calc(var(--ui-header-height) + 2rem);
+}
+
+@media (min-width: 900px) {
+  .log__entry {
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: start;
   }
 }
 
-.changelog__meta {
-  padding-top: 0.35rem;
+.log__node {
+  position: absolute;
+  left: -2rem;
+  top: 0.55rem;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 999px;
+  background: var(--ui-bg);
+  border: 2px solid var(--ui-primary);
 }
 
-.changelog__badge {
+.log__entry:first-child .log__node {
+  background: var(--ui-primary);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--ui-primary) 16%, transparent);
+}
+
+.log__cover {
+  max-width: 15rem;
+}
+
+.log__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.75rem;
+  color: var(--ui-text-dimmed);
+}
+
+.log__version {
+  font-weight: 700;
+  color: var(--ui-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.log__link {
+  color: var(--ui-text-dimmed);
+  opacity: 0;
+  transition: opacity var(--dgm-t-fast) var(--dgm-ease);
+}
+
+.log__entry:hover .log__link,
+.log__link:focus-visible {
+  opacity: 1;
+}
+
+.log__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--ui-text-highlighted);
+  margin-top: 0.35rem;
+  text-wrap: balance;
+}
+
+.log__desc {
+  font-size: 0.9375rem;
+  color: var(--ui-text-muted);
+  margin-top: 0.35rem;
+  text-wrap: pretty;
+}
+
+.log__badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.3rem;
   flex-shrink: 0;
-  padding: 0.1rem 0.4rem;
+  padding: 0.1rem 0.45rem;
   border-radius: var(--radius-xs);
   font-size: 0.625rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  margin-top: 0.1rem;
-  min-width: 4.5rem;
+  margin-top: 0.15rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .log__link {
+    transition: none;
+  }
 }
 </style>

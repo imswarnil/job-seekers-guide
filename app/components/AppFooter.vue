@@ -38,15 +38,18 @@ const columns = computed(() => [{
     <template #top>
       <UContainer>
         <UFooterColumns :columns="columns">
+          <!-- The fourth column. The list used to be repeated on six pages,
+               which meant six chances to ask and one to annoy; in the footer it
+               is offered once, everywhere, and never interrupts anything. -->
           <template #right>
-            <div class="max-w-xs">
-              <p class="font-display font-semibold text-highlighted">
-                Free core path, forever
-              </p>
-              <p class="mt-2 text-sm text-muted">
-                Orientation, foundations, one language, projects and the job hunt
-                stay free. Anything charged for later has to be genuinely
-                additional — never the map itself.
+            <div class="max-w-sm">
+              <NewsletterSignup
+                variant="inline"
+                title="Get told when something lands"
+              />
+              <p class="mt-4 text-xs text-dimmed">
+                New lessons, new chapters, new episodes. No more than one email a
+                month, and nothing else — ever.
               </p>
             </div>
           </template>

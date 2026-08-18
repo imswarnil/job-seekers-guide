@@ -95,12 +95,17 @@ const glyphSizes = {
 /* The brand colours are picked to pass on a light surface; against a dark one
    several of them (MySQL, Oracle, SQLite) go muddy, so the wash carries more of
    the work and the glyph is lightened toward the page. */
-:global(.dark) .tech__tile {
+/* `.dark` rather than `:global(.dark)`. Scoped CSS already puts the scope
+   attribute on the last compound only, so `.dark .x` compiles to
+   `.dark .x[data-v-…]` and matches the class on `<html>`. Wrapping the ancestor
+   in `:global()` here does not survive the build — the descendant is dropped
+   and the declarations land on `<html>` itself. */
+.dark .tech__tile {
   background: color-mix(in oklab, var(--tech) 22%, transparent);
   border-color: color-mix(in oklab, var(--tech) 34%, transparent);
 }
 
-:global(.dark) .tech__glyph {
+.dark .tech__glyph {
   color: color-mix(in oklab, var(--tech) 72%, white);
 }
 
