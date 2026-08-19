@@ -27,9 +27,13 @@ const thumbs = computed(() => {
 
   const haystack = `${props.subject.slug} ${props.subject.title}`.toLowerCase()
   const guesses: Record<string, string[]> = {
+    'terminal': ['linux', 'git'],
+    'toolchain': ['node'],
+    'hosting': ['git', 'linux'],
+    'nosql': ['mongodb'],
+    'data-visualisation': ['javascript'],
     'operating-systems': ['os', 'linux'],
     'databases': ['sql', 'mysql'],
-    'how-the-industry-works': ['git', 'html'],
     'networks': ['networks'],
     'data-structures': ['dsa'],
     'web': ['html', 'css', 'javascript']

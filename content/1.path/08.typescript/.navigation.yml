@@ -1,0 +1,3 @@
+title: TypeScript — stop shipping preventable bugs
+icon: i-simple-icons-typescript
+description: JavaScript lets you pass a string where a number belongs and find out in production. After Java, this is a homecoming.

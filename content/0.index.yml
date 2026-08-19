@@ -50,26 +50,26 @@ sections:
         icon: i-lucide-briefcase
 features:
   title: What the path actually contains
-  description: Ten modules, roughly forty-four weeks at a relaxed pace or sixteen if you go hard. Assembled from your answers rather than handed to everyone identically.
+  description: Sixteen tracks in one fixed order, and one system built across all of them — UniversityOS, from the first enquiry to the alumni page. There is never a second project.
   items:
-    - title: How the IT industry works
-      description: Product vs service companies, where the money comes from, who you report to, and the vocabulary every team assumes you already have.
-      icon: i-lucide-building-2
-    - title: Computer science foundations
-      description: Operating systems, networks, DBMS, OOP, data structures, software engineering, system design — chunked into semesters so eleven subjects do not arrive as one wall.
-      icon: i-lucide-cpu
-    - title: Databases in practice
-      description: Schema design, normalisation to the point it stops helping, indexes, transactions, and honest SQL vs NoSQL.
+    - title: The machine and the terminal
+      description: What a computer actually does, how to command one without a mouse, and Git — a permanent, reversible history of everything you write.
+      icon: i-lucide-terminal
+    - title: Java, taken all the way
+      description: One language until it is second nature. Objects, collections, streams, tests — and the console engine room of the system you are building.
+      icon: i-simple-icons-openjdk
+    - title: SQL, properly
+      description: Schema design, joins, window functions, transactions and indexes. The longest-lived skill here, and the one almost every data-touching role asks for.
       icon: i-lucide-database
-    - title: Four escalating projects
-      description: Proof of work beats certificates at a fraction of the cost. Each project is larger than the last and ends up on your resume.
-      icon: i-lucide-hammer
-    - title: English and communication
-      description: Runs in parallel throughout, not as a bolt-on. Standups, code reviews, and HR rounds are all conducted in it.
-      icon: i-lucide-message-circle
-    - title: Offer, joining and first switch
-      description: The first offer may be small. Take it anyway — here is why, and here is exactly what happens next.
-      icon: i-lucide-trending-up
+    - title: The web, in the order it was invented
+      description: HTML, CSS, JavaScript, charts, tooling, TypeScript, React, Next.js. Each one arrives because the one before it hit a wall.
+      icon: i-lucide-globe
+    - title: A real backend, and going live
+      description: Hosted Postgres with real logins and permissions the database enforces, then a domain, DNS and a deploy from a Git push.
+      icon: i-lucide-server
+    - title: AI last, on purpose
+      description: An assistant that turns a question into a query and shows its working. You earn the right to build it by being able to tell when it is wrong.
+      icon: i-lucide-sparkles
 testimonials:
   headline: Who this was built for
   title: Four people, one map
@@ -93,10 +93,10 @@ testimonials:
         description: Time-boxed and owed the truth
 cta:
   title: Start where the path starts
-  description: Module zero, two weeks, mandatory for everyone including computer science graduates. It is the module self-taught developers skip, and it shows in interviews.
+  description: Track zero, three weeks, mandatory for everyone including computer science graduates. It is the track self-taught developers skip, and it shows in interviews.
   links:
-    - label: Open module zero
-      to: /how-the-industry-works
+    - label: Open track zero
+      to: /terminal
       trailingIcon: i-lucide-arrow-right
     - label: Read the principles
       to: /about

@@ -364,7 +364,7 @@ defineShortcuts({
     >
       <template #footer>
         <UButton
-          to="/how-the-industry-works/the-vocabulary/the-teaching-components"
+          to="/terminal/how-this-course-works/how-to-read-these-lessons"
           label="See it in a lesson"
           variant="subtle"
           trailing-icon="i-lucide-arrow-right"

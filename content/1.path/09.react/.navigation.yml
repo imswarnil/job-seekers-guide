@@ -1,0 +1,3 @@
+title: React — build interfaces out of pieces
+icon: i-simple-icons-react
+description: Hand-writing DOM updates does not scale past one screen. This is how most of the industry builds interfaces.

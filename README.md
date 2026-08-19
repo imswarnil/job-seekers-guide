@@ -50,13 +50,16 @@ file. The numeric prefixes are the **only** place the order of the curriculum is
 written down, so reordering it is a `git mv` and there is no manifest to drift.
 
 ```
-content/1.path/0.how-the-industry-works/
-├── .navigation.yml            # title + icon
-├── index.md                   # → /how-the-industry-works
-└── 1.what-is-software/
+content/1.path/00.terminal/
+├── .navigation.yml            # title + icon + description
+├── index.md                   # → /terminal
+└── 02.the-terminal/
     ├── .navigation.yml
-    └── 1.what-is-software.md  # → /how-the-industry-works/what-is-software/what-is-software
+    └── 03.reading-and-searching.md  # → /terminal/the-terminal/reading-and-searching
 ```
+
+Prefixes are zero-padded to two digits. Ordering is a string sort on the file
+path, so `10.` would otherwise sort before `2.`
 
 The collection sets `prefix: '/'`, which is what strips `1.path` from the URL
 while keeping the curriculum in one directory.
@@ -69,8 +72,8 @@ instead of letting that happen.
 ## The player, not a doc page
 
 `prev` and `next` index into **every lesson on the platform**, not into the
-current subject. The last lesson of Operating Systems goes forward into
-Databases, and the first lesson of a subject goes back into the one before it.
+current subject. The last lesson of the terminal track goes forward into Java,
+and the first lesson of a subject goes back into the one before it.
 That single decision — `app/composables/usePath.ts` — is what makes it a path
 rather than a catalogue.
 
@@ -97,7 +100,11 @@ Two rules they all follow:
 
 House style for lessons is in [`.studio/lesson-style.md`](./.studio/lesson-style.md).
 
-A live example of every component: `/how-the-industry-works/the-vocabulary/the-teaching-components`.
+A live example of every component: `/terminal/how-this-course-works/how-to-read-these-lessons`.
+
+What gets written, in what order, and in whose voice is
+[`content-plan.md`](./content-plan.md); the working rules for authoring against
+this platform are [`CLAUDE.md`](./CLAUDE.md).
 
 ## The code runner
 
