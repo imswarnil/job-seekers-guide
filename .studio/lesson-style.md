@@ -2,8 +2,10 @@
 
 The curriculum this is written against — every track, chapter and lesson, in
 order, with the cliffhanger each one ends on — is `content-plan.md` in the
-repository root. The working rules for authoring it are `CLAUDE.md`. This file is
-the short version: voice, front matter, and the shape of a page.
+repository root. The voice and the teaching rules are
+`plan/content-writing-guidelines.md`. The working rules for authoring on this
+platform are `CLAUDE.md`. This file is the short version: voice, front matter,
+and the shape of a page.
 
 ## The shape
 
@@ -94,7 +96,7 @@ The reader has been rejected more than once and is short on time and confidence.
 - Pretending a trade-off does not exist. Use `::pros-cons`.
 - More than one accent colour in a single diagram.
 - Two ideas in one lesson. Split it instead.
-- Generic examples. Everything belongs to the university and to UniversityOS —
-  no `foo`, no `Animal`, no `employees` table, no to-do apps.
+- Generic examples. Everything belongs to the university and to the University
+  Management App — no `foo`, no `Animal`, no `employees` table, no to-do apps.
 - Handing over a practice answer before the reader has attempted it.
 - The word "capstone". Say "the finished system" or "the assembly lesson".

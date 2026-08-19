@@ -47,7 +47,7 @@ spent a day certain something was.
   :::
 ::
 
-## What UniversityOS becomes
+## What the University Management App becomes
 
 Live. On a real domain, over HTTPS, deployed from a push, with a preview URL for
 every branch and a production environment you can roll back.

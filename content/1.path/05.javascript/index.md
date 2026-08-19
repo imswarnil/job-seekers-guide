@@ -59,7 +59,7 @@ catch people out.
   :::
 ::
 
-## What UniversityOS becomes
+## What the University Management App becomes
 
 Interactive. Live validation on the enquiry form, instant search over the student
 directory, filters that work without a page reload, and data fetched and

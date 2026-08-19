@@ -50,7 +50,7 @@ sections:
         icon: i-lucide-briefcase
 features:
   title: What the path actually contains
-  description: Sixteen tracks in one fixed order, and one system built across all of them — UniversityOS, from the first enquiry to the alumni page. There is never a second project.
+  description: Sixteen tracks in one fixed order, and one system built across all of them — the University Management App, from the first enquiry to the alumni page. There is never a second project.
   items:
     - title: The machine and the terminal
       description: What a computer actually does, how to command one without a mouse, and Git — a permanent, reversible history of everything you write.

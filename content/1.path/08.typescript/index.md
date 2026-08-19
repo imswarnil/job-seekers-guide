@@ -8,7 +8,7 @@ icon: i-simple-icons-typescript
 outcomes:
   - Describe the shape of your data and let the compiler hold you to it
   - Read a type error and know which of the two sides is actually wrong
-  - Type the UniversityOS data models once and use them everywhere
+  - Type the University Management App data models once and use them everywhere
   - Say honestly what TypeScript costs as well as what it gives
 prerequisites:
   - toolchain
@@ -51,11 +51,11 @@ cons:
   :::
   :::flow-step{label="Generics and the real project" icon="i-lucide-braces"}
   Generic functions and types, typing the fetch layer, and converting the
-  UniversityOS front end file by file.
+  the University Management App front end file by file.
   :::
 ::
 
-## What UniversityOS becomes
+## What the University Management App becomes
 
 Typed. The data models written once, shared between the pages and the fetch
 layer, and a build that refuses to complete when the shapes disagree.

@@ -110,7 +110,7 @@ before the command, not after it. Read those two twice.
 ## One system, the whole way through
 
 Everything in this course — every example, every exercise, every table and page —
-belongs to one system called **UniversityOS**: the software a university would
+belongs to one system called the **University Management App**: the software a university would
 actually run, from a prospective student's first enquiry through admission,
 fees, attendance, results and placement.
 

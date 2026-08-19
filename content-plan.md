@@ -1,4 +1,4 @@
-# universityos-content.md — the complete build spec
+# content-plan.md — the complete build spec
 ## *"Notes from a job seeker, 2027"* — foundation first, core computer science next, technologies after that, and the real project last
 
 **Read this file once, end to end, then build the whole course.** This is the single,
@@ -23,7 +23,7 @@ project specification, and the exact order to build in.
 > DNS, and AI. Each one earned by a wall the reader has already hit.
 >
 > **Part D — The project, last.** With the foundation solid and every technology in hand,
-> the reader builds **UniversityOS** — a complete university management system — end to
+> the reader builds the **University Management App** — a complete university management system — end to
 > end, and deploys it on a real domain.
 >
 > **Part E — The interview.** Turning all of it into a job.
@@ -87,7 +87,7 @@ By the end, someone who started at zero can:
 3. **Reason like an engineer** — pick the right data structure, estimate a cost, explain
    what the operating system and the network are doing underneath, and design a schema
    that won't rot.
-4. **Build and ship a real system** — UniversityOS, front to back, on a real domain.
+4. **Build and ship a real system** — the University Management App, front to back, on a real domain.
 5. **Speak the whole language of the industry** — web, data, cloud, hosting, DNS, AI.
 6. **Pass the interview**, because every lesson quietly trained for it.
 
@@ -114,7 +114,7 @@ The whole course as one chain:
 > project is a swamp → tooling and types → the interface doesn't scale → React → rendering
 > and routing are yours to hand-roll → Next.js → the data is on your laptop → Supabase →
 > only you can reach it → hosting and DNS → it's live but not smart → AI → and now you have
-> everything you need to build the real thing → UniversityOS → and then explain it in an
+> everything you need to build the real thing → the University Management App → and then explain it in an
 > interview.
 
 Each lesson's exact hook is in the map. Use it as the closing beat, unresolved. Open the
@@ -256,7 +256,7 @@ HTML, CSS and JavaScript — no framework, no build step, in-page state only.**
 ```
 --ink-0:#ffffff; --ink-500:#76768a; --ink-900:#191922; --ink-1000:#08080c;
 --signal-500:#f04e2e;   /* the ONE accent: the hook, the error, the wrong result, the danger */
---amber-500:#c1872a;    /* branding only: wordmark, "you built this", the UniversityOS mark */
+--amber-500:#c1872a;    /* branding only: wordmark, "you built this", the University Management App mark */
 --font-display:'Space Grotesk',sans-serif;  --font-body:'Inter',sans-serif;
 --font-slate:'IBM Plex Mono',monospace;     --radius-card:14px; --radius-media:10px;
 ```
@@ -515,7 +515,7 @@ understand the machine and learn to command it.*
 
 **Part A close:** a command cheat sheet, a glossary, an interview Q&A block (what is a
 process, what does a commit contain, compiled versus interpreted, how do you resolve a
-conflict), and an exercise set — set up the `universityos` repository you'll use for the rest
+conflict), and an exercise set — set up the `university-management-app` repository you'll use for the rest
 of the course, make a mess in it, and recover.
 
 ---
@@ -2145,14 +2145,14 @@ real thing."*
 
 ---
 
-# PART D — THE PROJECT: UNIVERSITYOS
+# PART D — THE PROJECT: THE UNIVERSITY MANAGEMENT APP
 ### *Last, on purpose — because now you can actually build it*
 
 *Why the project comes last: a project built while you're still learning teaches you to copy. A
 project built after the foundation teaches you to engineer. Everything in Part D is a decision
 you are now equipped to make, and you'll make each one on paper before you write a line.*
 
-**Name:** **UniversityOS — the operating system for a university.**
+**Name:** **The University Management App** — the software a university actually runs on.
 **Tagline:** *one system, the whole campus — from the first enquiry to the alumni page.*
 
 **How Part D is taught, and this is a hard rule:** every lesson gives the **plan and the
@@ -2161,7 +2161,7 @@ and what "done" looks like — and **never the finished code**, except in the tw
 at the end, which present the completed system as a guided tour. The reader builds it. That is
 the whole point of having done Part B and Part C first.
 
-## §D.1 What UniversityOS is
+## §D.1 What the University Management App is
 
 - **The public site** — the university's website: home, programs, admissions, and the enquiry
   form. Fast, findable, accessible; the front door where a stranger first lands.
@@ -2274,7 +2274,7 @@ the whole point of having done Part B and Part C first.
 
 ### Chapter D.3 — Make it real
 
-398. **Testing UniversityOS** `[A]` `[T]` — unit tests on the rules (eligibility, shortlisting, fee
+398. **Testing the University Management App** `[A]` `[T]` — unit tests on the rules (eligibility, shortlisting, fee
      calculation), integration tests on the API, and one end-to-end test that walks an enquiry all
      the way to admitted.
      *Done when:* deliberately breaking a rule turns a test red before a human notices.
@@ -2318,7 +2318,7 @@ the whole point of having done Part B and Part C first.
 
 ### Chapter D.4 — The finished system
 
-406. **UniversityOS, assembled** `[A]` — the complete system presented end to end as a guided tour:
+406. **The University Management App, assembled** `[A]` — the complete system presented end to end as a guided tour:
      every module, every layer, every decision, with each part tagged to the lesson that taught it.
      The one place in this course where the finished code is shown in full.
      → *You built it, and it's live. Which parts of it are you proud of, and which parts would you
@@ -2353,7 +2353,7 @@ exercise set — add one feature nobody asked for, end to end, and document why 
      a referral beats a hundred applications.
      → *You got the call. The first thing they'll say is "so, tell me about yourself."*
 411. **Talking about yourself, and about what you built** `[C]` — the sixty-second introduction; the
-     two-minute UniversityOS walkthrough that leads with the problem; the decisions, the trade-offs,
+     two-minute University Management App walkthrough that leads with the problem; the decisions, the trade-offs,
      and the one bug story that proves you were really there.
      → *They believe the project. Now they want to watch you think, with nothing to look at.*
 412. **The coding round** `[Q]` `[P]` — thinking out loud, restating the problem, brute force first
@@ -2426,7 +2426,7 @@ Your project · Behavioural.
 Open it in his voice: *"Every one of these you already answered somewhere in this course. This
 page is just them, lined up, so you can hear yourself say it."*
 
-Close it with: the two-minute UniversityOS walkthrough; a mock-interview plan (warm-up →
+Close it with: the two-minute University Management App walkthrough; a mock-interview plan (warm-up →
 coding → fundamentals → database → systems → front-end → design → behavioural); and a one-page
 cheat sheet of the answers most likely to come up.
 
@@ -2435,11 +2435,11 @@ cheat sheet of the answers most likely to come up.
 A closing orientation page, framed as *beyond this course*, in his voice. **Verify any current
 specifics at build time rather than shipping a stale claim.** Cover: where these skills sit in the
 industry now; that the fundamentals in Part B transfer no matter what the frameworks do; what you
-can build (internal tools, dashboards, CRMs and ERPs, SaaS, public sites, APIs — UniversityOS is a
+can build (internal tools, dashboards, CRMs and ERPs, SaaS, public sites, APIs — the University Management App is a
 template for most business software); what this stack is *not* the usual choice for (native
 high-performance mobile, systems programming, machine-learning research, heavy data engineering);
 the roles this opens and the ladders from each; hosting and cost realities; and what to build next
-— extend UniversityOS, then build something that isn't a university, to prove to yourself the
+— extend the University Management App, then build something that isn't a university, to prove to yourself the
 skills were never about the domain.
 
 ---
@@ -2456,7 +2456,7 @@ skills were never about the domain.
    Q&A, and the exercise set.
 3. **Per lesson:** the eleven beats, one idea, the components, the illustration prompt, any
    diagrams, the thumbnail spec, a `go-deeper` reference where it earns its place, and media slots.
-4. **Part D only:** restate what already exists in UniversityOS before each build lesson, and never
+4. **Part D only:** restate what already exists in the University Management App before each build lesson, and never
    contradict an earlier one. Give the plan and the acceptance criteria, not the code.
 5. **The Interview Vault**, then **the real-world map**.
 6. **A final pass over the whole chain:** walk every lesson in order and verify each one's first
@@ -2473,9 +2473,9 @@ skills were never about the domain.
 /part-c-technologies/       c1-html/ c2-css/ c3-javascript/ c4-dataviz/ c5-toolchain/
                             c6-typescript/ c7-react/ c8-nextjs/ c9-supabase/
                             c10-hosting/ c11-ai/
-/part-d-universityos/       d1-design/ d2-build/ d3-real/ d4-finished/
+/part-d-university-management-app/       d1-design/ d2-build/ d3-real/ d4-finished/
 /part-e-interview/
-/universityos/              the system itself: /java-tools /sql /web /ai /README.md
+/university-management-app/              the system itself: /java-tools /sql /web /ai /README.md
 /interview-vault/index.html
 /real-world/index.html
 ```
@@ -2531,7 +2531,7 @@ page. Lesson 421 runs the full-course recall.
   That is where the understanding is built.
 - Don't mingle topics, merge lessons, or skip one; don't open a lesson without answering the
   previous cliffhanger.
-- Don't hand over practice answers first, and don't write UniversityOS for the reader.
+- Don't hand over practice answers first, and don't write the University Management App for the reader.
 - Don't use a generic demo — no to-do apps, no blogs, no `foo`, no `Animal`, no `employees` table.
 - Don't dump long code or long queries.
 - Don't use a word you haven't defined.
@@ -2562,7 +2562,7 @@ page. Lesson 421 runs the full-course recall.
 >
 > So we do the foundation first. Then the tools, and every single one will make sense
 > immediately, because you'll already know what problem it exists to solve. And then — last, when
-> you can actually do it justice — you build the real thing. One system, UniversityOS, live on a
+> you can actually do it justice — you build the real thing. One system, the University Management App, live on a
 > domain you own, that anyone in the world can visit.
 >
 > That system is what got me hired. Not my marks. Not my college. Not a certificate. A link I

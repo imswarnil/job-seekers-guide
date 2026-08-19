@@ -1,6 +1,6 @@
 ---
 title: Supabase — the real backend
-description: UniversityOS needs a database on the internet, real logins, file storage, and permissions the database itself enforces — not permissions your interface politely suggests.
+description: The University Management App needs a database on the internet, real logins, file storage, and permissions the database itself enforces — not permissions your interface politely suggests.
 code: JSG-12
 duration: 4 weeks
 stage: applied
@@ -49,7 +49,7 @@ rotate anything you leak.
   :::
 ::
 
-## What UniversityOS becomes
+## What the University Management App becomes
 
 A genuine backend: hosted data, three real roles, storage for transcripts, live
 updates on the admissions board, and a student who cannot read another student's

@@ -49,7 +49,7 @@ what is sent where.
   :::
 ::
 
-## What UniversityOS becomes
+## What the University Management App becomes
 
 The system a university in 2027 would actually run: a dean types "how many CSE
 applicants scored above 80 this intake?" and gets a number, the query that

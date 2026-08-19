@@ -10,7 +10,7 @@ outcomes:
   - Reason about logic in plain English before writing a line of code
   - Explain what your program is doing to memory while it runs
   - Model a problem with objects, and defend the design in an interview
-  - Build the console engine room of UniversityOS, with tests that catch you breaking it
+  - Build the console engine room of the University Management App, with tests that catch you breaking it
 prerequisites:
   - terminal
 ---
@@ -80,7 +80,7 @@ is normal, it is not a verdict on you, and the chapter opens by saying so.
   :::
 ::
 
-## What UniversityOS becomes
+## What the University Management App becomes
 
 A console tool that turns one applicant's marks into a grade, then a menu-driven
 marks manager, then a genuinely object-oriented admissions system with search,

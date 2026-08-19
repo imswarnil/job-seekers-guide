@@ -53,7 +53,7 @@ Everything was meaningless.
 The web-skills roadmap at `andreasbm.github.io/web-skills` is the map this track
 and the next three cover. Look at it once, then close it — a map is not a plan.
 
-## What UniversityOS becomes
+## What the University Management App becomes
 
 Real pages: the public enquiry form, the student directory, and the shells of the
 student, teacher and admin portals. Unstyled, ugly, and for the first time,

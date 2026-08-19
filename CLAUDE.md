@@ -4,13 +4,22 @@ This file governs **the course** — everything under `content/1.path/`. It does
 govern `content/6.story/` (the book), `content/5.series/` (the episodes) or the
 marketing pages; those have their own voice and are left alone.
 
-The full specification is `content-plan.md` in the repository root. That file is
-the source of truth for **what** gets taught, in **what order**, and in **whose
-voice**. This file is the working translation of it onto this platform: the
-folders, the front matter, the components, and the checks to run before calling a
-lesson done. When the two disagree about substance, `content-plan.md` wins. When
-they disagree about mechanics — a component name, a front-matter field — this
-file wins, because it describes what actually renders.
+Three files govern a lesson, and they do not overlap:
+
+| File | Governs | Wins on |
+| --- | --- | --- |
+| `plan/content-writing-guidelines.md` | The narrator, the eleven beats, the teaching habits, the practice rule, tone | **How it reads** |
+| `content-plan.md` | Every track, chapter and lesson, in order, with the hook each one ends on | **What is taught, in what order** |
+| `CLAUDE.md` (this file) | Folders, front matter, component names, the checks | **What actually renders** |
+
+When they disagree: voice and pedagogy go to
+`plan/content-writing-guidelines.md`; substance and ordering go to
+`content-plan.md`; mechanics go to this file, because a pedagogy document cannot
+invent a component that does not exist.
+
+Read all three before writing a lesson rather than working from memory of them.
+The `write-lesson` skill in `.claude/skills/` does this for you and carries the
+checklist; `draw-diagram` covers pictures.
 
 ---
 
@@ -90,7 +99,7 @@ A beginner drowns when two new ideas arrive at once.
 ## 4. The university rule
 
 **Every example, variable, table, component, page, chart and exercise belongs to
-the university world, and once we can build, to UniversityOS.**
+the university world, and once we can build, to the University Management App.**
 
 The cast, used everywhere: `Applicant`, `Application`, `Program`, `Department`,
 `Student`, `Faculty`, `Subject`, `ExamResult`, `Attendance`, `FeePayment`,
@@ -104,10 +113,10 @@ Even throwaway values belong to the world: `score`, `applicantName`, `cutoff`,
 the generic tutorial schemas (`employees`, `customers`, `orders`, `products`),
 and to-do apps, blogs, e-commerce stores and weather apps as project examples.
 
-UniversityOS — the one system the whole course builds — is specified in
-`content-plan.md` §26. There is never a second project and never a throwaway
-app. Before writing a build lesson, restate to yourself what already exists in
-UniversityOS and do not contradict it.
+The University Management App — the one system the whole course builds — is
+specified in `content-plan.md` §26. There is never a second project and never a
+throwaway app. Before writing a build lesson, restate to yourself what already
+exists in the University Management App and do not contradict it.
 
 ---
 
@@ -172,7 +181,7 @@ Tag every lesson with `kind` in the front matter, and write to the tag:
 | `lesson`   | `[C]`      | A concept. Idea before syntax, always. |
 | `practice` | `[P]` `[T]`| Problems and hints first. **Let the reader attempt before revealing anything.** Solutions go inside `::accordion`, and show two versions: the beginner one (correct but clumsy) and the one an experienced developer writes, with a plain-words note on why. |
 | `practice` | `[D]`      | Debugging. Show the broken thing and the real error, then walk through *finding* it: read the message, shrink the problem, print, then reach for the real tool. |
-| `project`  | `[A]`      | Advances UniversityOS. Give the **plan and the acceptance criteria** — files, functions, routes, columns, what "done" looks like — **not the finished code.** The only exceptions are the assembly lesson at the end of a track and the finished-system lesson at the very end. |
+| `project`  | `[A]`      | Advances the University Management App. Give the **plan and the acceptance criteria** — files, functions, routes, columns, what "done" looks like — **not the finished code.** The only exceptions are the assembly lesson at the end of a track and the finished-system lesson at the very end. |
 | `quiz`     | `[Q]`      | Interview. Every answer proved with code, not just defined. |
 | `reading`  | —          | Glossaries, maps, orientation. |
 
@@ -213,6 +222,7 @@ however good the prose is.** Reach for these by beat:
 | Beat | Reach for |
 | --- | --- |
 | The idea, drawn | `::flow` for anything with an order · `::memory` for boxes and pointers · `::feature-list` for parallel small points · `::timeline` for things in time |
+| A shape none of those cover | `::diagram` — your own SVG, in the house frame. `currentColor` plus one `data-accent`; always a `viewBox` and an `aria-label` |
 | Walking through code | `::code-trace` — never write "on line three" in prose |
 | Broken → fixed, wrong → right | `::compare` with `verdict="wrong"` / `verdict="right"` |
 | The honest trade-off | `::pros-cons` — never assert a technology choice, argue it |
@@ -220,6 +230,7 @@ however good the prose is.** Reach for these by beat:
 | Somebody's actual situation | `::persona` |
 | Run it yourself | `::runner` — `html`, `css`, `javascript`, `python`, `sql`, `java` |
 | The trap, the gotcha, the danger | `::warning`, `::caution`, `::tip`, `::note` |
+| What *kind* of concern it is | `::side-note{kind="accessibility\|performance\|security\|go-deeper"}` — the axis the four above do not cover |
 | Solutions, interview answers | `::accordion` |
 | A prompt worth having | `::ai-prompt` — always fill in `#why` |
 | A video | `::youtube` — **never invent an ID**; leave the block out and note what it should show |

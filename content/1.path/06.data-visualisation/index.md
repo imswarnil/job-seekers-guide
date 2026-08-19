@@ -1,6 +1,6 @@
 ---
 title: Data visualisation — make the numbers speak
-description: A genuinely rare, genuinely hireable skill, and the thing that makes UniversityOS feel like a product rather than a form with a database behind it.
+description: A genuinely rare, genuinely hireable skill, and the thing that makes the University Management App feel like a product rather than a form with a database behind it.
 code: JSG-06
 duration: 3 weeks
 stage: applied
@@ -41,11 +41,11 @@ sorted bar chart made it obvious in under a second.
   :::
   :::flow-step{label="Charts that ship" icon="i-lucide-chart-line" highlight}
   A charting library used deliberately, axes and labels that mean something,
-  interaction, accessibility, and the UniversityOS dashboards.
+  interaction, accessibility, and the University Management App dashboards.
   :::
 ::
 
-## What UniversityOS becomes
+## What the University Management App becomes
 
 The dashboards: the admissions funnel, fee collection by month with a running
 total, placements per department, attendance against performance, and the

@@ -48,12 +48,12 @@ position an interviewer is testing for when they ask.
   each one costs.
   :::
   :::flow-step{label="Choosing, honestly" icon="i-lucide-scale"}
-  Where UniversityOS would use one, where it would be a mistake, and how to answer
+  Where the University Management App would use one, where it would be a mistake, and how to answer
   the interview question without picking a side you cannot defend.
   :::
 ::
 
-## What UniversityOS becomes
+## What the University Management App becomes
 
 Unchanged, deliberately. This track ends with a written decision — which parts of
 the system would benefit from a document store and which absolutely would not —

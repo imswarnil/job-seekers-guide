@@ -57,7 +57,7 @@ your CV is real.
   :::
 ::
 
-## What UniversityOS becomes
+## What the University Management App becomes
 
 Styled, responsive and themeable. The enquiry form is usable on a phone, the
 portals look like software rather than a document, and the whole thing survives

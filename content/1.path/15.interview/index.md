@@ -36,7 +36,7 @@ cannot be rehearsed from a blog post.
 
 ::flow{numbered direction="vertical"}
   :::flow-step{label="Assembling the finished system" icon="i-lucide-blocks"}
-  UniversityOS end to end — every module, every layer, documented, tested and
+  the University Management App end to end — every module, every layer, documented, tested and
   deployed, with each part tagged to the lesson that built it.
   :::
   :::flow-step{label="Talking about what you built" icon="i-lucide-mic" highlight}

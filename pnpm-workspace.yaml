@@ -5,6 +5,9 @@ allowBuilds:
   esbuild: false
   unrs-resolver: false
   vue-demi: false
+  # mermaid-cli renders diagrams in headless Chromium, so puppeteer's install
+  # step has to be allowed to fetch it.
+  puppeteer: true
 
 overrides:
   h3: 1.15.11

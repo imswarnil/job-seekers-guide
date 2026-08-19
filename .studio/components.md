@@ -87,6 +87,52 @@ frames:
 `kind` is `array`, `stack`, `queue`, `list` or `table`. There is no `heap` — a
 wrong tree diagram is worse than a table, and tree layout is a project of its own.
 
+## `::diagram` — a drawing of your own
+
+For the shapes the other blocks do not cover: a hash collision, a packet's
+journey, a graph traversal, the order a query is evaluated in. Puts your SVG in
+the same frame as every other diagram, so it gets the label, the caption and the
+scroll container that stops a wide drawing scrolling the whole page on a phone.
+
+```md
+::diagram{label="Two keys, one bucket" caption="The second name queues behind the first."}
+  <svg viewBox="0 0 448 152" role="img" aria-label="Two names hash to the same bucket.">
+    <rect x="1" y="10" width="120" height="32" rx="4" fill="none" stroke="currentColor" opacity="0.45" />
+    <text x="61" y="30" text-anchor="middle">"Anita Rao"</text>
+    <rect x="286" y="10" width="146" height="128" rx="4" data-accent fill="none" stroke-width="1.5" />
+    <text x="359" y="32" text-anchor="middle">bucket 3</text>
+  </svg>
+::
+```
+
+Draw with `currentColor` and mark the **one** thing being taught with
+`data-accent` — that way the drawing follows the reader's theme instead of
+fighting it. Always give the `<svg>` a `viewBox` and an `aria-label`: without the
+first it will not scale, without the second a screen reader sees nothing.
+
+Sketch the layout with `graphviz` or `mermaid` if that is faster, but restyle the
+output before it ships — neither looks like this site — and run
+`pnpm svg:opt <file>` first, because inline SVG ships on every page view.
+
+## `::side-note` — what kind of concern this is
+
+`::note`, `::tip`, `::warning` and `::caution` say *how alarmed to be*. These
+four say *what kind of thing* is being raised, which is a different axis.
+
+```md
+::side-note{kind="security"}
+Permissions belong in the database, not in the screen. If the interface is the
+only thing stopping a student reading another student's marks, anyone who skips
+the interface reads them.
+::
+```
+
+`kind` is `accessibility`, `performance`, `security` or `go-deeper`. `title`
+overrides the default label.
+
+They are monochrome on purpose. Red means the live wire and amber means a
+milestone, so an aside that is only *about* danger does not get to spend either.
+
 ## `::compare` — the wrong way and the right way
 
 ```md

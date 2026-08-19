@@ -10,7 +10,7 @@ outcomes:
   - Write joins, subqueries and window functions you can defend line by line
   - Tell the difference between a query that runs and a query that is right
   - Change data safely, on purpose, with a way back
-  - Build the reporting layer every UniversityOS dashboard will later read
+  - Build the reporting layer every University Management App dashboard will later read
 prerequisites:
   - java
 ---
@@ -82,7 +82,7 @@ open by saying so and go slowly. Do not skim them.
   :::
 ::
 
-## What UniversityOS becomes
+## What the University Management App becomes
 
 The real relational schema behind everything — `students`, `programs`,
 `applications`, `fee_payments`, `exam_results`, `student_attendance`,

@@ -9,7 +9,7 @@ outcomes:
   - Explain what runs on the server and what runs in the browser, and why it matters
   - Build routes, nested layouts and dynamic segments from folders
   - Load and mutate data without hand-rolling an API for every form
-  - Assemble the real UniversityOS application shell
+  - Assemble the real University Management App application shell
 prerequisites:
   - react
 ---
@@ -41,11 +41,11 @@ code is on is the entire skill.
   :::
   :::flow-step{label="Writing, layout and the app shell" icon="i-lucide-layout-dashboard" highlight}
   Data fetching, server actions, forms that work without JavaScript, loading and
-  error states, metadata, images, and the UniversityOS shell.
+  error states, metadata, images, and the University Management App shell.
   :::
 ::
 
-## What UniversityOS becomes
+## What the University Management App becomes
 
 An application: the public site, the CRM, the three portals and the dashboards,
 all inside one routed, server-rendered project with real navigation and real

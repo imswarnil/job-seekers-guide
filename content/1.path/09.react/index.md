@@ -9,7 +9,7 @@ outcomes:
   - Break an interface into components without over-engineering it
   - Explain what state is, when it updates, and what re-renders as a result
   - Lift state, pass data down and send events up, deliberately
-  - Rebuild the UniversityOS portals and the admissions board out of pieces
+  - Rebuild the University Management App portals and the admissions board out of pieces
 prerequisites:
   - typescript
 ---
@@ -43,7 +43,7 @@ then nothing else feels sane. If you are annoyed, you are on schedule.
   :::
 ::
 
-## What UniversityOS becomes
+## What the University Management App becomes
 
 Component-based portals and the admissions CRM board: an applicant card written
 once and used everywhere, a pipeline you can move a candidate through, and a

@@ -41,7 +41,7 @@ tools are for takes an afternoon and removes an entire category of humiliation.
   :::
 ::
 
-## What UniversityOS becomes
+## What the University Management App becomes
 
 A real project. Installed, built, linted, formatted, and runnable by somebody
 else with two commands.
