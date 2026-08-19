@@ -14,8 +14,31 @@ export default defineNuxtConfig({
     'nuxt-schema-org',
     'nuxt-seo-utils',
     'nuxt-og-image',
+    'nuxt-studio',
     '~~/modules/reserved-slugs'
   ],
+
+  /**
+   * The content editor, at `/_studio`.
+   *
+   * This replaces the old hosted Studio, which was configured through
+   * `content.preview.api` and pointed at `api.nuxt.studio`. That flow is gone —
+   * Studio is a module you run yourself now, so the editor lives on this site
+   * rather than on somebody else's.
+   *
+   * In development it writes straight to the files in `content/`. In production
+   * it commits to the repository below, which needs a GitHub OAuth app and the
+   * two `NUXT_STUDIO_AUTH_GITHUB_*` environment variables — and a host that can
+   * run a server. See the note on the deploy workflow.
+   */
+  studio: {
+    repository: {
+      provider: 'github',
+      owner: 'imswarnil',
+      repo: 'job-seekers-guide',
+      branch: 'main'
+    }
+  },
 
   devtools: {
     enabled: true
@@ -41,13 +64,9 @@ export default defineNuxtConfig({
 
   content: {
     // Content is authored as markdown in `content/`, in nested folders that map
-    // one-to-one onto the URL. Nuxt Studio edits the same files, so the repo
-    // stays the single source of truth whether a lesson is written in an editor
-    // or in a pull request.
-    preview: {
-      dev: true,
-      api: 'https://api.nuxt.studio'
-    },
+    // one-to-one onto the URL. Studio edits the same files, so the repo stays
+    // the single source of truth whether a lesson is written in the editor or
+    // in a pull request.
     build: {
       markdown: {
         toc: {
