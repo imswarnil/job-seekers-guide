@@ -18,28 +18,6 @@ export default defineNuxtConfig({
     '~~/modules/reserved-slugs'
   ],
 
-  /**
-   * The content editor, at `/_studio`.
-   *
-   * This replaces the old hosted Studio, which was configured through
-   * `content.preview.api` and pointed at `api.nuxt.studio`. That flow is gone —
-   * Studio is a module you run yourself now, so the editor lives on this site
-   * rather than on somebody else's.
-   *
-   * In development it writes straight to the files in `content/`. In production
-   * it commits to the repository below, which needs a GitHub OAuth app and the
-   * two `NUXT_STUDIO_AUTH_GITHUB_*` environment variables — and a host that can
-   * run a server. See the note on the deploy workflow.
-   */
-  studio: {
-    repository: {
-      provider: 'github',
-      owner: 'imswarnil',
-      repo: 'job-seekers-guide',
-      branch: 'main'
-    }
-  },
-
   devtools: {
     enabled: true
   },
@@ -187,5 +165,27 @@ export default defineNuxtConfig({
     // through the server-rendered player rail. The legacy paths below only exist
     // as redirects and must not be advertised as destinations.
     exclude: ['/login', '/signup', '/search', '/courses/**', '/docs/**', '/blog/**', '/path', '/series', '/series/**']
+  },
+
+  /**
+   * The content editor, at `/_studio`.
+   *
+   * This replaces the old hosted Studio, which was configured through
+   * `content.preview.api` and pointed at `api.nuxt.studio`. That flow is gone —
+   * Studio is a module you run yourself now, so the editor lives on this site
+   * rather than on somebody else's.
+   *
+   * In development it writes straight to the files in `content/`. In production
+   * it commits to the repository below, which needs a GitHub OAuth app and the
+   * two `NUXT_STUDIO_AUTH_GITHUB_*` environment variables — and a host that can
+   * run a server. See the note on the deploy workflow.
+   */
+  studio: {
+    repository: {
+      provider: 'github',
+      owner: 'imswarnil',
+      repo: 'job-seekers-guide',
+      branch: 'main'
+    }
   }
 })
