@@ -850,7 +850,14 @@ const progress = computed(() => total.value
       </div>
 
       <!-- Server-rendered, and what a crawler reads: the whole story, in order,
-           as plain prose. The book is a client-side reading surface over it. -->
+           as plain prose.
+
+           The titles are real links, and that is load-bearing rather than
+           decorative. Every chapter has its own permalink, but the only
+           navigation to those permalinks lives inside the reader — which is
+           client-only — so the prerender crawler had nothing to follow and
+           shipped a build where every chapter URL 404'd. These links are the
+           link graph. -->
       <template #fallback>
         <div class="book__ssr guide-prose">
           <article
@@ -862,7 +869,9 @@ const progress = computed(() => total.value
               {{ chapter.chapter === 0 ? 'Prologue' : `Chapter ${chapter.chapter}` }}
             </p>
             <h2 class="book__scroll-title">
-              {{ chapter.title }}
+              <NuxtLink :to="chapter.path">
+                {{ chapter.title }}
+              </NuxtLink>
             </h2>
             <ContentRenderer :value="chapter" />
           </article>
