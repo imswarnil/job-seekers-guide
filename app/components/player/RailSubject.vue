@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Subject } from '~/utils/path'
+import { findTech } from '~/utils/tech'
 
 const props = defineProps<{
   subject: Subject
@@ -15,6 +16,17 @@ const { subjectProgress } = useProgress()
 
 const progress = computed(() => subjectProgress(props.subject))
 const open = ref(props.expanded)
+
+/**
+ * The subject's own colour, from the tech registry.
+ *
+ * The icon used to sit inside a progress ring, which put twenty small circles
+ * down the rail and made every subject look the same until you read the label.
+ * The mark in its own brand colour is recognisable at a glance — Supabase is
+ * green, Java is red — and the progress moved to a hairline under the row,
+ * where it does not compete with it.
+ */
+const accent = computed(() => findTech(props.subject.slug)?.color)
 
 watch(() => props.expanded, (value) => {
   if (value) {
@@ -71,25 +83,16 @@ watch(activeModule, () => {
          from its title link below. -->
     <button
       type="button"
-      class="w-full flex items-center gap-2.5 rounded-md px-2 py-2 text-left transition-colors hover:bg-elevated"
+      class="rail-row w-full flex items-center gap-2.5 rounded-md px-2 py-2 text-left transition-colors hover:bg-elevated"
       :aria-expanded="open"
       @click="open = !open"
     >
-      <span class="flex items-center justify-center size-6 shrink-0 relative">
-        <ClientOnly>
-          <PlayerProgress
-            :progress="progress"
-            variant="ring"
-            :size="24"
-            class="absolute inset-0"
-          />
-        </ClientOnly>
-        <UIcon
-          :name="subject.icon || 'i-lucide-book-open'"
-          class="size-3.5"
-          :class="expanded ? 'text-primary' : 'text-dimmed'"
-        />
-      </span>
+      <UIcon
+        :name="subject.icon || 'i-lucide-book-open'"
+        class="size-[1.15rem] shrink-0"
+        :class="[accent ? 'rail-row__mark' : (expanded ? 'text-primary' : 'text-dimmed')]"
+        :style="accent ? { '--tech': accent } : undefined"
+      />
 
       <span class="flex-1 min-w-0">
         <span
@@ -97,8 +100,24 @@ watch(activeModule, () => {
           :class="expanded ? 'text-highlighted' : 'text-muted'"
         >{{ subject.title }}</span>
         <span class="block text-xs text-dimmed tabular-nums">
-          {{ index + 1 }} · {{ subject.lessons.length }} {{ subject.lessons.length === 1 ? 'lesson' : 'lessons' }}
+          {{ index + 1 }} ·
+          <template v-if="subject.lessons.length">
+            {{ subject.lessons.length }} {{ subject.lessons.length === 1 ? 'lesson' : 'lessons' }}
+          </template>
+          <template v-else>being written</template>
         </span>
+
+        <!-- Progress, as a hairline under the row. It was a ring around the
+             icon, which put twenty identical circles down the rail; here it
+             is only drawn once there is something to draw. -->
+        <ClientOnly>
+          <span
+            v-if="progress.started"
+            class="rail-row__bar"
+            :data-done="progress.finished ? '' : undefined"
+            :style="{ '--pct': `${progress.percent}%` }"
+          />
+        </ClientOnly>
       </span>
 
       <UIcon
@@ -207,3 +226,48 @@ watch(activeModule, () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* The mark in the technology's own colour. `.dark` rather than `:global(.dark)`
+   — scoped CSS puts the scope attribute on the last compound only, so this
+   compiles to `.dark .rail-row__mark[data-v-…]` and matches the class on
+   `<html>`. Wrapping the ancestor in `:global()` does not survive the build. */
+.rail-row__mark {
+  color: var(--tech);
+}
+
+/* Several of the brand colours (MySQL, Oracle, SQLite, PostgreSQL) go to mud on
+   a dark surface, so they lift toward the page instead of sitting in it. */
+.dark .rail-row__mark {
+  color: color-mix(in oklab, var(--tech) 74%, white);
+}
+
+.rail-row__bar {
+  display: block;
+  height: 2px;
+  margin-top: 0.35rem;
+  border-radius: 999px;
+  background: var(--ui-bg-accented);
+  overflow: hidden;
+}
+
+.rail-row__bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  width: var(--pct);
+  border-radius: 999px;
+  background: var(--ui-primary);
+  transition: width var(--dgm-t-base) var(--dgm-ease);
+}
+
+.rail-row__bar[data-done]::after {
+  background: var(--ui-success);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rail-row__bar::after {
+    transition: none;
+  }
+}
+</style>

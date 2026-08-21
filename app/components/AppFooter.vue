@@ -13,10 +13,13 @@ const columns = computed(() => [{
     }))
   ]
 }, {
+  // About is a band of the front page rather than a page, and the changelog
+  // lives here rather than in the nav — it is something you go looking for
+  // once, not something you navigate by.
   label: 'About',
   children: [
-    { label: 'What this is', to: '/about' },
-    { label: 'Principles', to: '/about#the-ten-principles' },
+    { label: 'What this is', to: '/#about' },
+    { label: 'The ten principles', to: '/#the-ten-principles' },
     { label: 'Questions', to: '/faq' },
     { label: 'Changelog', to: '/changelog' }
   ]

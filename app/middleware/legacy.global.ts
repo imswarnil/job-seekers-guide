@@ -24,7 +24,11 @@ const exact: Record<string, string> = {
   '/series': '/my-story/watch',
   '/series/read': '/my-story/book',
   '/courses': '/start',
-  '/docs': '/about',
+  // About stopped being a page and became a band of the front page. The URL was
+  // published, so it keeps working — it just lands on the anchor now.
+  '/about': '/#about',
+  '/terminal/how-this-course-works': '/orientation/how-this-course-works',
+  '/docs': '/#about',
   '/blog': '/changelog'
 }
 
@@ -38,11 +42,14 @@ const prefixes: [string, string | ((rest: string) => string)][] = [
   ['/courses/', rest => `/${rest}`],
   // Old episode URLs. `/series/read` is handled above, before this prefix.
   ['/series/', '/my-story/watch'],
-  ['/docs/getting-started/', '/about'],
+  // "How this course works" was a chapter of the terminal track until the
+  // orientation track was put in front of it. Same lessons, one level across.
+  ['/terminal/how-this-course-works/', rest => `/orientation/how-this-course-works/${rest}`],
+  ['/docs/getting-started/', '/#about'],
   ['/docs/curriculum/', '/start'],
   ['/docs/help/', '/faq'],
-  ['/docs/authoring/', '/about'],
-  ['/docs/', '/about'],
+  ['/docs/authoring/', '/#about'],
+  ['/docs/', '/#about'],
   ['/blog/', '/changelog']
 ]
 

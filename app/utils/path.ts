@@ -15,7 +15,24 @@ import type { ContentNavigationItem } from '@nuxt/content'
  * after it is the first lesson of the next subject, not the end of the road.
  */
 
-export type Stage = 'orientation' | 'foundation' | 'language' | 'applied' | 'projects' | 'job-search'
+/**
+ * The sections of the curriculum.
+ *
+ * A stage is not a category — it is a stretch of the same road, and every
+ * subject inside one sits next to its neighbours in folder order too. That
+ * constraint is the whole reason the list is short: the moment a stage picks up
+ * a subject from further down the tree, `/start` starts numbering 8, 14, 9, 10
+ * and the page stops being a route.
+ */
+export type Stage
+  = | 'introduction'
+    | 'foundation'
+    | 'language'
+    | 'web'
+    | 'tooling'
+    | 'applied'
+    | 'ai'
+    | 'interview'
 
 export interface Lesson {
   title: string
@@ -94,17 +111,68 @@ export function lessonIcon(lesson: Pick<Lesson, 'kind' | 'icon'>): string {
   return lesson.icon || kindIcons[lesson.kind || 'lesson'] || kindIcons.lesson!
 }
 
-export const stageLabels: Record<Stage, string> = {
-  'orientation': 'Orientation',
-  'foundation': 'Foundations',
-  'language': 'Your language',
-  'applied': 'Applied craft',
-  'projects': 'Projects',
-  'job-search': 'The job hunt'
+export interface StageMeta {
+  /** The divider heading, in the rail and on `/start`. */
+  label: string
+  /** One line under the heading. Says why this section exists. */
+  blurb: string
+  icon: string
 }
 
+/**
+ * The sections, in the order they are read. This list is the only place the
+ * shape of the curriculum is described in words — the subjects inside each one
+ * come from the folder tree.
+ */
+export const stages: Record<Stage, StageMeta> = {
+  introduction: {
+    label: 'Introduction',
+    blurb: 'What the job actually is and whether it is for you, then what a computer is really doing and the two tools every job assumes you already have.',
+    icon: 'i-lucide-compass'
+  },
+  foundation: {
+    label: 'Computer science',
+    blurb: 'The four subjects a degree would have given you, taught as ideas rather than syllabus: the machine, the wire, the data, and the cost of moving it around.',
+    icon: 'i-lucide-blocks'
+  },
+  language: {
+    label: 'Languages',
+    blurb: 'You learn to program once, and you learn to ask a database questions once. Everything after this is a dialect of one or the other.',
+    icon: 'i-lucide-code'
+  },
+  web: {
+    label: 'The web',
+    blurb: 'Structure, style, behaviour, and the pictures that make a table of numbers mean something.',
+    icon: 'i-lucide-globe'
+  },
+  tooling: {
+    label: 'Tools',
+    blurb: 'The package manager, the build, the linter. What every professional project switches on before the first line is written.',
+    icon: 'i-lucide-wrench'
+  },
+  applied: {
+    label: 'Building the application',
+    blurb: 'Types, components, a framework, a real backend and a URL a stranger can open.',
+    icon: 'i-lucide-hammer'
+  },
+  ai: {
+    label: 'AI',
+    blurb: 'A tool you use throughout, and a thing you build with only here — once you know enough to tell when it is wrong.',
+    icon: 'i-lucide-sparkles'
+  },
+  interview: {
+    label: 'Interview preparation',
+    blurb: 'The finished system, the rounds, the questions, and what you say out loud when somebody is deciding whether to pay you.',
+    icon: 'i-lucide-messages-square'
+  }
+}
+
+export const stageLabels: Record<Stage, string> = Object.fromEntries(
+  Object.entries(stages).map(([stage, meta]) => [stage, meta.label])
+) as Record<Stage, string>
+
 /** The order stages are shown in on `/start`, when a subject declares one. */
-export const stageOrder: Stage[] = ['orientation', 'foundation', 'language', 'applied', 'projects', 'job-search']
+export const stageOrder: Stage[] = ['introduction', 'foundation', 'language', 'web', 'tooling', 'applied', 'ai', 'interview']
 
 /**
  * A directory that has an `index.md` shows up both as the directory item and, in
@@ -211,19 +279,52 @@ export function findModule(path: LearningPath, url: string): Module | undefined 
     .find(module => url === module.path || url.startsWith(`${module.path}/`))
 }
 
-/** Subjects grouped for display on `/start`, in stage order, ungrouped last. */
-export function byStage(path: LearningPath) {
-  const groups = stageOrder
-    .map(stage => ({
-      stage,
-      label: stageLabels[stage],
-      subjects: path.subjects.filter(subject => subject.stage === stage)
-    }))
-    .filter(group => group.subjects.length)
+export interface StageGroup extends StageMeta {
+  stage: Stage
+  /** Anchor id, so the sidebar can jump to the section. */
+  id: string
+  subjects: Subject[]
+  /** Position of this group's first subject along the whole path, zero-based. */
+  offset: number
+  lessons: number
+  minutes: number
+}
 
-  const ungrouped = path.subjects.filter(subject => !subject.stage)
-  if (ungrouped.length) {
-    groups.push({ stage: 'applied' as Stage, label: 'More', subjects: ungrouped })
+/**
+ * Subjects grouped into the sections of the curriculum, in stage order, with
+ * anything untagged collected at the end rather than silently dropped.
+ *
+ * `offset` is the piece worth noticing: numbering on `/start` and in the rail
+ * runs across the whole path, not per section, because "subject 9 of 16" is the
+ * fact a reader actually wants and "subject 2 of 5" is not.
+ */
+export function byStage(path: LearningPath): StageGroup[] {
+  const position = new Map(path.subjects.map((subject, index) => [subject.path, index]))
+
+  function group(stage: Stage, meta: StageMeta, subjects: Subject[]): StageGroup {
+    return {
+      ...meta,
+      stage,
+      id: `section-${stage}`,
+      subjects,
+      offset: position.get(subjects[0]?.path || '') ?? 0,
+      lessons: subjects.reduce((total, subject) => total + subject.lessons.length, 0),
+      minutes: subjects.reduce((total, subject) => total + subject.minutes, 0)
+    }
+  }
+
+  const groups = stageOrder
+    .map(stage => ({ stage, subjects: path.subjects.filter(subject => subject.stage === stage) }))
+    .filter(entry => entry.subjects.length)
+    .map(entry => group(entry.stage, stages[entry.stage], entry.subjects))
+
+  const untagged = path.subjects.filter(subject => !subject.stage)
+  if (untagged.length) {
+    groups.push(group('applied', {
+      label: 'Also on the path',
+      blurb: 'Subjects that have not been placed in a section yet.',
+      icon: 'i-lucide-book-open'
+    }, untagged))
   }
 
   return groups

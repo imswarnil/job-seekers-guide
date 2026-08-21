@@ -1,9 +1,9 @@
 ---
 title: The interview, and what comes next
 description: Every lesson in this course has been quietly training for this. Here it is all lined up — the finished system, the questions, the rounds, and honestly where you go afterwards.
-code: JSG-15
+code: JSG-20
 duration: 3 weeks
-stage: job-search
+stage: interview
 icon: i-lucide-messages-square
 outcomes:
   - Walk somebody through what you built in two minutes, leading with the problem

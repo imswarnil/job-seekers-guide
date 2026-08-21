@@ -10,12 +10,20 @@
 /courses/*                /:splat        301
 /courses                  /start         301
 
-/docs/getting-started/*   /about         301
+# About stopped being a page and became a band of the front page.
+/about                    /#about        301
+
+# "How this course works" moved out of the terminal track when the orientation
+# track was put in front of it.
+/terminal/how-this-course-works/*  /orientation/how-this-course-works/:splat  301
+/terminal/how-this-course-works    /orientation/how-this-course-works         301
+
+/docs/getting-started/*   /#about        301
 /docs/curriculum/*        /start         301
 /docs/help/*              /faq           301
-/docs/authoring/*         /about         301
-/docs/*                   /about         301
-/docs                     /about         301
+/docs/authoring/*         /#about        301
+/docs/*                   /#about        301
+/docs                     /#about        301
 
 /blog/*                   /changelog     301
 /blog                     /changelog     301

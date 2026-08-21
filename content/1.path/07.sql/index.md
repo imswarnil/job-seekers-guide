@@ -1,7 +1,7 @@
 ---
-title: SQL — learn to store and ask
+title: "SQL: learn to store and ask"
 description: Your Java program forgot everything the moment it stopped, and a flat file cannot answer a question. SQL has barely changed in decades, which is exactly why it is worth learning properly.
-code: JSG-02
+code: JSG-07
 duration: 10 weeks
 stage: language
 icon: i-lucide-database
@@ -55,7 +55,7 @@ open by saying so and go slowly. Do not skim them.
   relationships, and how to stay safe on a live database.
   :::
   :::flow-step{label="Asking for exactly what you want" icon="i-lucide-search"}
-  `SELECT`, `DISTINCT`, aliases, `ORDER BY`, `LIMIT` — and reading a result grid.
+  `SELECT`, `DISTINCT`, aliases, `ORDER BY`, `LIMIT`, and reading a result grid.
   :::
   :::flow-step{label="Filtering and shaping" icon="i-lucide-filter"}
   `WHERE`, precedence, `IN`, `LIKE`, the three-valued logic of `NULL`, then string,
@@ -66,7 +66,7 @@ open by saying so and go slowly. Do not skim them.
   table.
   :::
   :::flow-step{label="Joins" icon="i-lucide-git-merge" highlight}
-  Inner, left, anti-joins, self-joins — and fan-out, where your counts quietly
+  Inner, left, anti-joins, self-joins. Then fan-out, where your counts quietly
   start to lie.
   :::
   :::flow-step{label="Subqueries and window functions" icon="i-lucide-layers"}
@@ -84,9 +84,9 @@ open by saying so and go slowly. Do not skim them.
 
 ## What the University Management App becomes
 
-The real relational schema behind everything — `students`, `programs`,
+The real relational schema behind everything (`students`, `programs`,
 `applications`, `fee_payments`, `exam_results`, `student_attendance`,
-`placements` and the rest — plus the view layer that every dashboard, and later
+`placements` and the rest), plus the view layer that every dashboard, and later
 every AI feature, reads from.
 
 ::callout{icon="i-lucide-arrow-right"}

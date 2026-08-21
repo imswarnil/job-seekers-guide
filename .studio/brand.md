@@ -26,8 +26,12 @@ is a module inside it, `/java/collections/generics` is a lesson. The order of th
 path is the numeric prefixes on the folders in `content/1.path/` and nothing
 else — reordering the curriculum is renaming a directory.
 
-The stages, in order: orientation, foundations, one language, applied craft,
-projects, the job hunt.
+The sections, in order: introduction, computer science, languages, the web,
+tools, building the application, AI, interview preparation. A section is a
+stretch of the same road,
+so every subject inside one is next to its neighbours in folder order too — a
+section that reaches down the tree makes `/start` number itself 8, 14, 9 and
+stop being a route.
 
 ## Visual language
 

@@ -22,7 +22,13 @@ const props = defineProps<{
   runtime?: string
   /** `youtubeId` is stand-in footage, not the real episode. */
   placeholder?: boolean
+  /** How many episodes there are, for the channel readout. */
+  total?: number
+  canPrevious?: boolean
+  canNext?: boolean
 }>()
+
+const emit = defineEmits<{ previous: [], next: [] }>()
 
 const on = defineModel<boolean>('on', { default: false })
 
@@ -228,16 +234,117 @@ defineExpose({ toggleplay, togglemute, skip, command })
         </div>
       </div>
 
+      <!-- ── The transport ────────────────────────────────────────────
+           Real buttons on the cabinet rather than a remote beside it. A
+           set has its controls on the set; a separate panel was a second
+           object to explain and a second copy of "is it playing" to keep
+           in step. Everything here works. -->
       <div class="crt__panel">
         <div class="crt__brand">
           <span class="crt__led" />
           <span class="crt__brandname">JSG&nbsp;COLOUR&nbsp;14C</span>
         </div>
 
-        <div class="crt__knobs">
-          <span class="crt__knob" />
-          <span class="crt__knob crt__knob--small" />
-          <span class="crt__grille" />
+        <div class="crt__transport">
+          <button
+            type="button"
+            class="crt__btn"
+            :aria-label="on ? 'Switch the television off' : 'Switch the television on'"
+            :aria-pressed="on"
+            @click="on = !on"
+          >
+            <UIcon
+              name="i-lucide-power"
+              class="size-4"
+            />
+          </button>
+
+          <span class="crt__divider" />
+
+          <button
+            type="button"
+            class="crt__btn"
+            :disabled="!canPrevious"
+            aria-label="Previous episode"
+            @click="emit('previous')"
+          >
+            <UIcon
+              name="i-lucide-skip-back"
+              class="size-4"
+            />
+          </button>
+
+          <button
+            type="button"
+            class="crt__btn"
+            :disabled="!on || !youtubeId"
+            aria-label="Rewind ten seconds"
+            @click="skip(-10)"
+          >
+            <UIcon
+              name="i-lucide-rotate-ccw"
+              class="size-3.5"
+            />
+          </button>
+
+          <button
+            type="button"
+            class="crt__btn crt__btn--play"
+            :disabled="!on || !youtubeId"
+            :aria-label="playing ? 'Pause' : 'Play'"
+            @click="toggleplay"
+          >
+            <UIcon
+              :name="playing ? 'i-lucide-pause' : 'i-lucide-play'"
+              class="size-4"
+            />
+          </button>
+
+          <button
+            type="button"
+            class="crt__btn"
+            :disabled="!on || !youtubeId"
+            aria-label="Forward ten seconds"
+            @click="skip(10)"
+          >
+            <UIcon
+              name="i-lucide-rotate-cw"
+              class="size-3.5"
+            />
+          </button>
+
+          <button
+            type="button"
+            class="crt__btn"
+            :disabled="!canNext"
+            aria-label="Next episode"
+            @click="emit('next')"
+          >
+            <UIcon
+              name="i-lucide-skip-forward"
+              class="size-4"
+            />
+          </button>
+
+          <span class="crt__divider" />
+
+          <button
+            type="button"
+            class="crt__btn"
+            :disabled="!on || !youtubeId"
+            :aria-label="muted ? 'Unmute' : 'Mute'"
+            :aria-pressed="muted"
+            @click="togglemute"
+          >
+            <UIcon
+              :name="muted ? 'i-lucide-volume-x' : 'i-lucide-volume-2'"
+              class="size-4"
+            />
+          </button>
+
+          <span class="crt__channel">
+            CH {{ String(episode).padStart(2, '0') }}<template v-if="total">/{{ String(total).padStart(2, '0') }}</template>
+          </span>
         </div>
       </div>
     </div>
@@ -556,34 +663,104 @@ defineExpose({ toggleplay, togglemute, skip, command })
   color: rgb(255 255 255 / 0.35);
 }
 
-.crt__knobs {
+/* ── The transport ────────────────────────────────────────────────────
+   Drawn as moulded buttons on the cabinet: a raised face, a dark seat and
+   a shadow that shortens when pressed. They are real controls, so they get
+   real focus rings and real disabled states — a fake-looking button that
+   works is fine, a real-looking one that does nothing is not. */
+.crt__transport {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.3rem;
 }
 
-.crt__knob {
-  width: 1.05rem;
-  height: 1.05rem;
-  border-radius: 999px;
-  background: radial-gradient(circle at 32% 28%, #6b6b78, #24242c 70%);
-  box-shadow: inset 0 -1px 2px rgb(0 0 0 / 0.6), 0 1px 0 rgb(255 255 255 / 0.08);
+.crt__btn {
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 0.4rem;
+  color: rgb(255 255 255 / 0.62);
+  background: linear-gradient(180deg, #55555f, #2a2a32);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.16),
+    0 1px 2px rgb(0 0 0 / 0.55);
+  transition:
+    color var(--dgm-t-fast) var(--dgm-ease),
+    background-color var(--dgm-t-fast) var(--dgm-ease),
+    box-shadow var(--dgm-t-fast) var(--dgm-ease),
+    transform var(--dgm-t-fast) var(--dgm-ease);
 }
 
-.crt__knob--small {
-  width: 0.75rem;
-  height: 0.75rem;
+.crt__btn:hover:not(:disabled) {
+  color: #fff;
+  background: linear-gradient(180deg, #63636f, #32323c);
 }
 
-.crt__grille {
-  width: 3.5rem;
-  height: 0.85rem;
-  border-radius: 0.15rem;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgb(0 0 0 / 0.55) 0 1px,
-    transparent 1px 3px
-  );
+.crt__btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgb(0 0 0 / 0.6);
+}
+
+.crt__btn:focus-visible {
+  outline: 2px solid var(--color-spark-400);
+  outline-offset: 2px;
+}
+
+.crt__btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* The one you press most, in the set's own indicator colour. */
+.crt__btn--play {
+  width: 2.15rem;
+  height: 2.15rem;
+  color: #fff;
+  background: linear-gradient(180deg, #8b3a3a, #5a1e1e);
+}
+
+.crt__btn--play:hover:not(:disabled) {
+  background: linear-gradient(180deg, #a04343, #6b2424);
+}
+
+.crt__divider {
+  width: 1px;
+  height: 1.1rem;
+  margin-inline: 0.2rem;
+  background: rgb(0 0 0 / 0.5);
+  box-shadow: 1px 0 0 rgb(255 255 255 / 0.06);
+}
+
+.crt__channel {
+  margin-left: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.14em;
+  font-variant-numeric: tabular-nums;
+  color: rgb(255 255 255 / 0.35);
+}
+
+/* On a phone the brand plate is the thing that gives way, not the controls. */
+@media (max-width: 639px) {
+  .crt__panel {
+    gap: 0.5rem;
+  }
+
+  .crt__brandname,
+  .crt__channel {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt__btn {
+    transition: none;
+  }
+
+  .crt__btn:active:not(:disabled) {
+    transform: none;
+  }
 }
 
 .crt__feet {

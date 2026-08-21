@@ -34,6 +34,18 @@ export default defineAppConfig({
     github: 'https://github.com',
     /** Channel companion videos are published to. Empty hides the link. */
     youtube: '',
+    /**
+     * YouTube id of the trailer that plays inside the television on the front
+     * page — the 11 characters after `watch?v=`, nothing else.
+     *
+     * It loads muted, looping, without controls, and only once the set has
+     * scrolled into view. Empty leaves the animated title card in the tube
+     * instead, which is why this can stay empty forever without anything
+     * looking broken.
+     */
+    storyVideo: 'CGoFUxCmBdA',
+    /** Seconds into that video to start each loop. 0 starts at the beginning. */
+    storyVideoStart: 100,
     /** Booking link on the Questions page. Empty hides the button. */
     topmate: 'https://topmate.io/swarnil'
   },

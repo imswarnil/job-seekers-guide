@@ -144,6 +144,9 @@ const aspect = computed(() => `${definition.value.width} / ${definition.value.he
   aspect-ratio: var(--ad-aspect);
   max-width: var(--ad-max);
   width: 100%;
+  /* Centred in whatever it is dropped into. A 728px box left-aligned in a
+     1280px container reads as a layout mistake rather than as an ad slot. */
+  margin-inline: auto;
   border: 1px dashed var(--dgm-box-border);
   border-radius: var(--dgm-box-radius);
   overflow: hidden;

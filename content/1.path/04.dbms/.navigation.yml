@@ -1,0 +1,3 @@
+title: "DBMS: how data is really stored"
+icon: i-lucide-database
+description: "The theory under every database: why tables are shaped the way they are, what a transaction guarantees, and how an index finds one row in ten million."

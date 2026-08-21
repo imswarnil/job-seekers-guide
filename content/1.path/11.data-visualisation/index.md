@@ -1,9 +1,9 @@
 ---
 title: Data visualisation — make the numbers speak
 description: A genuinely rare, genuinely hireable skill, and the thing that makes the University Management App feel like a product rather than a form with a database behind it.
-code: JSG-06
+code: JSG-11
 duration: 3 weeks
-stage: applied
+stage: web
 icon: i-lucide-chart-column
 outcomes:
   - Choose the chart that answers the question being asked

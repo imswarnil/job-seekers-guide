@@ -2,10 +2,10 @@
 /**
  * An episode still, before there is a still.
  *
- * Nine of the ten episodes are written but not filmed, and nine identical grey
- * rectangles would say the series had been abandoned. So each one generates its
- * own artwork from the episode number: a different hue, a different pattern and
- * a different glyph, deterministic so the same episode always looks like itself.
+ * This used to generate its own artwork per episode — a hue from the number, a
+ * pattern, sprocket holes — and ten of them side by side in a running order was
+ * a rainbow that fought the thing it was a list of. One neutral frame and one
+ * icon now: the icon says which episode this is, and the panel stays a list.
  *
  * The numeral behind it is the Netflix trick, and it earns its place here for a
  * reason beyond looking good — the running order *is* the story, and a number
@@ -22,11 +22,6 @@ const props = withDefaults(defineProps<{
   size: 'sm'
 })
 
-/* Deterministic, not random: an SSR render and the hydrated one have to agree,
-   and an episode that changes colour on reload reads as a bug. */
-const seed = computed(() => props.episode * 47)
-const hue = computed(() => (seed.value * 37) % 360)
-const pattern = computed(() => ['grid', 'dots', 'rays', 'wave'][props.episode % 4])
 const glyph = computed(() => [
   'i-lucide-map-pin',
   'i-lucide-book-open',
@@ -53,11 +48,7 @@ const glyph = computed(() => [
       aria-hidden="true"
     >{{ episode }}</span>
 
-    <div
-      class="thumb__frame"
-      :style="{ '--hue': hue }"
-      :data-pattern="pattern"
-    >
+    <div class="thumb__frame">
       <img
         v-if="poster"
         :src="poster"
@@ -66,19 +57,11 @@ const glyph = computed(() => [
         class="thumb__img"
       >
 
-      <template v-else>
-        <span class="thumb__wash" />
-        <span class="thumb__pattern" />
-
-        <!-- Sprocket holes, so an empty frame still reads as film. -->
-        <span class="thumb__perf thumb__perf--top" />
-        <span class="thumb__perf thumb__perf--bottom" />
-
-        <UIcon
-          :name="glyph"
-          class="thumb__glyph"
-        />
-      </template>
+      <UIcon
+        v-else
+        :name="glyph"
+        class="thumb__glyph"
+      />
 
       <span
         v-if="!filmed"
@@ -127,8 +110,10 @@ const glyph = computed(() => [
   flex-shrink: 0;
   border-radius: var(--radius-xs);
   overflow: hidden;
-  background: hsl(var(--hue) 45% 18%);
+  background: var(--ui-bg-elevated);
   border: 1px solid var(--ui-border);
+  display: grid;
+  place-items: center;
   isolation: isolate;
 }
 
@@ -143,80 +128,10 @@ const glyph = computed(() => [
   object-fit: cover;
 }
 
-/* Brand colours first, the generated hue only as a tint on top — ten unrelated
-   rainbow tiles would stop looking like one series. */
-.thumb__wash {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(135deg, hsl(var(--hue) 55% 30% / 0.75), transparent 60%),
-    linear-gradient(to top right, var(--color-guide-900), var(--color-guide-700));
-}
-
-.thumb__pattern {
-  position: absolute;
-  inset: 0;
-  opacity: 0.28;
-}
-
-.thumb__frame[data-pattern='grid'] .thumb__pattern {
-  background-image:
-    linear-gradient(to right, rgb(255 255 255 / 0.5) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(255 255 255 / 0.5) 1px, transparent 1px);
-  background-size: 12px 12px;
-}
-
-.thumb__frame[data-pattern='dots'] .thumb__pattern {
-  background-image: radial-gradient(rgb(255 255 255 / 0.6) 1px, transparent 1px);
-  background-size: 9px 9px;
-}
-
-.thumb__frame[data-pattern='rays'] .thumb__pattern {
-  background-image: repeating-linear-gradient(
-    -45deg,
-    rgb(255 255 255 / 0.35) 0 1px,
-    transparent 1px 8px
-  );
-}
-
-.thumb__frame[data-pattern='wave'] .thumb__pattern {
-  background-image: repeating-radial-gradient(
-    circle at 20% 120%,
-    rgb(255 255 255 / 0.35) 0 1px,
-    transparent 1px 10px
-  );
-}
-
-.thumb__perf {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 15%;
-  background-image: repeating-linear-gradient(
-    to right,
-    rgb(0 0 0 / 0.55) 0 4px,
-    transparent 4px 10px
-  );
-  opacity: 0.7;
-}
-
-.thumb__perf--top {
-  top: 0;
-}
-
-.thumb__perf--bottom {
-  bottom: 0;
-}
-
 .thumb__glyph {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  translate: -50% -50%;
   width: 1.15rem;
   height: 1.15rem;
-  color: var(--color-spark-300);
-  opacity: 0.9;
+  color: var(--ui-text-dimmed);
 }
 
 .thumb[data-size='lg'] .thumb__glyph {
@@ -244,13 +159,14 @@ const glyph = computed(() => [
   padding: 0.1rem 0.4rem;
 }
 
+/* Themed, not white: the frame is a light surface now, and a white glyph with
+   a drop shadow on it was invisible in daylight. */
 .thumb__play {
   position: absolute;
   right: 0.25rem;
   bottom: 0.25rem;
   width: 0.85rem;
   height: 0.85rem;
-  color: #fff;
-  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.6));
+  color: var(--ui-primary);
 }
 </style>

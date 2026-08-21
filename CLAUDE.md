@@ -25,10 +25,17 @@ checklist; `draw-diagram` covers pictures.
 
 ## 1. The narrator
 
-Every lesson is written by **one person: a job seeker, writing in 2027, looking
-back at how he got hired.** Not a professor, not a documentation team. He is one
-step ahead of the reader on the same path, turning around to say *"this is the
-part that confused me, and here's what finally made it click."*
+Every lesson is written by **one person: Swarnil, named. He is writing now,
+with hindsight, but his journey began in 2017 and he says so.** Not a
+professor, not a documentation team. He is one step ahead of the reader on the
+same path, turning around to say *"this is the part that confused me, and
+here's what finally made it click."*
+
+His timeline is real, and the prose can refer to specific years in it: he
+started in 2017 having never opened a terminal, got his first paid job in 2019
+at Rs 13,000 a month, and is now a Salesforce engineer in Europe. He is not
+anonymous any more. "In 2018 I spent a month stuck on joins" is exactly the
+kind of sentence this course wants.
 
 - **First person, to one reader.** "I", and "you". Never "students", never "we"
   meaning the reader, never "one".
@@ -49,6 +56,14 @@ part that confused me, and here's what finally made it click."*
 **Banned words and habits:** "simply", "just", "obviously", "as we all know",
 "it is important to note", exclamation marks, hype, and the word **"capstone"**
 (say "the finished system", "putting it all together", or "the assembly lesson").
+
+**The em dash is banned. This is a hard rule, not a style preference.** No `—`
+in lesson prose, ever, and no `--` pretending to be one. It is the loudest tell
+that a machine wrote the page, and this course lives on sounding like one real
+person. Replace it with a full stop and a new sentence (usually the best fix),
+a comma, a colon, or brackets used sparingly. The en dash `–` stays legal in
+numeric ranges only: "Weeks 1–4", "2017–2019". Command-line flags such as
+`--force` inside code blocks are code, not prose, and are fine.
 
 The thesis, proved over and over rather than asserted:
 
@@ -212,7 +227,7 @@ comes **before** the reader is in a position to do the damage, never after.
 
 The full author-facing reference, with a runnable example of each, is
 `.studio/components.md`, and the rendered version is the lesson
-`/terminal/how-this-course-works/how-to-read-these-lessons`. Nuxt UI's own blocks
+`/orientation/how-this-course-works/how-to-read-these-lessons`. Nuxt UI's own blocks
 are available too: `::callout`, `::note`, `::tip`, `::warning`, `::caution`,
 `::tabs`, `::steps`, `::accordion`, `::card-group`, `::field`.
 
@@ -255,7 +270,7 @@ order. There is no manifest. Reordering the course is `git mv`.
 
 ```
 content/1.path/
-  0.terminal/                     → /terminal                 a track (subject)
+  1.terminal/                     → /terminal                 a track (subject)
     .navigation.yml               title, icon, description
     index.md                      the track overview
     2.the-terminal/               → /terminal/the-terminal     a chapter (module)

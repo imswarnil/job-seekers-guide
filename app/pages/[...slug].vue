@@ -4,9 +4,10 @@
  *
  * Subjects, modules and lessons all live at the root of the site, so one
  * catch-all serves all three and depth decides which. vue-router ranks static
- * segments above this, which is why `/about` reaches `about.vue` and never gets
+ * segments above this, which is why `/faq` reaches `faq.vue` and never gets
  * here — and why `modules/reserved-slugs.ts` fails the build if somebody names a
- * subject after one of those pages.
+ * subject after one of those pages. `/about` no longer has a page of its own;
+ * it is caught earlier still, by the redirect in `middleware/legacy.global.ts`.
  *
  * The three-band layout (full-width hero, content + sidebar, full-width
  * pagination) lives in `player/PlayerShell.vue`; this file decides what goes in

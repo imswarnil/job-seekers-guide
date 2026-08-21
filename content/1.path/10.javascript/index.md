@@ -1,9 +1,9 @@
 ---
 title: JavaScript — make it react
 description: HTML is the body, CSS is the face, JavaScript is the nervous system. You already know how to program, so this track moves fast on the basics and slow on the two things that genuinely bite.
-code: JSG-05
+code: JSG-10
 duration: 8 weeks
-stage: applied
+stage: web
 icon: i-simple-icons-javascript
 outcomes:
   - Read and write modern JavaScript without guessing at what `this` refers to

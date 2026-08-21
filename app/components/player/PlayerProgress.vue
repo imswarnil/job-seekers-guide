@@ -7,12 +7,27 @@ const props = withDefaults(defineProps<{
   variant?: 'bar' | 'ring'
   label?: string
   size?: number
+  /**
+   * Draw the unfilled part of the ring.
+   *
+   * Off where the ring is laid over something that already has a circular
+   * border — the timeline node — because the track and the border are then two
+   * concentric circles a pixel apart, which reads as a target rather than as
+   * progress. With it off, the border *is* the track.
+   */
+  track?: boolean
 }>(), {
   variant: 'bar',
-  size: 22
+  size: 22,
+  track: true
 })
 
-const radius = computed(() => (props.size - 3) / 2)
+const STROKE = 2.5
+
+/** Radius that puts the stroke's outer edge exactly on the edge of the box, so
+ *  a ring drawn over a bordered element lands on the border rather than beside
+ *  it. */
+const radius = computed(() => (props.size - STROKE) / 2)
 const circumference = computed(() => 2 * Math.PI * radius.value)
 const offset = computed(() => circumference.value * (1 - props.progress.percent / 100))
 </script>
@@ -28,12 +43,13 @@ const offset = computed(() => circumference.value * (1 - props.progress.percent 
       :aria-label="`${progress.percent}% complete`"
     >
       <circle
+        v-if="track"
         :cx="size / 2"
         :cy="size / 2"
         :r="radius"
         fill="none"
         stroke="currentColor"
-        stroke-width="2.5"
+        :stroke-width="STROKE"
         class="text-accented"
       />
       <circle
@@ -43,7 +59,7 @@ const offset = computed(() => circumference.value * (1 - props.progress.percent 
         :r="radius"
         fill="none"
         stroke="currentColor"
-        stroke-width="2.5"
+        :stroke-width="STROKE"
         stroke-linecap="round"
         :stroke-dasharray="circumference"
         :stroke-dashoffset="offset"

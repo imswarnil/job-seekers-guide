@@ -1,7 +1,7 @@
 ---
 title: Supabase — the real backend
 description: The University Management App needs a database on the internet, real logins, file storage, and permissions the database itself enforces — not permissions your interface politely suggests.
-code: JSG-12
+code: JSG-17
 duration: 4 weeks
 stage: applied
 icon: i-simple-icons-supabase

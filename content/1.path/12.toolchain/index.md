@@ -1,9 +1,9 @@
 ---
 title: The toolchain — how real projects are run
 description: Everything so far has been loose files opened in a browser. Every professional project has a package manager, a build tool and a linter, and not knowing them is the fastest way to look self-taught in a bad way.
-code: JSG-07
+code: JSG-12
 duration: 1 week
-stage: applied
+stage: tooling
 icon: i-lucide-package
 outcomes:
   - Explain what `package.json`, `node_modules` and a lock file each do

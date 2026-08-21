@@ -1,7 +1,7 @@
 ---
-title: Java — learn to program
+title: "Java: learn to program"
 description: You learn to program once. Everything after this is a dialect. Java is strict enough to show you what is really happening, and it is what a very large number of entry-level jobs still run on.
-code: JSG-01
+code: JSG-06
 duration: 16 weeks
 stage: language
 icon: i-simple-icons-openjdk
@@ -12,11 +12,12 @@ outcomes:
   - Model a problem with objects, and defend the design in an interview
   - Build the console engine room of the University Management App, with tests that catch you breaking it
 prerequisites:
-  - terminal
+  - data-structures
 ---
 
-Your workshop is ready and your work is safe. Now you make the machine do
-something — which means learning to speak to it.
+You can describe, precisely, the steps a machine should take, and you have no
+way of making one take them. That is the gap this track closes, and it closes
+it for good, because you learn to program exactly once.
 
 ## Why this track, and why it is this long
 
@@ -50,12 +51,12 @@ is normal, it is not a verdict on you, and the chapter opens by saying so.
 ::flow{numbered direction="vertical" caption="Fourteen chapters. Each one exists because the one before it hit a wall."}
   :::flow-step{label="Before you write a line of Java" icon="i-lucide-map"}
   What a program is, what a language is, how code becomes something that runs,
-  and what the JVM actually is — compiled and run by hand, before an editor hides
+  and what the JVM actually is. Compiled and run by hand, before an editor hides
   any of it.
   :::
   :::flow-step{label="Your first words, then text" icon="i-lucide-type"}
   Variables, the eight primitive types, the stack and the heap, operators,
-  casting, input — then strings, and why comparing two identical names with `==`
+  casting, input. Then strings, and why comparing two identical names with `==`
   says they are different.
   :::
   :::flow-step{label="Decisions, loops and many values" icon="i-lucide-repeat"}
@@ -63,7 +64,7 @@ is normal, it is not a verdict on you, and the chapter opens by saying so.
   sorting by hand, and your first real debugging session.
   :::
   :::flow-step{label="Methods, recursion and objects" icon="i-lucide-boxes" highlight}
-  Splitting code into named pieces, a method that calls itself — and then the big
+  Splitting code into named pieces, a method that calls itself, and then the big
   turn: classes, constructors, encapsulation, inheritance, polymorphism.
   :::
   :::flow-step{label="Contracts, memory and failure" icon="i-lucide-shield-alert"}
@@ -95,6 +96,6 @@ part of your project an interviewer can read in five minutes.
 ::
 
 ::callout{icon="i-lucide-arrow-right"}
-By the end of it your program is genuinely good — and everything it knows still
+By the end of it your program is genuinely good. And everything it knows still
 disappears into a text file the moment you close it.
 ::

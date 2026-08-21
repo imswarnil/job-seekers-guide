@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Subject } from '~/utils/path'
-import { findTech } from '~/utils/tech'
 
 const props = defineProps<{
   subject: Subject
@@ -11,42 +10,6 @@ const props = defineProps<{
 const { subjectProgress } = useProgress()
 
 const progress = computed(() => subjectProgress(props.subject))
-
-/**
- * The technologies a subject is actually about, for the thumbnail strip.
- *
- * Matched by slug first — `/java` is Java — then by any tech name appearing in
- * the title, so a subject called "Databases in Practice" picks up SQL without
- * anybody maintaining a second mapping.
- */
-const thumbs = computed(() => {
-  const direct = findTech(props.subject.slug)
-  if (direct) {
-    return [props.subject.slug]
-  }
-
-  const haystack = `${props.subject.slug} ${props.subject.title}`.toLowerCase()
-  const guesses: Record<string, string[]> = {
-    'terminal': ['linux', 'git'],
-    'toolchain': ['node'],
-    'hosting': ['git', 'linux'],
-    'nosql': ['mongodb'],
-    'data-visualisation': ['javascript'],
-    'operating-systems': ['os', 'linux'],
-    'databases': ['sql', 'mysql'],
-    'networks': ['networks'],
-    'data-structures': ['dsa'],
-    'web': ['html', 'css', 'javascript']
-  }
-
-  for (const [key, names] of Object.entries(guesses)) {
-    if (haystack.includes(key.replace(/-/g, ' ')) || haystack.includes(key)) {
-      return names
-    }
-  }
-
-  return []
-})
 
 const meta = computed(() => [
   props.subject.duration,
@@ -71,60 +34,55 @@ const number = computed(() => props.index === undefined ? '' : String(props.inde
       :to="subject.path"
       class="subject__card"
     >
-      <div class="flex items-start justify-between gap-3">
-        <UIcon
-          :name="subject.icon || 'i-lucide-book-open'"
-          class="size-6 text-primary shrink-0"
-        />
+      <!-- A picture, not an icon in a corner. Sixteen by nine with the mark
+           centred and large, so a row of these reads as artwork the way a row
+           of episodes does. -->
+      <SubjectThumb
+        :subject="subject"
+        size="card"
+        class="subject__thumb"
+      />
 
-        <div
-          v-if="thumbs.length"
-          class="flex items-center gap-1.5"
-        >
-          <TechThumb
-            v-for="name in thumbs"
-            :key="name"
-            :name="name"
-            size="xs"
-          />
-        </div>
-      </div>
+      <div class="subject__inner">
+        <!-- One mark per card. The technology strip used to sit here as well,
+             which meant every card carried the same idea twice — the big glyph
+             in the thumbnail already says which subject this is. -->
+        <h3 class="font-display font-semibold text-highlighted text-balance">
+          {{ subject.title }}
+        </h3>
 
-      <h3 class="font-display font-semibold text-highlighted mt-3 text-balance">
-        {{ subject.title }}
-      </h3>
+        <p class="text-sm text-muted mt-1.5 line-clamp-3">
+          {{ subject.description }}
+        </p>
 
-      <p class="text-sm text-muted mt-1.5 line-clamp-3">
-        {{ subject.description }}
-      </p>
-
-      <div class="mt-auto pt-4">
-        <div class="flex items-center gap-2 flex-wrap text-xs text-dimmed">
-          <UBadge
-            v-if="subject.code"
-            :label="subject.code"
-            color="neutral"
-            variant="subtle"
-            size="sm"
-          />
-          <span>{{ meta.join(' · ') }}</span>
-        </div>
-
-        <ClientOnly>
-          <div
-            v-if="progress.started"
-            class="mt-3"
-          >
-            <UProgress
-              :model-value="progress.percent"
-              size="xs"
-              :color="progress.finished ? 'success' : 'primary'"
+        <div class="mt-auto pt-4">
+          <div class="flex items-center gap-2 flex-wrap text-xs text-dimmed">
+            <UBadge
+              v-if="subject.code"
+              :label="subject.code"
+              color="neutral"
+              variant="subtle"
+              size="sm"
             />
-            <p class="text-xs text-muted mt-1.5">
-              {{ progress.finished ? 'Finished' : `${progress.percent}% complete` }}
-            </p>
+            <span>{{ meta.join(' · ') }}</span>
           </div>
-        </ClientOnly>
+
+          <ClientOnly>
+            <div
+              v-if="progress.started"
+              class="mt-3"
+            >
+              <UProgress
+                :model-value="progress.percent"
+                size="xs"
+                :color="progress.finished ? 'success' : 'primary'"
+              />
+              <p class="text-xs text-muted mt-1.5">
+                {{ progress.finished ? 'Finished' : `${progress.percent}% complete` }}
+              </p>
+            </div>
+          </ClientOnly>
+        </div>
       </div>
     </NuxtLink>
   </div>
@@ -177,7 +135,8 @@ const number = computed(() => props.index === undefined ? '' : String(props.inde
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 1.25rem;
+  /* The thumbnail runs to the card's edges, so the padding moved inside. */
+  overflow: hidden;
   border: 1px solid var(--ui-border);
   border-radius: var(--radius-lg);
   background: var(--ui-bg);
@@ -187,9 +146,22 @@ const number = computed(() => props.index === undefined ? '' : String(props.inde
     box-shadow var(--dgm-t-fast) var(--dgm-ease);
 }
 
+.subject__inner {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1.15rem 1.25rem 1.25rem;
+}
+
 .subject__card:hover {
   border-color: var(--ui-primary);
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
+}
+
+/* The mark leans in a little when the card is hovered. Small, and it is what
+   makes a still row feel like it is made of things rather than of boxes. */
+.subject__card:hover .subject__thumb :deep(.sthumb__mark) {
+  transform: scale(1.08);
 }
 </style>

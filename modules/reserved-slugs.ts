@@ -15,6 +15,8 @@ import { defineNuxtModule } from 'nuxt/kit'
 const RESERVED = [
   'start',
   'path',
+  // No page of its own any more, but still reserved: `/about` is a published
+  // URL that redirects to the front page, so a subject there would never load.
   'about',
   'my-story',
   'series',

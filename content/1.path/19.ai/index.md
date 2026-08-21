@@ -1,9 +1,9 @@
 ---
 title: AI — use it, then build with it
 description: You can now program, model data, query it, build an interface, secure a backend and ship it. That is exactly the foundation you need to build AI features that are useful instead of dangerous.
-code: JSG-14
+code: JSG-19
 duration: 4 weeks
-stage: applied
+stage: ai
 icon: i-lucide-sparkles
 outcomes:
   - Explain what a model, a token, a context window and an embedding actually are

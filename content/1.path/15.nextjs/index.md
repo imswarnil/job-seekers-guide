@@ -1,7 +1,7 @@
 ---
 title: Next.js — the production framework
 description: React gives you components. A real product also needs routing, server rendering, an API, data fetching that does not waterfall, and a build that deploys.
-code: JSG-10
+code: JSG-15
 duration: 6 weeks
 stage: applied
 icon: i-simple-icons-nextdotjs

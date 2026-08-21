@@ -364,7 +364,7 @@ defineShortcuts({
     >
       <template #footer>
         <UButton
-          to="/terminal/how-this-course-works/how-to-read-these-lessons"
+          to="/orientation/how-this-course-works/how-to-read-these-lessons"
           label="See it in a lesson"
           variant="subtle"
           trailing-icon="i-lucide-arrow-right"

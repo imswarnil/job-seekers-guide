@@ -1,9 +1,9 @@
 ---
 title: The machine and the terminal
 description: Before a single line of code — what a computer actually does, how to command one without touching a mouse, and how to keep a permanent, reversible history of everything you write.
-code: JSG-00
+code: JSG-01
 duration: 3 weeks
-stage: orientation
+stage: introduction
 icon: i-lucide-terminal
 outcomes:
   - Explain what happens inside a machine between pressing a key and seeing a result
@@ -11,7 +11,13 @@ outcomes:
   - Understand permissions, processes and why "permission denied" is not a bug
   - Reach a machine that is not yours, over the network, from a prompt
   - Keep every version of your work with Git, and get back anything you lose
+prerequisites:
+  - orientation
 ---
+
+You know what the work is and you have decided you want it. What you do not have
+is any idea how the machine in front of you works — and everything after this
+rests on that.
 
 I started here because I had to. Not out of purity — out of embarrassment.
 

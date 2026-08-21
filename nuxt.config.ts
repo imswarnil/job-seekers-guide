@@ -83,12 +83,19 @@ export default defineNuxtConfig({
     '/series': { redirect: { to: '/my-story/watch', statusCode: 301 }, prerender: false },
     '/series/read': { redirect: { to: '/my-story/book', statusCode: 301 }, prerender: false },
     '/series/**': { redirect: { to: '/my-story/watch', statusCode: 301 }, prerender: false },
-    '/docs': { redirect: { to: '/about', statusCode: 301 }, prerender: false },
-    '/docs/getting-started/**': { redirect: { to: '/about', statusCode: 301 }, prerender: false },
+    // About became a band of the front page. The URL was published, so it keeps
+    // working and lands on the anchor.
+    '/about': { redirect: { to: '/#about', statusCode: 301 }, prerender: false },
+    // "How this course works" moved out of the terminal track when the
+    // orientation track was put in front of it.
+    '/terminal/how-this-course-works': { redirect: { to: '/orientation/how-this-course-works', statusCode: 301 }, prerender: false },
+    '/terminal/how-this-course-works/**': { redirect: { to: '/orientation/how-this-course-works', statusCode: 301 }, prerender: false },
+    '/docs': { redirect: { to: '/#about', statusCode: 301 }, prerender: false },
+    '/docs/getting-started/**': { redirect: { to: '/#about', statusCode: 301 }, prerender: false },
     '/docs/curriculum/**': { redirect: { to: '/start', statusCode: 301 }, prerender: false },
     '/docs/help/**': { redirect: { to: '/faq', statusCode: 301 }, prerender: false },
-    '/docs/authoring/**': { redirect: { to: '/about', statusCode: 301 }, prerender: false },
-    '/docs/**': { redirect: { to: '/about', statusCode: 301 }, prerender: false },
+    '/docs/authoring/**': { redirect: { to: '/#about', statusCode: 301 }, prerender: false },
+    '/docs/**': { redirect: { to: '/#about', statusCode: 301 }, prerender: false },
     '/blog': { redirect: { to: '/changelog', statusCode: 301 }, prerender: false },
     '/blog/**': { redirect: { to: '/changelog', statusCode: 301 }, prerender: false }
   },
@@ -106,7 +113,6 @@ export default defineNuxtConfig({
         '/my-story/watch',
         '/my-story/book',
         '/run',
-        '/about',
         '/faq',
         '/changelog',
         '/search',
@@ -151,7 +157,17 @@ export default defineNuxtConfig({
         'jobTitle': 'Salesforce engineer',
         'sameAs': ['https://github.com/imswarnil', 'https://topmate.io/swarnil']
       },
-      sameAs: ['https://github.com/imswarnil/job-seekers-guide']
+      sameAs: ['https://github.com/imswarnil/job-seekers-guide'],
+      // Who this is written for, said in the machine-readable copy as well as
+      // in the prose. The path is free and reachable from anywhere, so `India`
+      // is the honest service area; Bengaluru is named because it is where the
+      // roles this course targets are concentrated, not because anything here
+      // is restricted to it.
+      areaServed: [
+        { '@type': 'City', 'name': 'Bengaluru', 'alternateName': 'Bangalore' },
+        { '@type': 'Country', 'name': 'India' }
+      ],
+      knowsLanguage: ['en-IN', 'en']
     }
   },
 

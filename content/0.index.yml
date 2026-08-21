@@ -93,12 +93,12 @@ testimonials:
         description: Time-boxed and owed the truth
 cta:
   title: Start where the path starts
-  description: Track zero, three weeks, mandatory for everyone including computer science graduates. It is the track self-taught developers skip, and it shows in interviews.
+  description: Track zero is one week and has no code in it — what the job actually is, how the industry got here, and whether any of it is for you. Read it before you commit a year, or a degree.
   links:
     - label: Open track zero
-      to: /terminal
+      to: /orientation
       trailingIcon: i-lucide-arrow-right
     - label: Read the principles
-      to: /about
+      to: '#the-ten-principles'
       variant: subtle
       icon: i-lucide-book-open

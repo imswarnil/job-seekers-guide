@@ -33,86 +33,37 @@ const current = computed(() => all.value[selected.value])
 const next = computed(() => all.value[selected.value + 1])
 const previous = computed(() => selected.value > 0 ? all.value[selected.value - 1] : undefined)
 
-const screen = useTemplateRef<{
-  toggleplay: () => void
-  togglemute: () => void
-  skip: (seconds: number) => void
-}>('screen')
-
+/**
+ * The set owns its own transport now.
+ *
+ * Play, pause, mute and power used to live on a separate remote beside the
+ * television, which is a thing no television has ever needed — and it meant two
+ * copies of "is it playing" that had to be kept in step by hand. The buttons are
+ * on the cabinet, where the set already knows the answer. The page keeps only
+ * what is genuinely the page's: which episode is on.
+ */
 const on = ref(false)
-const playing = ref(true)
-const muted = ref(false)
 
 function pick(index: number) {
   selected.value = index
-  playing.value = true
-}
-
-function power() {
-  on.value = !on.value
-}
-
-function toggleplay() {
-  playing.value = !playing.value
-  screen.value?.toggleplay()
-}
-
-function togglemute() {
-  muted.value = !muted.value
-  screen.value?.togglemute()
 }
 </script>
 
 <template>
   <div>
-    <UContainer class="py-6 lg:py-10">
-      <div class="flex items-end justify-between gap-6 flex-wrap mb-6">
-        <div class="min-w-0">
-          <NuxtLink
-            to="/my-story"
-            class="inline-flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors"
-          >
-            <UIcon
-              name="i-lucide-arrow-left"
-              class="size-3.5"
-            />
-            My story
-          </NuxtLink>
-
-          <h1 class="font-display text-3xl sm:text-4xl font-bold text-highlighted tracking-tight text-balance mt-2">
-            The series
-          </h1>
-          <p class="mt-2 text-muted max-w-xl text-balance">
-            Ten episodes, in order. {{ filmed }} filmed so far — the rest run
-            stand-in footage while the writing goes up first, and the full
-            script is on every episode page.
-          </p>
-        </div>
-
-        <UButton
-          to="/my-story/book"
-          label="Read it as a book"
-          icon="i-lucide-book-open"
-          color="neutral"
-          variant="subtle"
-          size="lg"
-        />
-      </div>
-    </UContainer>
-
     <!-- ── The room ───────────────────────────────────────────────────
-         Full width, because the set is the page. A dark band rather than
-         a dark page: everything outside this box follows the theme like
-         the rest of the site. -->
+         One viewport, flush under the header, with the video behind the
+         whole of it. There is no page heading above this on purpose: the
+         set *is* the heading, and a title bar pushing it down the screen
+         meant the thing you came for was never fully in view. -->
     <div class="room">
-      <WatchAmbientVideo />
+      <WatchAmbientVideo intensity="high" />
 
       <div class="room__inner">
         <div class="room__grid">
           <div class="room__tv">
             <WatchCrtScreen
               v-if="current"
-              ref="screen"
               :key="current.path"
               v-model:on="on"
               :youtube-id="current.youtubeId"
@@ -121,25 +72,12 @@ function togglemute() {
               :poster="current.poster"
               :runtime="current.runtime"
               :placeholder="current.placeholder"
+              :total="all.length"
+              :can-previous="selected > 0"
+              :can-next="Boolean(next)"
+              @previous="pick(selected - 1)"
+              @next="pick(selected + 1)"
             />
-
-            <div class="room__controls">
-              <WatchCrtRemote
-                :episode="current?.episode ?? 1"
-                :total="all.length"
-                :on="on"
-                :playing="playing"
-                :muted="muted"
-                :can-previous="selected > 0"
-                :can-next="Boolean(next)"
-                @power="power"
-                @previous="pick(selected - 1)"
-                @next="pick(selected + 1)"
-                @toggleplay="toggleplay"
-                @togglemute="togglemute"
-                @skip="screen?.skip($event)"
-              />
-            </div>
           </div>
 
           <!-- ── The running order ────────────────────────────────── -->
@@ -271,61 +209,53 @@ function togglemute() {
 </template>
 
 <style scoped>
+/* Exactly one viewport, starting where the header ends. `svh` rather than `vh`
+   because on a phone `vh` is the height with the browser chrome *retracted*,
+   which puts the bottom of the set behind the address bar until you scroll. */
 .room {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border-block: 1px solid rgb(255 255 255 / 0.1);
+  min-height: calc(100svh - var(--ui-header-height, 4rem));
+  display: flex;
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
   background: linear-gradient(165deg, #12142c, #08091a 60%, #05060f);
 }
 
-/* Full-bleed band, centred rail inside it. The set gets the width; the reading
-   below it goes back into the site's own container. */
 .room__inner {
   position: relative;
   z-index: 2;
   width: 100%;
   max-width: 100rem;
-  margin: 0 auto;
-  padding: 1.5rem 1rem;
+  margin: auto;
+  padding: 1.25rem 1rem;
 }
 
 @media (min-width: 1024px) {
   .room__inner {
-    padding: 2.5rem 2rem;
+    padding: 1.75rem 2rem;
   }
 }
 
 .room__grid {
   display: grid;
-  gap: 1.5rem;
+  gap: 1.25rem;
+  align-items: center;
 }
 
 @media (min-width: 1024px) {
   .room__grid {
     grid-template-columns: minmax(0, 1fr) 21rem;
     gap: 2rem;
-    align-items: start;
   }
 }
 
-.room__controls {
-  display: flex;
-  justify-content: center;
-  margin-top: 1.25rem;
-}
-
-@media (min-width: 1024px) {
-  .room__tv {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 1.5rem;
-    align-items: center;
-  }
-
-  .room__controls {
-    margin-top: 0;
-  }
+/* The set is sized off the available height rather than the available width, so
+   it always finishes inside the viewport instead of running off the bottom. */
+.room__tv {
+  margin-inline: auto;
+  width: 100%;
+  max-width: min(100%, calc((100svh - var(--ui-header-height, 4rem) - 6rem) * 1.5));
 }
 
 .room__list {
@@ -355,12 +285,15 @@ function togglemute() {
   color: rgb(244 245 255 / 0.45);
 }
 
+/* Ten items in a panel that has to finish inside the viewport, so this is the
+   one thing on the page that scrolls — and only when it has to. */
 .room__items {
   list-style: none;
   margin: 0;
   padding: 0.4rem;
-  max-height: 32rem;
+  max-height: min(26rem, calc(100svh - var(--ui-header-height, 4rem) - 10rem));
   overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .room__item {

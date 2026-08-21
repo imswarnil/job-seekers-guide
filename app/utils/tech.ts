@@ -64,6 +64,14 @@ export const tech = {
   'os': { label: 'Operating Systems', icon: 'i-lucide-cpu', color: '#6366f1' },
   'networks': { label: 'Networks', icon: 'i-lucide-network', color: '#8b5cf6' },
   'dsa': { label: 'Data Structures', icon: 'i-lucide-binary', color: '#0891b2' },
+
+  // The computer science tracks are looked up by their URL slug, so the slug
+  // has to be a key here or the tile falls back to the house colours and the
+  // four of them become indistinguishable.
+  'operating-systems': { label: 'Operating Systems', icon: 'i-lucide-cpu', color: '#6366f1' },
+  'computer-networks': { label: 'Computer Networks', icon: 'i-lucide-network', color: '#8b5cf6' },
+  'dbms': { label: 'DBMS', icon: 'i-lucide-database', color: '#0f766e' },
+  'data-structures': { label: 'Data Structures', icon: 'i-lucide-binary', color: '#0891b2' },
   'oops': { label: 'OOP', icon: 'i-lucide-boxes', color: '#7c3aed' },
   'system-design': { label: 'System Design', icon: 'i-lucide-layout-dashboard', color: '#4f46e5' },
   'interview': { label: 'Interviews', icon: 'i-lucide-messages-square', color: '#059669' },

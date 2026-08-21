@@ -1,7 +1,7 @@
 ---
 title: NoSQL, and the other shape of data
 description: You know relational databases deeply, which is exactly the right moment to meet the alternative — because now you can judge it instead of following a trend.
-code: JSG-11
+code: JSG-16
 duration: 1 week
 stage: applied
 icon: i-simple-icons-mongodb

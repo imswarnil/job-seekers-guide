@@ -23,20 +23,97 @@ defineOgImage('Guide', {
 
 const site = useSiteConfig()
 
+/**
+ * Structured data for the front page.
+ *
+ * Three nodes, and every claim in them is one the site already makes in prose:
+ * the site itself, the path as a free educational programme aimed at people
+ * trying to get a first software job, and the ordered list of subjects as
+ * `Course` entries.
+ *
+ * The audience is named — job seekers and students, Bengaluru and India — for
+ * the same reason the copy is written the way it is: this is for somebody
+ * chasing a first role in that market. Nothing here is restricted to a city;
+ * `areaServed` says where the roles are, not where the course is.
+ *
+ * Deliberately absent: any employment outcome, salary range or placement
+ * figure. There are schema fields for all three, and filling them in would be
+ * the exact claim this course refuses to make.
+ */
+const audience = {
+  '@type': 'EducationalAudience',
+  'educationalRole': 'student',
+  'audienceType': 'Job seekers and students pursuing a first software engineering role',
+  'geographicArea': [
+    { '@type': 'City', 'name': 'Bengaluru', 'alternateName': 'Bangalore' },
+    { '@type': 'Country', 'name': 'India' }
+  ]
+}
+
+const free = {
+  '@type': 'Offer',
+  'price': '0',
+  'priceCurrency': 'INR',
+  'availability': 'https://schema.org/InStock',
+  'category': 'Free'
+}
+
 useSchemaOrg([
   defineWebSite({
     name: site.name,
     description,
+    inLanguage: 'en-IN',
     potentialAction: defineSearchAction({ target: '/search?q={search_term_string}' })
   }),
+
+  {
+    '@type': 'EducationalOccupationalProgram',
+    '@id': `${site.url}/#programme`,
+    'name': 'Job Seekers Guide — the whole path',
+    'description': description,
+    'url': `${site.url}/start`,
+    'provider': { '@id': `${site.url}/#identity` },
+    'programPrerequisites': 'None. The path starts from no experience and assumes no degree.',
+    'educationalProgramMode': 'part-time',
+    'occupationalCategory': [
+      'Software Developer',
+      'Software Engineer',
+      'Front-End Developer',
+      'Back-End Developer',
+      'Full-Stack Developer',
+      'Database Developer'
+    ],
+    'numberOfCredits': 0,
+    'isAccessibleForFree': true,
+    'inLanguage': 'en-IN',
+    'audience': audience,
+    'offers': free,
+    'hasCourse': path.value.subjects.map(subject => ({
+      '@type': 'Course',
+      '@id': `${site.url}${subject.path}#course`,
+      'name': subject.title,
+      'url': `${site.url}${subject.path}`
+    }))
+  },
+
   defineItemList({
     name: 'The learning path',
     itemListElement: path.value.subjects.map(subject => ({
       '@type': 'Course',
+      '@id': `${site.url}${subject.path}#course`,
       'name': subject.title,
       'description': subject.description,
       'url': `${site.url}${subject.path}`,
-      'provider': { '@id': `${site.url}/#identity` }
+      'provider': { '@id': `${site.url}/#identity` },
+      'isAccessibleForFree': true,
+      'inLanguage': 'en-IN',
+      'audience': audience,
+      'offers': free,
+      'hasCourseInstance': {
+        '@type': 'CourseInstance',
+        'courseMode': 'online',
+        'courseWorkload': subject.duration || undefined
+      }
     }))
   })
 ])
@@ -88,31 +165,39 @@ useSchemaOrg([
       </UContainer>
     </section>
 
-    <!-- The start of the path, on the front page. The fastest possible answer
-         to "where do I start" is the first subject, visible without a click. -->
-    <UContainer class="pb-4">
-      <UPageGrid class="lg:grid-cols-3">
-        <SubjectCard
-          v-for="(subject, index) in path.subjects.slice(0, 3)"
-          :key="subject.path"
-          :subject="subject"
-          :index="index"
-        />
-      </UPageGrid>
+    <!-- Straight after the hero: the path itself, across rather than down.
+         The fastest possible answer to "where do I start" is the order, and a
+         row you travel along says "sequence" where a grid says "catalogue". -->
+    <UContainer class="py-10 lg:py-14">
+      <HomeCourseRail :path="path" />
+    </UContainer>
 
+    <!-- Then who is telling you all this, and the two ways in. One band: the
+         sentence the site rests on, the set and the book drawn as themselves,
+         and the numbers underneath. -->
+    <StoryReel />
+
+    <UContainer class="py-8 lg:py-10">
       <AdSlot
         placement="in-article"
         class="mx-auto"
       />
     </UContainer>
 
+    <!-- Six claims drawn rather than written. The four prose bands that used to
+         run here in a row were the slowest possible answer to "what is this". -->
     <UContainer class="py-10 lg:py-16">
+      <HomeShowcase />
+    </UContainer>
+
+    <UContainer class="pb-10 lg:pb-16">
       <HomeContrast />
     </UContainer>
 
-    <!-- The evidence for everything above it. Its own band, because a
-         sentence this load-bearing inside a card reads as a third feature. -->
-    <HomeStory />
+    <!-- What this is, how it teaches, and what it refuses to do. This was
+         `/about`, a good page behind a nav item competing with "Start here";
+         it belongs where somebody is deciding whether to trust the path. -->
+    <HomeAbout />
 
     <UPageSection
       v-for="(section, index) in page.sections"

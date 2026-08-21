@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "nuxt typecheck",
+     "typecheck": "nuxt typecheck",
     "svg:opt": "svgo --config svgo.config.mjs"
   },
   "dependencies": {

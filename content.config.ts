@@ -6,7 +6,7 @@ const sizeEnum = z.enum(['xs', 'sm', 'md', 'lg', 'xl'])
 const orientationEnum = z.enum(['vertical', 'horizontal'])
 
 /** Display grouping on `/path`. Never ordering — order is the folder numbering. */
-const stageEnum = z.enum(['orientation', 'foundation', 'language', 'applied', 'projects', 'job-search'])
+const stageEnum = z.enum(['introduction', 'foundation', 'language', 'web', 'tooling', 'applied', 'ai', 'interview'])
 const kindEnum = z.enum(['lesson', 'practice', 'project', 'quiz', 'reading'])
 const changeEnum = z.enum(['feature', 'fix', 'content', 'other'])
 
@@ -85,9 +85,10 @@ export default defineContentConfig({
       })
     }),
 
-    // Standalone root-level pages: /about, /my-story, /faq. Each one needs a
-    // matching app/pages/<slug>.vue — that file is what reserves the slug from
-    // the path.
+    // Standalone root-level pages: /my-story, /faq. Each one needs a matching
+    // app/pages/<slug>.vue — that file is what reserves the slug from the path.
+    // `about.md` is the exception: it has no page of its own any more and is
+    // read by HomeAbout.vue, which renders it as a band of the front page.
     pages: defineCollection({
       source: '*.md',
       type: 'page',

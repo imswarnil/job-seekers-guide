@@ -100,7 +100,7 @@ Two rules they all follow:
 
 House style for lessons is in [`.studio/lesson-style.md`](./.studio/lesson-style.md).
 
-A live example of every component: `/terminal/how-this-course-works/how-to-read-these-lessons`.
+A live example of every component: `/orientation/how-this-course-works/how-to-read-these-lessons`.
 
 What gets written, in what order, and in whose voice is
 [`content-plan.md`](./content-plan.md); the working rules for authoring against

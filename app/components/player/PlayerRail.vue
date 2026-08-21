@@ -14,6 +14,18 @@ const { pathProgress } = useProgress()
 const progress = computed(() => pathProgress(path.value))
 const activeSubject = computed(() => props.current ? findSubject(path.value, props.current) : undefined)
 
+/**
+ * The rail, cut into the sections of the curriculum.
+ *
+ * Sixteen collapsed subjects in one undifferentiated column is a list you have
+ * to read end to end to find anything in. The dividers turn it into six or
+ * seven places — "the web bit", "the tools bit" — which is how a reader already
+ * thinks about where they are. Numbering still runs across the whole path
+ * (`offset`), because restarting it per section would say the sections are
+ * separate courses, and they are not.
+ */
+const sections = computed(() => byStage(path.value))
+
 /* ── Finding a lesson ──────────────────────────────────────────────────
    Three hundred lessons behind eleven collapsed subjects is a tree you
    have to already know your way around. The filter is the way in for
@@ -148,19 +160,41 @@ onMounted(async () => {
     </div>
 
     <!-- ── The tree ──────────────────────────────────────────────────── -->
-    <div
-      v-else
-      class="space-y-0.5"
-    >
-      <PlayerRailSubject
-        v-for="(subject, index) in path.subjects"
-        :key="subject.path"
-        :subject="subject"
-        :index="index"
-        :current="current"
-        :expanded="subject.path === activeSubject?.path"
-        @navigate="$emit('navigate')"
-      />
+    <div v-else>
+      <section
+        v-for="(section, sectionIndex) in sections"
+        :key="section.stage"
+        :class="sectionIndex && 'mt-5'"
+      >
+        <!-- The divider is a heading with a rule running off it rather than a
+             separator with a label floating above, so the section reads as
+             owning what follows it. -->
+        <div class="flex items-center gap-2 px-2 mb-1.5">
+          <UIcon
+            :name="section.icon"
+            class="size-3.5 text-dimmed shrink-0"
+          />
+          <h2 class="text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-dimmed whitespace-nowrap">
+            {{ section.label }}
+          </h2>
+          <span class="h-px flex-1 bg-[var(--ui-border)]" />
+          <span class="text-[0.6875rem] text-dimmed tabular-nums shrink-0">
+            {{ section.lessons || '—' }}
+          </span>
+        </div>
+
+        <div class="space-y-0.5">
+          <PlayerRailSubject
+            v-for="(subject, index) in section.subjects"
+            :key="subject.path"
+            :subject="subject"
+            :index="section.offset + index"
+            :current="current"
+            :expanded="subject.path === activeSubject?.path"
+            @navigate="$emit('navigate')"
+          />
+        </div>
+      </section>
     </div>
   </nav>
 </template>

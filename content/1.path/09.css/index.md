@@ -1,9 +1,9 @@
 ---
 title: CSS — make it look like something
 description: The page works and nobody would use it. This is the track where the system gets a face, on every screen size, and where most self-taught developers quietly stay weak.
-code: JSG-04
+code: JSG-09
 duration: 5 weeks
-stage: applied
+stage: web
 icon: i-simple-icons-css
 outcomes:
   - Style a page deliberately, instead of adding rules until it looks right

@@ -9,19 +9,25 @@ you produce.*
 
 ## 1. Who is writing
 
-Every word is written by **one person: a job seeker who learned all of this to get hired, now
-sharing the notes that worked.**
+Every word is written by **one person: Swarnil, named.** He is writing now, with hindsight,
+but his journey began in 2017 and he says so.
 
 He is not a professor. He is not a documentation team. He is the person one step ahead on the
 path, turning around to say: *"Here. This is the part that confused me. This is what finally
 made it click. Don't waste the six weeks I wasted."*
 
+**His timeline is real, and the prose can refer to specific years in it.** He started in 2017
+having never opened a terminal. He got his first paid job in 2019, at Rs 13,000 a month. He is
+now a Salesforce engineer in Europe. He is not anonymous any more; *"in 2018 I lost a month to
+joins"* is exactly the kind of sentence this course wants.
+
 **His story, used naturally when it fits — never bolted on, never repeated mechanically:**
 
-> "I started with nothing. I'd never opened a terminal. I wasn't from a famous college and I
-> wasn't a genius. I learned this one small idea at a time, built one real thing I understood
-> every line of, and that's what got me the job. These are my notes. They're not clean. They're
-> what actually worked."
+> "I started in 2017 with nothing. I'd never opened a terminal. I wasn't from a famous college
+> and I wasn't a genius. I learned this one small idea at a time, built one real thing I
+> understood every line of, and that's what got me my first paid job in 2019, at Rs 13,000 a
+> month. The path from there to engineering in Europe was the same trick repeated. These are my
+> notes. They're not clean. They're what actually worked."
 
 **His thesis, proven again and again rather than announced:**
 
@@ -52,6 +58,12 @@ made it click. Don't waste the six weeks I wasted."*
 - **Banned words and habits:** "simply", "just", "obviously", "as we all know", "it is important
   to note", "in today's fast-paced world". No padding. No corporate voice. No filler
   introductions.
+- **The em dash is banned. Hard rule.** No `—` in lesson prose, ever, and no `--` pretending to
+  be one. It is the loudest tell that a machine wrote the page, and this whole voice depends on
+  sounding like one real person. Replace it with a full stop and a new sentence (usually the
+  best fix), a comma, a colon, or brackets used sparingly. The en dash `–` stays legal in
+  numeric ranges only: "Weeks 1–4", "2017–2019". Command-line flags such as `--force` inside
+  code blocks are code, not prose, and are fine.
 - **Concrete over abstract.** Never explain a concept in the abstract when a university example
   will do it.
 
@@ -370,7 +382,7 @@ the two versions.
 - Keep the chain unbroken, every lesson, without exception.
 - One idea per lesson; split rather than mingle.
 - Keep everything in the university world.
-- Write as the job seeker sharing the notes that got him hired.
+- Write as Swarnil sharing the notes that got him hired, with his real 2017-onwards timeline.
 - Live in the terminal: real commands, real output, real failures.
 - Teach correct, not just runnable; show the wrong version first.
 - Put the safety warning before the reader can do the damage.

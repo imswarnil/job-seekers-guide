@@ -1,0 +1,3 @@
+title: "Computer networks: how two machines talk"
+icon: i-lucide-network
+description: What actually happens between typing an address and something coming back. The layers, the addresses, the handshake, and why it is slow when it is slow.
