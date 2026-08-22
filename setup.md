@@ -131,11 +131,38 @@ reserved boxes still draw as labelled dashed placeholders so the layout stays
 honest while you decide.
 
 - To hide the boxes as well: set `ads.showPlaceholders: false`.
-- To run AdSense: set `ads.provider: 'adsense'` and `ads.client` to your
-  publisher id, then `ads.enabled: true`.
 
 Which slots exist, and why each one is allowed to, is documented in
 `app/utils/ads.ts`.
+
+### Turning AdSense on
+
+The code is written and does nothing until you supply the ids. In
+`app/app.config.ts`:
+
+1. `ads.client` — your publisher id, the `ca-pub-…` string. One per account.
+2. `ads.slotIds` — the `data-ad-slot` number of an ad unit, per placement.
+   These are **not** the publisher id and there is a different one for every
+   unit, so create one unit in AdSense per placement you want filled. A
+   placement left empty stays empty, which is how you run ads on some slots and
+   not others.
+3. `ads.provider: 'adsense'`.
+4. `ads.enabled: true`.
+
+Any slot missing an id draws the dashed placeholder instead of an empty box, so
+a forgotten unit is visible rather than silent.
+
+Two things Google requires before an account is approved, neither of which is
+code:
+
+- **A privacy policy** reachable from every page, saying that third parties set
+  cookies and how a reader opts out. This site does not have one yet, and its
+  absence is a common rejection reason.
+- **Ownership of the domain**, verified through AdSense against
+  `jobseekers.imswarnil.com`.
+
+The script is requested lazily, only once a real unit is about to be filled, so
+a reader who never scrolls to an ad never downloads it.
 
 ---
 
@@ -171,7 +198,8 @@ guard against a broken content query shipping an empty site.
 | `STUDIO_GITHUB_CLIENT_ID` | `.env` | Studio, option B |
 | `STUDIO_GITHUB_CLIENT_SECRET` | `.env` | Studio, option B |
 | `newsletter.action` | `app/app.config.ts` | The sign-up form |
-| `ads.client` | `app/app.config.ts` | AdSense, if ever |
+| `ads.client` | `app/app.config.ts` | AdSense publisher id |
+| `ads.slotIds` | `app/app.config.ts` | AdSense, one unit id per placement |
 
 `NUXT_PUBLIC_SITE_URL` is set by the deploy workflow and drives canonicals, the
 sitemap and absolute social-card URLs. Override it for a preview environment

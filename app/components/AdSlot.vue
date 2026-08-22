@@ -37,9 +37,6 @@ const width = useWindowSize().width
 
 const enabledHere = computed(() => !(ads?.slots && ads.slots[props.placement] === false))
 
-const live = computed(() => Boolean(ads?.enabled) && ads.provider !== 'none' && enabledHere.value)
-const placeholder = computed(() => !live.value && Boolean(ads?.showPlaceholders) && enabledHere.value)
-
 // The viewport gate is a render decision, not a CSS one — a hidden slot still
 // costs a request, and on a phone the 970px leaderboard has nowhere to go.
 // Treated as fitting during SSR (width 0) so the reserved box is in the HTML;
@@ -51,6 +48,32 @@ const fits = computed(() => {
   return width.value === 0 || width.value >= definition.value.minViewport
 })
 
+/**
+ * AdSense needs two ids, and they are easy to confuse: `client` is the account
+ * (`ca-pub-…`, one per site) and `unit` is the individual ad unit (a number, one
+ * per placement). Both have to be present or there is nothing to fill.
+ */
+const adsense = computed(() => {
+  if (ads?.provider !== 'adsense') {
+    return null
+  }
+  const client = ads.client?.trim()
+  const unit = ads.slotIds?.[props.placement]?.trim()
+  return client && unit ? { client, unit } : null
+})
+
+// An adsense slot with no unit id is not live, which drops it back to the
+// dashed placeholder rather than an empty box. That is deliberate: a forgotten
+// unit id then looks like a missing ad instead of like nothing at all.
+const live = computed(() => {
+  if (!ads?.enabled || ads.provider === 'none' || !enabledHere.value) {
+    return false
+  }
+  return ads.provider === 'adsense' ? Boolean(adsense.value) : true
+})
+
+const placeholder = computed(() => !live.value && Boolean(ads?.showPlaceholders) && enabledHere.value)
+
 const shown = computed(() => (live.value || placeholder.value) && fits.value)
 
 const loaded = ref(false)
@@ -58,6 +81,56 @@ const loaded = ref(false)
 watch([live, near], ([isLive, isNear]) => {
   if (isLive && isNear) {
     loaded.value = true
+  }
+})
+
+// The AdSense library, requested once for the whole document however many slots
+// are on the page. `useHead` dedupes on `key`, so this is safe to call from
+// every instance. It is only ever asked for when there is a real unit to fill,
+// which is what keeps a reader who sees no ads from paying for the script.
+watchEffect(() => {
+  if (!adsense.value || !loaded.value) {
+    return
+  }
+  useHead({
+    script: [{
+      key: 'adsbygoogle',
+      src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsense.value.client}`,
+      async: true,
+      crossorigin: 'anonymous'
+    }]
+  })
+})
+
+const ins = useTemplateRef<HTMLElement>('ins')
+
+/**
+ * Handing one `<ins>` to AdSense fills it. Pushing twice for the same element
+ * throws `adsbygoogle.push() error: All ins elements ... already have ads`, and
+ * client-side navigation makes that easy to do by accident, so each element is
+ * pushed exactly once and never again.
+ *
+ * The queue is an array before the library arrives and replaced by the library
+ * afterwards, so pushing early is fine — it is picked up on load.
+ */
+const filled = new WeakSet<HTMLElement>()
+
+watchEffect(async () => {
+  if (!import.meta.client || !adsense.value || !loaded.value) {
+    return
+  }
+  await nextTick()
+  const el = ins.value
+  if (!el || filled.has(el)) {
+    return
+  }
+  filled.add(el)
+  try {
+    const w = window as unknown as { adsbygoogle?: unknown[] }
+    ;(w.adsbygoogle = w.adsbygoogle || []).push({})
+  } catch (error) {
+    // A blocked or failed ad is not worth breaking a lesson over.
+    console.warn('[AdSlot] adsbygoogle push failed', error)
   }
 })
 
@@ -96,6 +169,17 @@ const aspect = computed(() => `${definition.value.width} / ${definition.value.he
           <span class="block text-xs text-muted">Orientation to offer. No fees, no bonds, no placement claims.</span>
         </span>
       </NuxtLink>
+
+      <!-- AdSense. The box around this is already the right size, so the unit
+           is told to fill it exactly rather than pick its own dimensions —
+           a responsive unit would resize after load and undo the reservation. -->
+      <ins
+        v-else-if="live && loaded && adsense"
+        ref="ins"
+        class="adsbygoogle ad__adsense"
+        :data-ad-client="adsense.client"
+        :data-ad-slot="adsense.unit"
+      />
 
       <slot v-else-if="live && loaded" />
 
@@ -153,6 +237,14 @@ const aspect = computed(() => `${definition.value.width} / ${definition.value.he
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* `display: block` is what AdSense's own snippet sets, and the unit measures
+   its container, so it has to fill the reserved box rather than sit inside it. */
+.ad__adsense {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .ad__house {

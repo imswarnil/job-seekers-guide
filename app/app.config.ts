@@ -102,10 +102,6 @@ export default defineAppConfig({
   },
 
   /**
-   * Advertising. `enabled: false` removes every slot site-wide, including the
-   * ones authors placed inline in markdown.
-   */
-  /**
    * Where the newsletter form posts.
    *
    * The site is static, so there is no endpoint of our own to post to — set
@@ -117,6 +113,10 @@ export default defineAppConfig({
     action: ''
   },
 
+  /**
+   * Advertising. `enabled: false` removes every slot site-wide, including the
+   * ones authors placed inline in markdown.
+   */
   ads: {
     /** Master switch. No real ad renders while this is off. */
     enabled: false,
@@ -129,7 +129,13 @@ export default defineAppConfig({
     showPlaceholders: true,
     /** `house` shows the built-in promo; `adsense` loads a third-party script. */
     provider: 'house' as 'house' | 'adsense' | 'none',
-    /** Publisher id, for the adsense provider only. */
+    /**
+     * Publisher id, for the adsense provider only. The `ca-pub-0000000000000000`
+     * string from your AdSense account, including the `ca-pub-` prefix.
+     *
+     * Empty means the adsense provider cannot render, and it says so in the
+     * console rather than drawing an empty box.
+     */
     client: '',
     /** Per-placement switches. See app/utils/ads.ts for what each one is. */
     slots: {
@@ -138,6 +144,23 @@ export default defineAppConfig({
       'sidebar': true,
       'rail-bottom': false,
       'path-parallax': false
+    },
+    /**
+     * The AdSense ad-unit id for each placement — the `data-ad-slot` number,
+     * which is not the same thing as the publisher id and is different for
+     * every unit. Create one unit per placement in AdSense and paste its number
+     * here.
+     *
+     * A placement left empty renders nothing even when ads are on, which is the
+     * intended way to run AdSense on some slots and not others without having
+     * to keep two switches in step.
+     */
+    slotIds: {
+      'in-article': '',
+      'lesson-footer': '',
+      'sidebar': '',
+      'rail-bottom': '',
+      'path-parallax': ''
     },
     /** Inject an in-article slot automatically after this many blocks. 0 = never. */
     autoInsertAfterBlocks: 0
