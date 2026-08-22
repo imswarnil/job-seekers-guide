@@ -94,6 +94,11 @@ export default defineContentConfig({
       type: 'page',
       schema: z.object({
         icon: z.string().optional().editor({ input: 'icon' }),
+        // When a page last changed in a way a reader should know about. The
+        // legal pages print it, because "last updated" is the first thing
+        // somebody checks on a privacy policy and an undated one is worthless.
+        updated: z.date().optional()
+          .editor({ label: 'Last updated', description: 'Shown on the privacy and terms pages.' }),
         // The story's spine. Each id must match a `{#id}` on a heading in the
         // body; the sidebar tracks which one the reader is inside.
         chapters: z.array(z.object({

@@ -125,7 +125,13 @@ export default defineNuxtConfig({
         '/changelog',
         '/search',
         '/login',
-        '/signup'
+        '/signup',
+        // Reachable from the footer, so the crawler would find them anyway.
+        // Listed because an advertising policy that 404s is worse than not
+        // having one, and that should fail the build rather than the review.
+        '/privacy',
+        '/terms',
+        '/contact'
       ],
       crawlLinks: true
     }

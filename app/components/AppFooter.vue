@@ -61,9 +61,28 @@ const columns = computed(() => [{
     </template>
 
     <template #left>
-      <p class="text-muted text-sm">
-        © {{ new Date().getFullYear() }} Job Seekers Guide — no fees, no guarantees, no bonds.
-      </p>
+      <div class="foot__legal">
+        <p class="text-muted text-sm">
+          © {{ new Date().getFullYear() }} Job Seekers Guide — no fees, no guarantees, no bonds.
+        </p>
+        <!-- Every page, not one page. Ads run on this site, and the rule
+             everybody's policy asks for is that a reader can always find out
+             what that means from wherever they happen to be standing. -->
+        <nav
+          class="foot__links"
+          aria-label="Legal"
+        >
+          <NuxtLink to="/privacy">
+            Privacy
+          </NuxtLink>
+          <NuxtLink to="/terms">
+            Terms
+          </NuxtLink>
+          <NuxtLink to="/contact">
+            Contact
+          </NuxtLink>
+        </nav>
+      </div>
     </template>
 
     <template #right>
@@ -78,3 +97,27 @@ const columns = computed(() => [{
     </template>
   </UFooter>
 </template>
+
+<style scoped>
+.foot__legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.foot__links {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8125rem;
+  color: var(--ui-text-dimmed);
+}
+
+.foot__links a {
+  transition: color var(--dgm-t-fast) var(--dgm-ease);
+}
+
+.foot__links a:hover {
+  color: var(--ui-text-highlighted);
+}
+</style>
