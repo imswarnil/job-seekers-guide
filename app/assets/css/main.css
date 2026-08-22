@@ -163,3 +163,12 @@ h1, h2, h3, h4, .font-display {
   max-width: var(--guide-measure);
   line-height: 1.75;
 }
+
+/* An ad dropped into the prose by ~/utils/autoAds.ts rather than written there
+   by an author. Prose sets its own rhythm between paragraphs, and an advert
+   needs to sit further out than a paragraph does or it reads as part of the
+   sentence above it. Global rather than scoped because three components render
+   these and they should all space them the same. */
+.ad-auto {
+  margin-block: 2.75rem;
+}

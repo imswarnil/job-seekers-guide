@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// Matches the path pages this one is the front door to. See AppHeader.vue.
+definePageMeta({ fluidHeader: true })
+
 const { path } = usePath()
 const { state, pathProgress, resume, streak } = useProgress()
 

@@ -152,6 +152,7 @@ export default defineAppConfig({
      */
     slots: {
       'in-article': true,
+      'in-feed': true,
       'lesson-footer': true,
       'sidebar': true,
       'rail-bottom': false,
@@ -175,6 +176,11 @@ export default defineAppConfig({
     slotIds: {
       // "The Leaderboard (728×90)" — exactly the reserved box.
       'in-article': '1864856299',
+      // "Horizontal (Responsive)" — the repeating in-lesson ad. Responsive
+      // because this one appears at every width the prose column takes, and a
+      // separate unit from `in-article` so the automatic ads and the
+      // hand-placed ones can be told apart in the AdSense report.
+      'in-feed': '8939839370',
       // "Responsive_Leaderboard" — a second unit rather than reusing the one
       // above, so the two 728×90 slots on a lesson report separately.
       'lesson-footer': '4774277934',
@@ -186,7 +192,32 @@ export default defineAppConfig({
       // "Horizontal (Responsive)" — the parallax band is 1200×260, likewise.
       'path-parallax': '8939839370'
     },
-    /** Inject an in-article slot automatically after this many blocks. 0 = never. */
-    autoInsertAfterBlocks: 0
+    /**
+     * Ads dropped into a lesson automatically, between the paragraphs the
+     * author wrote. Implemented in `app/utils/autoAds.ts`.
+     *
+     * These are in the server-rendered HTML at the right position, rather than
+     * inserted into the page afterwards, so the text a reader is looking at
+     * never moves.
+     */
+    autoInsert: {
+      /** Insert after every Nth paragraph of a lesson. 0 turns this off. */
+      afterParagraphs: 3,
+      /**
+       * The ceiling per page. 0 removes it.
+       *
+       * "More ads than publisher content" is a policy violation Google acts on
+       * at the account level, not the page level, and a long lesson at one ad
+       * per three paragraphs reaches that on its own. Four is enough to earn
+       * from a long page without it turning into a stack of adverts with prose
+       * in the gaps. Raise it deliberately, not by accident.
+       */
+      max: 4,
+      /**
+       * Leave anything shorter than this alone. One ad per three paragraphs
+       * reads as normal in a long lesson and as spam in a glossary entry.
+       */
+      minParagraphs: 6
+    }
   }
 })

@@ -1,11 +1,17 @@
 <script setup lang="ts">
 import type { PathCollectionItem } from '@nuxt/content'
 
-defineProps<{
+const props = defineProps<{
   page: PathCollectionItem
 }>()
 
 const route = useRoute()
+
+/**
+ * The lesson body, cut into the pieces the repeating ads go between. One piece
+ * means this lesson is too short to earn any, which is the usual answer.
+ */
+const chunks = useAutoAds(() => props.page.body as never)
 
 const { subject, previous, next } = usePathPlayer(() => route.path)
 const { state, isComplete, setComplete, toggleComplete, markVisited } = useProgress()
@@ -93,10 +99,21 @@ usePlayerShortcuts({
 <template>
   <div>
     <div class="guide-prose">
-      <ContentRenderer
-        v-if="page.body"
-        :value="page"
-      />
+      <!-- One renderer per piece, with an ad in each gap. The ads are
+             emitted here rather than injected into the parsed document,
+             because Nuxt Content only bundles the MDC components it sees used
+             in markdown and an injected node shipped as a literal tag. -->
+      <template
+        v-for="(chunk, index) in chunks"
+        :key="index"
+      >
+        <ContentRenderer :value="{ ...page, body: chunk }" />
+        <AdSlot
+          v-if="index < chunks.length - 1"
+          placement="in-feed"
+          class="ad-auto"
+        />
+      </template>
     </div>
 
     <AdSlot placement="lesson-footer" />

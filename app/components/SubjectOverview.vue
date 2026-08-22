@@ -5,6 +5,13 @@ const props = defineProps<{
   page?: PathCollectionItem
 }>()
 
+/**
+ * The body, cut into the pieces the repeating ads go between. Short overviews
+ * fall under the paragraph floor in `autoAds.ts` and come back in one piece,
+ * which is most of them.
+ */
+const chunks = useAutoAds(() => props.page?.body as never)
+
 const route = useRoute()
 
 const { path } = usePath()
@@ -99,7 +106,17 @@ function toggleAll() {
       v-if="page?.body"
       class="guide-prose"
     >
-      <ContentRenderer :value="page" />
+      <template
+        v-for="(chunk, index) in chunks"
+        :key="index"
+      >
+        <ContentRenderer :value="{ ...page!, body: chunk }" />
+        <AdSlot
+          v-if="index < chunks.length - 1"
+          placement="in-feed"
+          class="ad-auto"
+        />
+      </template>
     </div>
 
     <AdSlot placement="in-article" />

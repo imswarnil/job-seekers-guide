@@ -18,6 +18,22 @@ watch(searchOpen, (value) => {
 /** A lesson page hands the mobile sheet over to the player rail instead. */
 const isLesson = computed(() => route.path.split('/').filter(Boolean).length === 3)
 
+/**
+ * The header runs edge to edge on the course pages and stays in the container
+ * everywhere else.
+ *
+ * `/start`, the subjects, the modules and the lessons are all laid out much
+ * wider than a default container — the lesson shell alone runs to 88rem with a
+ * rail beside it — so a boxed header there stops short of the content beneath
+ * and looks like a mistake. The marketing pages are genuinely container-width
+ * and keep the boxed header.
+ *
+ * Pages opt in with `definePageMeta({ fluidHeader: true })` rather than the
+ * header sniffing the URL, because "how wide is this page" is a fact the page
+ * owns and the URL only hints at.
+ */
+const fluid = computed(() => route.meta.fluidHeader === true)
+
 const items = computed(() => navLinks.map(link => ({
   ...link,
   active: link.to === '/start'
@@ -32,7 +48,10 @@ const continueLabel = computed(() => progress.value.started ? 'Continue' : 'Star
 
 <template>
   <div>
-    <UHeader v-model:open="open">
+    <UHeader
+      v-model:open="open"
+      :ui="{ container: fluid ? 'max-w-full' : undefined }"
+    >
       <template #left>
         <NuxtLink
           to="/"

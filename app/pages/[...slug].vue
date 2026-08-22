@@ -13,6 +13,11 @@
  * pagination) lives in `player/PlayerShell.vue`; this file decides what goes in
  * each band.
  */
+// The three bands below run to 88rem, and wider still with the rail hidden, so
+// a header pinned to the default container would stop well short of the content
+// under it and read as a misalignment. See AppHeader.vue.
+definePageMeta({ fluidHeader: true })
+
 const route = useRoute()
 
 const depth = computed(() => route.path.split('/').filter(Boolean).length)

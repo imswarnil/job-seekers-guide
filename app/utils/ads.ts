@@ -12,7 +12,7 @@
  * your place.
  */
 
-export type AdSlotId = 'in-article' | 'lesson-footer' | 'sidebar' | 'rail-bottom' | 'path-parallax'
+export type AdSlotId = 'in-article' | 'in-feed' | 'lesson-footer' | 'sidebar' | 'rail-bottom' | 'path-parallax'
 
 export interface AdSlot {
   id: AdSlotId
@@ -43,6 +43,14 @@ export const adSlots: Record<AdSlotId, AdSlot> = {
     height: 90,
     minViewport: 0,
     note: 'Between blocks of a lesson. The only slot authors can place by hand, with ::ad.'
+  },
+  'in-feed': {
+    id: 'in-feed',
+    label: 'Advertisement',
+    width: 728,
+    height: 90,
+    minViewport: 0,
+    note: 'The repeating one, dropped into a lesson every few paragraphs by ~/utils/autoAds.ts rather than written by an author. Deliberately the shortest box on the site: it appears more than once on a page, so its job is to be passable rather than noticed. Reserved height is the reason a reader mid-sentence never gets pushed down the page.'
   },
   'lesson-footer': {
     id: 'lesson-footer',

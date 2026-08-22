@@ -9,9 +9,16 @@ import type { PathCollectionItem } from '@nuxt/content'
  * The header lives in `ModuleHeader.vue`, because the shell puts it in a
  * full-width band above this one.
  */
-defineProps<{
+const props = defineProps<{
   page?: PathCollectionItem
 }>()
+
+/**
+ * The body, cut into the pieces the repeating ads go between. Short overviews
+ * fall under the paragraph floor in `autoAds.ts` and come back in one piece,
+ * which is most of them.
+ */
+const chunks = useAutoAds(() => props.page?.body as never)
 
 const route = useRoute()
 
@@ -24,7 +31,17 @@ const { module } = usePathPlayer(() => route.path)
       v-if="page?.body"
       class="guide-prose mb-10"
     >
-      <ContentRenderer :value="page" />
+      <template
+        v-for="(chunk, index) in chunks"
+        :key="index"
+      >
+        <ContentRenderer :value="{ ...page!, body: chunk }" />
+        <AdSlot
+          v-if="index < chunks.length - 1"
+          placement="in-feed"
+          class="ad-auto"
+        />
+      </template>
     </div>
 
     <ModuleContents
