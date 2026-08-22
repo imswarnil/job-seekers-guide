@@ -124,45 +124,61 @@ It posts `{ email }` as JSON. This one goes in `app.config.ts` rather than
 
 ---
 
-## 3. Advertising — off
+## 3. Advertising — AdSense, live
 
-Ads are off site-wide (`ads.enabled: false` in `app/app.config.ts`), and the
-reserved boxes still draw as labelled dashed placeholders so the layout stays
-honest while you decide.
+Ads are on (`ads.enabled: true`, `ads.provider: 'adsense'` in
+`app/app.config.ts`), served from publisher `ca-pub-1291242080282540`.
 
-- To hide the boxes as well: set `ads.showPlaceholders: false`.
+Three slots run: `in-article`, `lesson-footer` and `sidebar`. Two more,
+`rail-bottom` and `path-parallax`, are configured with unit ids but switched
+off, for the reasons written beside them in `app/utils/ads.ts`. Turning either
+on is one boolean in `ads.slots`.
 
-Which slots exist, and why each one is allowed to, is documented in
-`app/utils/ads.ts`.
+### How a slot fills
 
-### Turning AdSense on
+Every placement maps to one AdSense ad unit in `ads.slotIds`, matched to the
+size of the box reserved for it:
 
-The code is written and does nothing until you supply the ids. In
-`app/app.config.ts`:
+| Placement | Reserved | Ad unit |
+|---|---|---|
+| `in-article` | 728×90 | The Leaderboard (728×90) |
+| `lesson-footer` | 728×90 | Responsive_Leaderboard |
+| `sidebar` | 300×250 | Medium Square (300×250) |
+| `rail-bottom` | 240×400 | Vertical (Responsive) — off |
+| `path-parallax` | 1200×260 | Horizontal (Responsive) — off |
 
-1. `ads.client` — your publisher id, the `ca-pub-…` string. One per account.
-2. `ads.slotIds` — the `data-ad-slot` number of an ad unit, per placement.
-   These are **not** the publisher id and there is a different one for every
-   unit, so create one unit in AdSense per placement you want filled. A
-   placement left empty stays empty, which is how you run ads on some slots and
-   not others.
-3. `ads.provider: 'adsense'`.
-4. `ads.enabled: true`.
+Changing a unit to one of a different shape means changing the reservation in
+`app/utils/ads.ts` to match, or the ad will not fit the hole left for it.
 
-Any slot missing an id draws the dashed placeholder instead of an empty box, so
-a forgotten unit is visible rather than silent.
+A placement with an empty id is not live, and draws the dashed placeholder
+instead, so a forgotten unit id is visible rather than silent.
 
-Two things Google requires before an account is approved, neither of which is
-code:
+### The rules the implementation holds to
 
-- **A privacy policy** reachable from every page, saying that third parties set
-  cookies and how a reader opts out. This site does not have one yet, and its
-  absence is a common rejection reason.
-- **Ownership of the domain**, verified through AdSense against
-  `jobseekers.imswarnil.com`.
+- **Nothing loads until it is needed.** The library is requested once per
+  document, and only when a slot is within 400px of the viewport. A reader who
+  never scrolls to an ad never downloads it.
+- **Nothing moves.** The box is reserved at full size before anything loads.
+  The height is fixed rather than an aspect ratio, so a narrow screen gets a
+  shorter-but-real ad rather than a box no creative can fit.
+- **`data-ad-format` is deliberately not set.** With it, the library picks its
+  own height and ignores the reservation — a 300×250 slot came back as 298×600
+  in testing and was clipped.
 
-The script is requested lazily, only once a real unit is about to be filled, so
-a reader who never scrolls to an ad never downloads it.
+### `public/ads.txt`
+
+Google will not buy inventory it cannot verify. That file names the publisher
+id and has to stay in step with `ads.client`.
+
+### Still outstanding
+
+**This site has no privacy policy.** AdSense requires one, reachable from every
+page, disclosing that third parties set cookies and how a reader opts out.
+Running ads without it risks the account, and it is the most common reason an
+application is rejected. Nothing in the code can supply it.
+
+Domain ownership also has to be verified in AdSense against
+`jobseekers.imswarnil.com` before anything fills.
 
 ---
 
@@ -198,8 +214,9 @@ guard against a broken content query shipping an empty site.
 | `STUDIO_GITHUB_CLIENT_ID` | `.env` | Studio, option B |
 | `STUDIO_GITHUB_CLIENT_SECRET` | `.env` | Studio, option B |
 | `newsletter.action` | `app/app.config.ts` | The sign-up form |
-| `ads.client` | `app/app.config.ts` | AdSense publisher id |
-| `ads.slotIds` | `app/app.config.ts` | AdSense, one unit id per placement |
+| `ads.client` | `app/app.config.ts` | AdSense publisher id — set |
+| `ads.slotIds` | `app/app.config.ts` | One ad-unit id per placement — set |
+| — | `public/ads.txt` | Same publisher id, minus the `ca-` prefix |
 
 `NUXT_PUBLIC_SITE_URL` is set by the deploy workflow and drives canonicals, the
 sitemap and absolute social-card URLs. Override it for a preview environment

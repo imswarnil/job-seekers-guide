@@ -133,8 +133,6 @@ watchEffect(async () => {
     console.warn('[AdSlot] adsbygoogle push failed', error)
   }
 })
-
-const aspect = computed(() => `${definition.value.width} / ${definition.value.height}`)
 </script>
 
 <template>
@@ -143,7 +141,7 @@ const aspect = computed(() => `${definition.value.width} / ${definition.value.he
     ref="root"
     class="ad"
     :class="[`ad--${variant}`, placeholder && 'ad--placeholder']"
-    :style="{ '--ad-aspect': aspect, '--ad-max': `${definition.width}px` }"
+    :style="{ '--ad-height': `${definition.height}px`, '--ad-max': `${definition.width}px` }"
     :aria-label="definition.label"
     :aria-hidden="placeholder || undefined"
   >
@@ -170,15 +168,20 @@ const aspect = computed(() => `${definition.value.width} / ${definition.value.he
         </span>
       </NuxtLink>
 
-      <!-- AdSense. The box around this is already the right size, so the unit
-           is told to fill it exactly rather than pick its own dimensions —
-           a responsive unit would resize after load and undo the reservation. -->
+      <!-- AdSense, sized by its container and nothing else.
+           `data-ad-format="auto"` is deliberately absent: with it set, the
+           library picks its own height and ignores the reservation — a 300×250
+           slot came back as 298×600 in testing, clipped by the box, which
+           serves the advertiser a half-visible impression.
+           `full-width-responsive` is off for the same reason, since it expands
+           a unit to the viewport width on a phone. -->
       <ins
         v-else-if="live && loaded && adsense"
         ref="ins"
         class="adsbygoogle ad__adsense"
         :data-ad-client="adsense.client"
         :data-ad-slot="adsense.unit"
+        data-full-width-responsive="false"
       />
 
       <slot v-else-if="live && loaded" />
@@ -223,9 +226,15 @@ const aspect = computed(() => `${definition.value.width} / ${definition.value.he
 }
 
 /* The box exists at full size from the first paint, whether or not anything
-   ever fills it. That is the entire anti-CLS mechanism. */
+   ever fills it. That is the entire anti-CLS mechanism.
+
+   The height is fixed rather than an aspect ratio, because ads do not scale.
+   A 728×90 box at an aspect ratio is 43px tall on a phone, and no creative is
+   43px tall, so the unit would either overflow or go unfilled. Holding the
+   height and letting only the width shrink means a narrow screen gets a real
+   ad of the same height instead. */
 .ad__box {
-  aspect-ratio: var(--ad-aspect);
+  height: var(--ad-height);
   max-width: var(--ad-max);
   width: 100%;
   /* Centred in whatever it is dropped into. A 728px box left-aligned in a

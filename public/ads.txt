@@ -1,0 +1,10 @@
+# Who is allowed to sell advertising on this domain.
+#
+# Google refuses to buy inventory it cannot verify, so without this file
+# AdSense reports "earnings at risk" and demand drops away. It has to be served
+# from the root of the domain as plain text, which is why it lives in `public/`
+# and not in the content tree.
+#
+# The number is the publisher id from app/app.config.ts, minus the `ca-` prefix.
+# The last field is Google's own certification id and is the same for everyone.
+google.com, pub-1291242080282540, DIRECT, f08c47fec0942fa0

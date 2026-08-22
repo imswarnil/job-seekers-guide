@@ -119,25 +119,37 @@ export default defineAppConfig({
    */
   ads: {
     /** Master switch. No real ad renders while this is off. */
-    enabled: false,
+    enabled: true,
     /**
      * Draw the reserved boxes even when ads are off, labelled and dashed.
      * Makes the layout honest during development and proves the size
-     * reservation works before a single real ad exists. Turn off for production
-     * while `enabled` is still false.
+     * reservation works before a single real ad exists.
+     *
+     * Off now that ads are live: a reader should never see a dashed
+     * development box. It only has any effect on a slot that is switched on but
+     * has no unit id, which is the one case worth seeing while editing.
      */
-    showPlaceholders: true,
+    showPlaceholders: false,
     /** `house` shows the built-in promo; `adsense` loads a third-party script. */
-    provider: 'house' as 'house' | 'adsense' | 'none',
+    provider: 'adsense' as 'house' | 'adsense' | 'none',
     /**
      * Publisher id, for the adsense provider only. The `ca-pub-0000000000000000`
      * string from your AdSense account, including the `ca-pub-` prefix.
      *
      * Empty means the adsense provider cannot render, and it says so in the
      * console rather than drawing an empty box.
+     *
+     * The same number, minus the `ca-` prefix, is in `public/ads.txt`. Change
+     * one and you have to change the other.
      */
-    client: '',
-    /** Per-placement switches. See app/utils/ads.ts for what each one is. */
+    client: 'ca-pub-1291242080282540',
+    /**
+     * Per-placement switches. See app/utils/ads.ts for what each one is.
+     *
+     * `rail-bottom` and `path-parallax` stay off for the reasons written next
+     * to them in that file, not because they are unconfigured. Both have a unit
+     * id below and are one boolean away from running.
+     */
     slots: {
       'in-article': true,
       'lesson-footer': true,
@@ -148,19 +160,31 @@ export default defineAppConfig({
     /**
      * The AdSense ad-unit id for each placement — the `data-ad-slot` number,
      * which is not the same thing as the publisher id and is different for
-     * every unit. Create one unit per placement in AdSense and paste its number
-     * here.
+     * every unit.
      *
-     * A placement left empty renders nothing even when ads are on, which is the
+     * Each is matched to the reserved box it has to fill, which is why the
+     * fixed-size units are used where the box is a fixed size and the
+     * responsive ones where it is not. Swapping in a unit of a different shape
+     * means changing the reservation in app/utils/ads.ts to match, or the ad
+     * will not fit the hole left for it.
+     *
+     * A placement left empty is not live even when ads are on, which is the
      * intended way to run AdSense on some slots and not others without having
      * to keep two switches in step.
      */
     slotIds: {
-      'in-article': '',
-      'lesson-footer': '',
-      'sidebar': '',
-      'rail-bottom': '',
-      'path-parallax': ''
+      // "The Leaderboard (728×90)" — exactly the reserved box.
+      'in-article': '1864856299',
+      // "Responsive_Leaderboard" — a second unit rather than reusing the one
+      // above, so the two 728×90 slots on a lesson report separately.
+      'lesson-footer': '4774277934',
+      // "Medium Square (300x250)" — exactly the reserved box.
+      'sidebar': '9619442326',
+      // "Vertical (Responsive)" — the reserved box is 240×400, which no fixed
+      // unit matches.
+      'rail-bottom': '3487917390',
+      // "Horizontal (Responsive)" — the parallax band is 1200×260, likewise.
+      'path-parallax': '8939839370'
     },
     /** Inject an in-article slot automatically after this many blocks. 0 = never. */
     autoInsertAfterBlocks: 0
