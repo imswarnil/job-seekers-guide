@@ -32,11 +32,13 @@ jobs:
       NUXT_PUBLIC_RUNNER_URL: ${{ vars.RUNNER_URL }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v4
+      # No version pinned here on purpose — it reads `packageManager` from
+      # package.json, so the lockfile and the CI installer can never drift.
+      - uses: pnpm/action-setup@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
@@ -64,9 +66,12 @@ jobs:
           test -f .output/public/CNAME || { echo "::error::CNAME missing — the custom domain will be dropped."; exit 1; }
           test -f .output/public/404.html || { echo "::error::404.html missing — legacy URL redirects rely on it."; exit 1; }
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
 
-      - uses: actions/upload-pages-artifact@v3
+      # This and `deploy-pages` below have to move together. They speak to each
+      # other through the artifact format, and a mismatched pair fails at the
+      # download step, after a green build.
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: .output/public
 
@@ -80,4 +85,4 @@ jobs:
 
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
