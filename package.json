@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-     "typecheck": "nuxt typecheck",
+    "typecheck": "nuxt typecheck",
     "svg:opt": "svgo --config svgo.config.mjs"
   },
   "dependencies": {
@@ -20,6 +20,7 @@
     "@nuxt/content": "^3.15.2",
     "@nuxt/image": "^2.1.0",
     "@nuxt/ui": "^4.10.0",
+    "@nuxtjs/mdc": "^0.22.2",
     "@nuxtjs/robots": "^6.1.4",
     "@nuxtjs/sitemap": "^8.3.4",
     "@standard-schema/spec": "^1.1.0",

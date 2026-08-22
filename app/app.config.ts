@@ -21,6 +21,47 @@ export default defineAppConfig({
       defaultVariants: {
         size: 'md'
       }
+    },
+    prose: {
+      /**
+       * The little icon on a code block that has a filename, keyed by extension
+       * or by whole filename.
+       *
+       * Nuxt UI's own map points every entry at the `vscode-icons` collection,
+       * which this site does not install — so an unmapped extension renders a
+       * blank square. Only Lucide and Simple Icons are installed, and both are
+       * bundled at build time, so these never cost a request. Add a line here
+       * before writing a lesson that names a file type not listed.
+       */
+      codeIcon: {
+        // Simple Icons has no `java`; OpenJDK is the mark this site uses. See
+        // app/utils/tech.ts, which makes the same substitution.
+        'java': 'i-simple-icons-openjdk',
+        'sql': 'i-lucide-database',
+        'html': 'i-simple-icons-html5',
+        'htm': 'i-simple-icons-html5',
+        'css': 'i-simple-icons-css',
+        'js': 'i-simple-icons-javascript',
+        'mjs': 'i-simple-icons-javascript',
+        'cjs': 'i-simple-icons-javascript',
+        'jsx': 'i-simple-icons-react',
+        'ts': 'i-simple-icons-typescript',
+        'tsx': 'i-simple-icons-react',
+        'vue': 'i-simple-icons-vuedotjs',
+        'py': 'i-simple-icons-python',
+        'sh': 'i-lucide-terminal',
+        'bash': 'i-lucide-terminal',
+        'zsh': 'i-lucide-terminal',
+        'json': 'i-lucide-braces',
+        'yml': 'i-lucide-file-cog',
+        'yaml': 'i-lucide-file-cog',
+        'md': 'i-lucide-file-text',
+        'txt': 'i-lucide-file-text',
+        'csv': 'i-lucide-table',
+        'package.json': 'i-simple-icons-npm',
+        '.env': 'i-lucide-key-round',
+        '.gitignore': 'i-simple-icons-git'
+      }
     }
   },
 

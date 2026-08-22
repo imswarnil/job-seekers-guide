@@ -29,6 +29,9 @@ importers:
       '@nuxt/ui':
         specifier: ^4.10.0
         version: 4.10.0(5cf9bf633875d3591e726ff06e0c74e6)
+      '@nuxtjs/mdc':
+        specifier: ^0.22.2
+        version: 0.22.2(magic-string@1.2.0)(magicast@0.5.4)(oxc-parser@0.143.0)(rolldown@1.2.4)(supports-color@10.2.2)(unplugin@3.3.0(esbuild@0.28.2)(rolldown@1.2.4)(rollup@4.62.4)(vite@8.2.1(@types/node@26.2.0)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.50.0)(yaml@2.9.0)))
       '@nuxtjs/robots':
         specifier: ^6.1.4
         version: 6.1.4(0e4827b7b5be7fa49a7a95bbec0d7d64)

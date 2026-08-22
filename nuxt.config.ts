@@ -1,4 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+//
+// A note on `@nuxtjs/mdc` in package.json: nothing here imports it. It is a
+// dependency of `@nuxt/content`, and it asks Vite to pre-bundle ten of its own
+// dependencies as `@nuxtjs/mdc > remark-gfm` and friends. pnpm's node_modules
+// only exposes packages we depend on directly, so Vite could not resolve
+// `@nuxtjs/mdc` to start from and warned about all ten on every boot
+// (`NUXT_B7002`). Depending on it explicitly puts it where Vite can find it.
+// Keep the version in step with whatever `@nuxt/content` pulls in.
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
@@ -128,6 +136,33 @@ export default defineNuxtConfig({
       stylistic: {
         commaDangle: 'never',
         braceStyle: '1tbs'
+      }
+    }
+  },
+
+  /**
+   * Icons are baked into the bundle rather than fetched at runtime.
+   *
+   * The default `provider: 'server'` asks the browser (and the server renderer)
+   * for `/api/_nuxt_icon/*`. That endpoint does not exist on GitHub Pages, and
+   * during SSR it is currently broken anyway — `@nuxt/icon`'s plugin hands
+   * Iconify `useRequestFetch().native`, which is `undefined` on the server under
+   * Nuxt 4.5, so every icon fails to load and the page renders with blank
+   * squares. Scanning for the icon names we actually use and shipping them in
+   * the client bundle sidesteps both problems: no request is made at all.
+   *
+   * `.navigation.yml` has to be listed on its own — it is a dotfile, and the
+   * scanner's globs skip those.
+   */
+  icon: {
+    clientBundle: {
+      scan: {
+        globInclude: [
+          'app/**/*.{vue,ts,js}',
+          'modules/**/*.ts',
+          'content/**/*.{md,yml}',
+          'content/**/.navigation.yml'
+        ]
       }
     }
   },
